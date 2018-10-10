@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+   datasource:
+      type: com.alibaba.druid.pool.DruidDataSource
+      url: jdbc:mysql://120.79.153.77:3306/boot?useUnicode=true&characterEncoding=utf-8
+      username: root
+      password: wawzj7788
+#redis
+   redis:
+       host: 122.228.132.78
+       port: 6380
+       jedis:
+         pool:
+           max-idle: 8
+           min-idle: 0
+           max-active: 8
+           max-wait: -1
+       timeout: 0
+#mybatis 下划线转驼峰 映射配置  有了这个不用写xml
+mybatis :
+  configuration:
+    map-underscore-to-camel-case: true
+#打印sql 方便调试
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
