@@ -4,8 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
-public class User implements Serializable {
-
+public class User implements Serializable{
     private Integer uid;
 
     private String username;//帐号
@@ -105,19 +104,6 @@ public class User implements Serializable {
 
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "uid=" + uid +
-                ", username='" + username + '\'' +
-                ", createdTime=" + createdTime +
-                ", birth=" + birth +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                ", salt='" + salt + '\'' +
-                ", state=" + state +
-                '}';
-    }
 }
 
 

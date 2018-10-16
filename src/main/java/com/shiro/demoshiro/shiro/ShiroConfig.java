@@ -44,16 +44,7 @@ public class ShiroConfig {
         hashedCredentialsMatcher.setHashAlgorithmName("MD5");
         // 设置加密次数
         hashedCredentialsMatcher.setHashIterations(1024);
-        return hashedCredentialsMatcher;
-    }
-
-    @Bean(name = "secondHashedCredentialsMatcher")
-    public HashedCredentialsMatcher secondHashedCredentialsMatcher() {
-        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
-        // 采用MD5方式加密
-        hashedCredentialsMatcher.setHashAlgorithmName("SHA1");
-        // 设置加密次数
-        hashedCredentialsMatcher.setHashIterations(1024);
+        hashedCredentialsMatcher.setStoredCredentialsHexEncoded(true);
         return hashedCredentialsMatcher;
     }
 
@@ -94,17 +85,17 @@ public class ShiroConfig {
     ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
-        shiroFilterFactoryBean.setLoginUrl("/login.html");
-        shiroFilterFactoryBean.setUnauthorizedUrl("/403.html");
-
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
-        filterChainDefinitionMap.put("/user/login", "anon");
         filterChainDefinitionMap.put("/logout", "logout");
+        filterChainDefinitionMap.put("/login", "anon");
+        filterChainDefinitionMap.put("/error/**", "anon");
         filterChainDefinitionMap.put("/admin/**", "authc,roles[admin]"); //需要登录，且用户角色为admin
         filterChainDefinitionMap.put("/user/**", "authc,roles[user]"); //需要登录，且用户角色为user
         //登录过的不拦截
         filterChainDefinitionMap.put("/**", "authc");
+        shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
+
 
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
@@ -142,12 +133,12 @@ public class ShiroConfig {
         return userRealm;
     }
 
-    @Bean("secondRealm")
-    SecondRealm secondRealm(@Qualifier("secondHashedCredentialsMatcher") HashedCredentialsMatcher matcher) {
-        SecondRealm secondRealm = new SecondRealm();
-        secondRealm.setCredentialsMatcher(matcher);
-        return secondRealm;
-    }
+//    @Bean("secondRealm")
+//    SecondRealm secondRealm(@Qualifier("secondHashedCredentialsMatcher") HashedCredentialsMatcher matcher) {
+//        SecondRealm secondRealm = new SecondRealm();
+//        secondRealm.setCredentialsMatcher(matcher);
+//        return secondRealm;
+//    }
 
     /**
      * 配置shiro redisManager

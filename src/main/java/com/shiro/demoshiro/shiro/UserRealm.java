@@ -4,6 +4,7 @@ import com.shiro.demoshiro.config.ApplicationContextRegister;
 import com.shiro.demoshiro.doman.URole;
 import com.shiro.demoshiro.doman.User;
 import com.shiro.demoshiro.mapper.UserMapper;
+import com.shiro.demoshiro.utils.JwtUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
