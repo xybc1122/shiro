@@ -36,11 +36,11 @@ public class UserRealm extends AuthorizingRealm {
         //遍历 user对象中的roles对象
         for (URole r : user.getRoles()) {
             //3 代表admin
-            if (r.getType() == 1) {
-                roles.add(r.getName());
+            if (r.getTypes() == 1) {
+                roles.add(r.getrName());
                 //2 代表user
-            }else if (r.getType() == 2) {
-                roles.add(r.getName());
+            }else if (r.getTypes() == 2) {
+                roles.add(r.getrName());
             }
         }
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo(roles);

@@ -13,9 +13,9 @@ public interface RolesMapper {
 
     @Select("select r_name,types,rid from u_role where rid in(select rid from u_user_role where uid=#{uid})")
     @Results({
-            @Result(id = true, column = "id", property = "rid"),
-            @Result(column = "name", property = "r_name"),
-            @Result(column = "type", property = "types"),
+            @Result(id = true, column = "rid", property = "rId"),
+            @Result(column = "r_name", property = "rName"),
+            @Result(column = "types", property = "types"),
     })
     List<URole> getAllRolesByuid(int uid);
 }

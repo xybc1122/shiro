@@ -11,13 +11,14 @@ import java.util.Map;
 public interface UserMapper {
 
 
-    @Select("select uid, user_name,password,state,created_date  from user_info where user_name=#{username}")
+    @Select("select uid, user_name,pass_word,state,created_date  from user_info where user_name=#{username}")
     @Results({
+            //column数据的字段  property 实体类的字段
             @Result(id = true, column = "uid", property = "uid"),
-            @Result(column = "userName", property = "user_name"),
-            @Result(column = "passWord", property = "password"),
+            @Result(column = "user_name", property = "userName"),
+            @Result(column = "pass_word", property = "passWord"),
             @Result(column = "state", property = "state"),
-            @Result(column = "createdTime", property = "created_date"),
+            @Result(column = "created_date", property = "createdTime"),
             @Result(column = "uid", property = "roles",
                     many = @Many(
                             select = "com.shiro.demoshiro.mapper.RolesMapper.getAllRolesByuid",

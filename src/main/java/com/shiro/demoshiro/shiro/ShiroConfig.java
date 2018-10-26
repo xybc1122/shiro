@@ -85,25 +85,27 @@ public class ShiroConfig {
     ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
-
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
-        filterChainDefinitionMap.put("/admin/**", "authc,roles[admin]"); //需要登录，且用户角色为admin
-        filterChainDefinitionMap.put("/user/**", "authc,roles[user]"); //需要登录，且用户角色为user
+        filterChainDefinitionMap.put("/admin/**", "authc,roles[超级管理员]"); //需要登录，且用户角色为admin
+        filterChainDefinitionMap.put("/user/update/**", "authc,roles[数据管理员]"); //需要登录，且用户角色为user
+        filterChainDefinitionMap.put("/user/delete/**", "authc,roles[数据管理员]");
+        filterChainDefinitionMap.put("/user/show/**", "authc,roles[数据管理员,普通员工]");
+        //权限控制
+//        filterChainDefinitionMap.put("/page_base_region.action","perms[user]");
         //登录过的不拦截
-       // filterChainDefinitionMap.put("/**", "authc");
-//        shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
-
+        shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
+        filterChainDefinitionMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
 
 
     @Bean
-    public SecurityManager securityManager(@Qualifier("userRealm") UserRealm userRealm,
-                                           EhCacheManager ehCacheManager) {
+    public SecurityManager securityManager(@Qualifier("userRealm") UserRealm userRealm
+                                          ) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(userRealm);
         //设置多个realm
@@ -112,7 +114,7 @@ public class ShiroConfig {
 //        realms.add(secondRealm);
 //        securityManager.setRealms(realms);
         // 自定义缓存实现 使用redis
-        securityManager.setCacheManager(ehCacheManager);
+//        securityManager.setCacheManager(ehCacheManager);
 //        // 自定义session管理 使用redis
 //        securityManager.setSessionManager(sessionManager());
         return securityManager;
@@ -211,11 +213,11 @@ public class ShiroConfig {
      *
      * @return
      */
-    @Bean
-    public EhCacheManager ehCacheManager() {
-        EhCacheManager em = new EhCacheManager();
-        em.setCacheManagerConfigFile("classpath:config/ehcache.xml");
-        return em;
-    }
+//    @Bean
+//    public EhCacheManager ehCacheManager() {
+//        EhCacheManager em = new EhCacheManager();
+//        em.setCacheManagerConfigFile("classpath:config/ehcache.xml");
+//        return em;
+//    }
 
 }
