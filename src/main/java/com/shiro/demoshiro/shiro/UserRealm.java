@@ -36,7 +36,7 @@ public class UserRealm extends AuthorizingRealm {
         //遍历 user对象中的roles对象
         for (URole r : user.getRoles()) {
             //3 代表admin
-            if (r.getType() == 3) {
+            if (r.getType() == 1) {
                 roles.add(r.getName());
                 //2 代表user
             }else if (r.getType() == 2) {
@@ -83,7 +83,7 @@ public class UserRealm extends AuthorizingRealm {
 
     public static void main(String[] args) {
         //盐值加密
-        ByteSource salt = ByteSource.Util.bytes("admin");
+        ByteSource salt = ByteSource.Util.bytes("tt");
         Object result = new SimpleHash("MD5", "8", salt, 1024);
         System.out.println(result);
     }

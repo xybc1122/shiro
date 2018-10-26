@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class LoginController {
 
     @ResponseBody
-    @PostMapping("/login")
+    @PostMapping("/ajaxLogin")
     public ResponseBase login(@RequestParam("username") String username, @RequestParam("pwd") String pwd) {
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();
@@ -45,9 +45,10 @@ public class LoginController {
                 user = new User();
                 user.setUid(userShiro.getUid());
                 user.setPassword(null);
-                user.setRoles(userShiro.getRoles());
-                user.setCreatedTime(user.getCreatedTime());
                 user.setUsername(userShiro.getUsername());
+                user.setRoles(userShiro.getRoles());
+                user.setState(userShiro.getState());
+                user.setCreatedTime(user.getCreatedTime());
                 //设置 JwtToken
                 String userToken = JwtUtils.genJsonWebToken(user);
                 dataUserJson=new JSONObject();
@@ -62,4 +63,5 @@ public class LoginController {
         }
         return BaseApiService.setResultSuccess(dataUserJson);
     }
+
 }

@@ -85,18 +85,16 @@ public class ShiroConfig {
     ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
+
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/logout", "logout");
-        filterChainDefinitionMap.put("/login", "anon");
-        filterChainDefinitionMap.put("/error/**", "anon");
+        filterChainDefinitionMap.put("/ajaxLogin", "anon");
         filterChainDefinitionMap.put("/admin/**", "authc,roles[admin]"); //需要登录，且用户角色为admin
         filterChainDefinitionMap.put("/user/**", "authc,roles[user]"); //需要登录，且用户角色为user
         //登录过的不拦截
-        filterChainDefinitionMap.put("/**", "authc");
-        shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
-
-
+       // filterChainDefinitionMap.put("/**", "authc");
+//        shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;

@@ -3,35 +3,31 @@ package com.shiro.demoshiro.doman;
 import java.io.Serializable;
 
 public class URole implements Serializable {
-  private long id;
-  private String name;//角色名称
-  private Integer type;//角色类型
+  private long rId;
+  private String rName;//角色名称
+  private Integer types;//角色类型
 
-
-  public long getId() {
-    return id;
+  public long getrId() {
+    return rId;
   }
 
-  public void setId(long id) {
-    this.id = id;
+  public void setrId(long rId) {
+    this.rId = rId;
   }
 
-
-  public String getName() {
-    return name;
+  public String getrName() {
+    return rName;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public void setrName(String rName) {
+    this.rName = rName;
   }
 
-
-  public Integer getType() {
-    return type;
+  public Integer getTypes() {
+    return types;
   }
 
-  public void setType(Integer type) {
-    this.type = type;
+  public void setTypes(Integer types) {
+    this.types = types;
   }
-
 }

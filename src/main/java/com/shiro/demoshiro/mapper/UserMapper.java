@@ -11,10 +11,13 @@ import java.util.Map;
 public interface UserMapper {
 
 
-    @Select("select uid, username,password,state from user_info where username=#{username}")
+    @Select("select uid, user_name,password,state,created_date  from user_info where user_name=#{username}")
     @Results({
             @Result(id = true, column = "uid", property = "uid"),
-            @Result(column = "username", property = "username"),
+            @Result(column = "userName", property = "user_name"),
+            @Result(column = "passWord", property = "password"),
+            @Result(column = "state", property = "state"),
+            @Result(column = "createdTime", property = "created_date"),
             @Result(column = "uid", property = "roles",
                     many = @Many(
                             select = "com.shiro.demoshiro.mapper.RolesMapper.getAllRolesByuid",

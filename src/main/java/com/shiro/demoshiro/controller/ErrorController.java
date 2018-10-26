@@ -11,7 +11,8 @@ public class ErrorController {
 
 
     @RequestMapping("/error/user")
-    public ResponseBase wrong(){
+    public ResponseBase wrong()
+    {
         return BaseApiService.setResultError("必须认证授权后再登陆!");
     }
 }
