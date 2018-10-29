@@ -1,0 +1,78 @@
+package com.dt.user.shiro;
+
+import com.dt.user.config.ApplicationContextRegister;
+import com.dt.user.model.UserInfo;
+import com.dt.user.service.RoleService;
+import com.dt.user.service.UserService;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
+import java.util.Set;
+
+/**
+ * AuthorizingRealm 用户认证
+ */
+public class UserRealm extends AuthorizingRealm {
+
+    /**
+     * 授权方法
+     *
+     * @param principals
+     * @return
+     */
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        Long userId = ShiroUtils.getUserId();
+        RoleService roleService= ApplicationContextRegister.getBean(RoleService.class);
+        Set<String> roles=roleService.getAllRolesByUid(userId);
+
+        SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+        info.setRoles(roles);
+        return info;
+    }
+
+    /**
+     * doGetAuthenticationInfo 认证方法
+     *
+     * @param token
+     * @return
+     * @throws AuthenticationException
+     */
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        System.out.println("--------------->UserRealm doGetAuthenticationInfo");
+        //获得表单的用户输入
+        String userName = (String) token.getPrincipal();
+        UserService userService = ApplicationContextRegister.getBean(UserService.class);
+        //查询用户信息
+        UserInfo user = userService.findByUser(userName);
+        // 账号不存在 异常
+        if (user == null) {
+            throw new UnknownAccountException("用户或密码不正确");
+        }
+        // 账号锁定 异常
+        if (user.getStatus() == 0) {
+            throw new LockedAccountException("账号已被锁定,请联系管理员");
+        }
+        //盐值加密
+        ByteSource salt = ByteSource.Util.bytes(user.getUserName());
+        //参数1 user对象
+        //参数2 数据库中获取的密码
+        //参数3 盐值
+        //参数4 父类的getName()
+        SimpleAuthenticationInfo info = new SimpleAuthenticationInfo(user, user.getPwd(), salt, getName());
+        return info;
+    }
+
+    public static void main(String[] args) {
+        //盐值加密
+        ByteSource salt = ByteSource.Util.bytes("tt");
+        Object result = new SimpleHash("MD5", "8", salt, 1024);
+        //d6f1c053e0a3faca08830aabca5f9885
+        System.out.println(result);
+    }
+}
