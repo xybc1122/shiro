@@ -16,14 +16,7 @@ public interface UserMapper {
             @Result(id = true, column = "uid", property = "uid"),
             @Result(column = "user_name", property = "userName"),
             @Result(column = "pwd", property = "pwd"),
-            @Result(column = "status", property = "status"),
-            @Result(column = "create_date", property = "createDate"),
-            @Result(column = "create_id_user", property = "createIdUser"),
-            @Result(column = "up_id_user", property = "upIdUser"),
-            @Result(column = "up_date", property = "upDate"),
-            @Result(column = "effective_date", property = "effectiveDate"),
-            @Result(column = "pwd_status", property = "pwdStatus"),
-            @Result(column = "user_status", property = "userStatus")
+            @Result(column = "status", property = "status")
     })
     UserInfo findByUser(@Param("userName") String userName);
 
