@@ -17,7 +17,7 @@ public class Cors extends WebMvcConfigurerAdapter {
      */
     @Override
     public void addCorsMappings(CorsRegistry registry){
-        registry.addMapping("/**")//设置哪个url路径允许跨域
+                registry.addMapping("/**")//设置哪个url路径允许跨域
                 .allowedOrigins("*")//设置静态资源的跨域路径 | 如果是线上 设置成线上的域名
                 .allowedMethods("GET", "POST", "PUT", "OPTIONS", "DELETE", "PATCH")//跨域的方法
                 .allowCredentials(true).maxAge(3600);

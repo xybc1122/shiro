@@ -2,6 +2,7 @@ package com.dt.user.shiro;
 
 import com.dt.user.config.ApplicationContextRegister;
 import com.dt.user.model.UserInfo;
+import com.dt.user.service.MenuService;
 import com.dt.user.service.RoleService;
 import com.dt.user.service.UserService;
 import org.apache.shiro.authc.*;
@@ -11,6 +12,7 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+
 import java.util.Set;
 
 /**
@@ -27,11 +29,15 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         Long userId = ShiroUtils.getUserId();
-        RoleService roleService= ApplicationContextRegister.getBean(RoleService.class);
-        Set<String> roles=roleService.getAllRolesByUid(userId);
-
+        RoleService roleService = ApplicationContextRegister.getBean(RoleService.class);
+        MenuService menuService = ApplicationContextRegister.getBean(MenuService.class);
+        //获得角色
+        Set<String> roles = roleService.getAllRolesByUid(userId);
+        //获得权限
+        Set<String> perms = menuService.findByPermsMenuService(userId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setRoles(roles);
+        info.setStringPermissions(perms);
         return info;
     }
 

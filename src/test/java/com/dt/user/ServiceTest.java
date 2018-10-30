@@ -1,22 +1,24 @@
 package com.dt.user;
 
-import com.dt.user.mapper.UserMapper;
-import com.dt.user.model.UserInfo;
+import com.dt.user.service.MenuService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Set;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class DemoShiroApplicationTests {
+public class ServiceTest {
+
     @Autowired
-    private UserMapper userMapper;
+    private MenuService menuService;
 
     @Test
-    public void contextLoads() {
-        UserInfo userInfo= userMapper.findByUser("tt");
-        System.out.println(userInfo.toString());
+    public void findByPermsMenuService() {
+      Set<String> perms=  menuService.findByPermsMenuService(1L);
+      System.out.println(perms);
     }
-
 }

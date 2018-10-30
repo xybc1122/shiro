@@ -88,12 +88,11 @@ public class ShiroConfig {
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
-        filterChainDefinitionMap.put("/admin/**", "authc,roles[admin]"); //需要登录，且用户角色为[超级管理员]
-        filterChainDefinitionMap.put("/user/update/**", "authc,roles[user]"); //需要登录，且用户角色为user
-        filterChainDefinitionMap.put("/user/delete/**", "authc,roles[user]");
-        filterChainDefinitionMap.put("/user/show/**", "authc,roles[user]");
+//        filterChainDefinitionMap.put("/admin/**", "authc,roles[admin]"); //需要登录，且用户角色为[超级管理员]
+//        filterChainDefinitionMap.put("/user/**", "authc,roles[user]"); //需要登录，且用户角色为user
         //权限控制
-//        filterChainDefinitionMap.put("/page_base_region.action","perms[user]");
+         filterChainDefinitionMap.put("/admin/del","perms[admin:del]");
+         filterChainDefinitionMap.put("/admin/add","perms[admin:del,admin:add]");
         //登录过的不拦截
         shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
         filterChainDefinitionMap.put("/**", "authc");
