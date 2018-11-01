@@ -14,20 +14,6 @@ import java.util.*;
 
 @Configuration
 public class ShiroConfig {
-//    @Value("${spring.redis.host}")
-//    private String host;
-//    @Value("${spring.redis.password}")
-//    private String password;
-//    @Value("${spring.redis.port}")
-//    private int port;
-//    @Value("${spring.redis.timeout}")
-//    private int timeout;
-
-//    @Value("${cacheType}")
-//    private String cacheType;
-//
-//    @Value("${server.session-timeout}")
-//    private int tomcatTimeout;
 
     /**
      * 密码校验规则HashedCredentialsMatcher
@@ -88,8 +74,6 @@ public class ShiroConfig {
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
-//        filterChainDefinitionMap.put("/admin/**", "authc,roles[admin]"); //需要登录，且用户角色为[超级管理员]
-//        filterChainDefinitionMap.put("/user/**", "authc,roles[user]"); //需要登录，且用户角色为user
         //权限控制
          filterChainDefinitionMap.put("/admin/del","perms[admin:del]");
          filterChainDefinitionMap.put("/admin/add","perms[admin:del,admin:add]");
@@ -106,15 +90,6 @@ public class ShiroConfig {
                                           ) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(userRealm);
-        //设置多个realm
-//        List<Realm> realms = new ArrayList<>();
-//        realms.add(userRealm);
-//        realms.add(secondRealm);
-//        securityManager.setRealms(realms);
-        // 自定义缓存实现 使用redis
-//        securityManager.setCacheManager(ehCacheManager);
-//        // 自定义session管理 使用redis
-//        securityManager.setSessionManager(sessionManager());
         return securityManager;
     }
 
@@ -130,92 +105,4 @@ public class ShiroConfig {
         userRealm.setCredentialsMatcher(matcher);
         return userRealm;
     }
-
-//    @Bean("secondRealm")
-//    SecondRealm secondRealm(@Qualifier("secondHashedCredentialsMatcher") HashedCredentialsMatcher matcher) {
-//        SecondRealm secondRealm = new SecondRealm();
-//        secondRealm.setCredentialsMatcher(matcher);
-//        return secondRealm;
-//    }
-
-    /**
-     * 配置shiro redisManager
-     *
-     * @return
-     */
-//    @Bean
-//    public RedisManager redisManager() {
-//        RedisManager redisManager = new RedisManager();
-//        redisManager.setHost("122.228.177.98");
-//        redisManager.setPort(6379);
-//        redisManager.setExpire(1800);// 配置缓存过期时间
-//        //redisManager.setPassword(password);
-//        return redisManager;
-//    }
-
-    /**
-     * cacheManager 缓存 redis实现
-     * 使用的是shiro-redis开源插件
-     *
-     * @return
-     */
-//    public RedisCacheManager cacheManager() {
-//        RedisCacheManager redisCacheManager = new RedisCacheManager();
-//        redisCacheManager.setRedisManager(redisManager());
-//        return redisCacheManager;
-//    }
-
-    /**
-     * shiro session的管理
-     */
-//    @Bean
-//    public DefaultWebSessionManager sessionManager() {
-//        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-//        sessionManager.setSessionDAO(redisSessionDAO());
-//        return sessionManager;
-//    }
-    /**
-     * RedisSessionDAO shiro sessionDao层的实现 通过redis
-     * 使用的是shiro-redis开源插件
-     */
-//    @Bean
-//    public RedisSessionDAO redisSessionDAO() {
-//        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-//        redisSessionDAO.setRedisManager(redisManager());
-//        return redisSessionDAO;
-//    }
-
-    /**
-     * RedisSessionDAO shiro sessionDao层的实现 通过redis
-     * 使用的是shiro-redis开源插件
-     */
-//    @Bean
-//    public RedisSessionDAO redisSessionDAO() {
-//        RedisSessionDAO redisSessionDAO = new RedisSessionDAO();
-//        redisSessionDAO.setRedisManager(redisManager());
-//        return redisSessionDAO;
-//    }
-
-//    @Bean
-//    public SessionDAO sessionDAO(){
-//        if(Constant.CACHE_TYPE_REDIS.equals(cacheType)){
-//            return redisSessionDAO();
-//        }else {
-//            return new MemorySessionDAO();
-//        }
-//    }
-
-
-    /**
-     * 配置EhCacheManager jiava Bean
-     *
-     * @return
-     */
-//    @Bean
-//    public EhCacheManager ehCacheManager() {
-//        EhCacheManager em = new EhCacheManager();
-//        em.setCacheManagerConfigFile("classpath:config/ehcache.xml");
-//        return em;
-//    }
-
 }

@@ -28,6 +28,7 @@ public class UserRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        System.out.println("```````````````````````````````````````++++++++++++++++++");
         Long userId = ShiroUtils.getUserId();
         RoleService roleService = ApplicationContextRegister.getBean(RoleService.class);
         MenuService menuService = ApplicationContextRegister.getBean(MenuService.class);

@@ -11,29 +11,28 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.*;
 
 @Controller
 public class LoginController {
-
     @ResponseBody
     @PostMapping("/ajaxLogin")
-    public ResponseBase login(@RequestParam("userName") String userName, @RequestParam("pwd") String pwd) {
+    public ResponseBase login(@RequestBody Map userMap) {
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();
+
         // dataUserJSON
         JSONObject dataUserJson = null;
         UserInfo user = null;
-        // Do some stuff with a Session (no need for a web or EJB container!!!)
-        // 测试使用 Session
-        // 获取 Session: Subject#getSession()
-        Session session = currentUser.getSession();
         // 测试当前的用户是否已经被认证. 即是否已经登录.
         // 调动 Subject 的 isAuthenticated()
         if (!currentUser.isAuthenticated()) {
             // 把用户名和密码封装为 UsernamePasswordToken 对象
-            UsernamePasswordToken token = new UsernamePasswordToken(userName, pwd);
+            UsernamePasswordToken token = new
+                    UsernamePasswordToken(userMap.get("userName").toString(), userMap.get("pwd").toString());
             // rememberme
             token.setRememberMe(true);
             try {
@@ -51,7 +50,7 @@ public class LoginController {
                 user.setEffectiveDate(userShiro.getCreateDate());
                 //设置 JwtToken
                 String userToken = JwtUtils.genJsonWebToken(user);
-                dataUserJson=new JSONObject();
+                dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
             } catch (IncorrectCredentialsException ie) {
