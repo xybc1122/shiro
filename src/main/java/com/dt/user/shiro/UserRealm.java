@@ -35,10 +35,10 @@ public class UserRealm extends AuthorizingRealm {
         //获得角色
         Set<String> roles = roleService.getAllRolesByUid(userId);
         //获得权限
-        Set<String> perms = menuService.findByPermsMenuService(userId);
+               Set<String> perms = menuService.findByPermsMenuService(userId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setRoles(roles);
-        info.setStringPermissions(perms);
+         info.setStringPermissions(perms);
         return info;
     }
 

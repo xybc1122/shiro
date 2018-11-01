@@ -1,4 +1,4 @@
-package com.dt.user.config;
+package com.dt.user.toos;
 
 public interface Constants {
 	// userSession

@@ -72,7 +72,6 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
-        filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
         //权限控制
          filterChainDefinitionMap.put("/admin/del","perms[admin:del]");
