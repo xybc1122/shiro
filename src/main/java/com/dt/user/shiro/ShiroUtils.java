@@ -29,16 +29,4 @@ public class ShiroUtils {
         getSubjct().logout();
     }
 
-    public static List<Principal> getPrinciples() {
-        List<Principal> principals = null;
-        Collection<Session> sessions = sessionDAO.getActiveSessions();
-        return principals;
-    }
-    
-    public static boolean isAdminAndOperator() {
-    	Subject subject = getSubjct();
-    	boolean flag1 = subject.hasRole("admin");
-		boolean flag2 = subject.hasRole("operator");
-		return flag1|flag2;
-    }
 }

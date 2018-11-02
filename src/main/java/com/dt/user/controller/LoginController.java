@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.UserInfo;
+import com.dt.user.shiro.ShiroUtils;
 import com.dt.user.utils.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,14 +29,14 @@ public class LoginController {
         // dataUserJSON
         JSONObject dataUserJson = null;
         UserInfo user = null;
-        // 测试当前的用户是否已经被认证. 即是否已经登录.
+
         // 调动 Subject 的 isAuthenticated()
         if (!currentUser.isAuthenticated()) {
             // 把用户名和密码封装为 UsernamePasswordToken 对象
             UsernamePasswordToken token = new
                     UsernamePasswordToken(userMap.get("userName").toString(), userMap.get("pwd").toString());
-            // rememberme
-            token.setRememberMe(true);
+//            // rememberme  记住我的功能
+//            token.setRememberMe(true);
             try {
                 // 执行登录.
                 currentUser.login(token);
@@ -61,6 +63,13 @@ public class LoginController {
             }
         }
         return BaseApiService.setResultSuccess(dataUserJson);
+    }
+
+    @ResponseBody
+    @GetMapping("/logout")
+    public ResponseBase logout() {
+        ShiroUtils.logout();
+        return BaseApiService.setResultSuccess("注销成功!");
     }
 
 }
