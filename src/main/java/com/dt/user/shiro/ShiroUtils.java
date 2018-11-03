@@ -26,4 +26,5 @@ public class ShiroUtils {
 
         getSubjct().logout();
     }
+
 }

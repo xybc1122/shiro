@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- *  用户实体类
+ * 用户实体类
  */
 public class UserInfo implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -23,9 +23,14 @@ public class UserInfo implements Serializable {
      */
     private String pwd;
     /**
-     * 状态 0:禁用，1:正常'
+     * 状态,默认为0，普通用户，1为超级管理员
      */
     private Integer status;
+
+    /**
+     * 账户状态，被锁定之类的，默认为0，表示正常
+     */
+    private int accountStatus;
     /**
      * 创建人员id
      */
@@ -54,6 +59,8 @@ public class UserInfo implements Serializable {
      * 用户是否始终有效
      */
     private String userStatus;
+//
+//    private Set<String> roles;
 
 
     public Long getUid() {
@@ -144,4 +151,19 @@ public class UserInfo implements Serializable {
         this.userStatus = userStatus;
     }
 
+//    public Set<String> getRoles() {
+//        return roles;
+//    }
+//
+//    public void setRoles(Set<String> roles) {
+//        this.roles = roles;
+//    }
+
+    public int getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(int accountStatus) {
+        this.accountStatus = accountStatus;
+    }
 }

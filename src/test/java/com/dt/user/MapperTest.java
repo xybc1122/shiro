@@ -2,6 +2,7 @@ package com.dt.user;
 
 import com.dt.user.mapper.MenuMapper;
 import com.dt.user.mapper.UserMapper;
+import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,15 @@ public class MapperTest {
         for (String perm : perms) {
             System.out.println(perm);
 
+        }
+    }
+    @Test
+    public void testQueryMenuList() {
+        // 原始的数据
+        List<Menu> rootMenu = menuMapper.queryMenuList(null);
+        // 查看结果
+        for (Menu menu : rootMenu) {
+            System.out.println(menu);
         }
     }
 }

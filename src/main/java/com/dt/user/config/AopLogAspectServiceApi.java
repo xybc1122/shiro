@@ -25,7 +25,7 @@ public class AopLogAspectServiceApi {
 
 
     // 申明一个切点 里面是 execution表达式
-    @Pointcut("execution(public * com.shiro.demoshiro.controller..*.*(..))")
+    @Pointcut("execution(public * com.dt.user.controller..*.*(..))")
     private void controllerAspect() {
     }
 

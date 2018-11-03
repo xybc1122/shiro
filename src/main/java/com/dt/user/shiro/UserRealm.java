@@ -38,7 +38,7 @@ public class UserRealm extends AuthorizingRealm {
                Set<String> perms = menuService.findByPermsMenuService(userId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setRoles(roles);
-         info.setStringPermissions(perms);
+        info.setStringPermissions(perms);
         return info;
     }
 
@@ -62,7 +62,7 @@ public class UserRealm extends AuthorizingRealm {
             throw new UnknownAccountException("用户或密码不正确");
         }
         // 账号锁定 异常
-        if (user.getStatus() == 0) {
+        if (user.getAccountStatus() == 1) {
             throw new LockedAccountException("账号已被锁定,请联系管理员");
         }
         //盐值加密
@@ -77,7 +77,7 @@ public class UserRealm extends AuthorizingRealm {
 
     public static void main(String[] args) {
         //盐值加密
-        ByteSource salt = ByteSource.Util.bytes("tt");
+        ByteSource salt = ByteSource.Util.bytes("cc");
         Object result = new SimpleHash("MD5", "8", salt, 1024);
         //d6f1c053e0a3faca08830aabca5f9885
         System.out.println(result);

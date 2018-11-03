@@ -1,5 +1,4 @@
 package com.dt.user.controller;
-
 import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
@@ -8,10 +7,12 @@ import com.dt.user.shiro.ShiroUtils;
 import com.dt.user.utils.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
-import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
 
@@ -34,7 +35,7 @@ public class LoginController {
             UsernamePasswordToken token = new
 //            userMap.get("userName").toString(), userMap.get("pwd").toString()
                     UsernamePasswordToken(userMap.get("userName").toString(), userMap.get("pwd").toString());
-//            // rememberme   记住我
+          // rememberme   记住我
             token.setRememberMe(true);
             try {
                 // 执行登录.
@@ -58,11 +59,11 @@ public class LoginController {
                 return BaseApiService.setResultError("账号或者密码错误!");
             } catch (AuthenticationException ae) {
                 return BaseApiService.setResultError(ae.getMessage());
-
             }
         }
         return BaseApiService.setResultSuccess(dataUserJson);
     }
+
     @ResponseBody
     @GetMapping("/logout")
     public ResponseBase logout() {

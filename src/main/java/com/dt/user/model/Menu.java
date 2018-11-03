@@ -3,6 +3,7 @@ package com.dt.user.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 菜单管理
@@ -29,6 +30,9 @@ public class Menu implements Serializable {
      * 授权(多个用逗号分隔，如：user:list,user:create,user:data)
      */
     private String perms;
+
+    // 菜单顺序
+    private int order;
     /**
      * 类型   0：目录   1：菜单   2：按钮
      */
@@ -45,6 +49,8 @@ public class Menu implements Serializable {
      * 修改时间
      */
     private Date upDate;
+    // 子菜单
+    private List<Menu> childMenus;
 
     public Long getMenuId() {
         return menuId;
@@ -116,5 +122,38 @@ public class Menu implements Serializable {
 
     public void setUpDate(Date upDate) {
         this.upDate = upDate;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public List<Menu> getChildMenus() {
+        return childMenus;
+    }
+
+    public void setChildMenus(List<Menu> childMenus) {
+        this.childMenus = childMenus;
+    }
+
+    @Override
+    public String toString() {
+        return "Menu{" +
+                "menuId=" + menuId +
+                ", parentId=" + parentId +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", perms='" + perms + '\'' +
+                ", order=" + order +
+                ", type=" + type +
+                ", icon='" + icon + '\'' +
+                ", createDate=" + createDate +
+                ", upDate=" + upDate +
+                ", childMenus=" + childMenus +
+                '}';
     }
 }

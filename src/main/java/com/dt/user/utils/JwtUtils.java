@@ -1,4 +1,5 @@
 package com.dt.user.utils;
+
 import com.dt.user.model.UserInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -32,7 +33,7 @@ public class JwtUtils {
         String token = Jwts.builder().setSubject(SUBJECT)
                 .claim("id", user.getUid())
                 .claim("name", user.getUserName())
-                .claim("pwd_status", user.getPwdStatus())
+                .claim("status", user.getStatus())
                 .setIssuedAt(new Date())//设置新的时间
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE))//过期时间
                 .signWith(SignatureAlgorithm.HS256, APPSECRET).compact();
@@ -43,14 +44,15 @@ public class JwtUtils {
      * 校验token 解密
      *
      * @param token
-        * @return
-        */
-public static Claims ccheckJWT(String token) {
+     * @return
+     */
+    public static Claims checkJWT(String token) {
+
         try {
-final Claims claims = Jwts.parser().setSigningKey(APPSECRET).parseClaimsJws(token).getBody();
-        return claims;
+            final Claims claims = Jwts.parser().setSigningKey(APPSECRET).parseClaimsJws(token).getBody();
+            return claims;
         } catch (Exception e) {
-        return null;
+            return null;
         }
-        }
-        }
+    }
+}
