@@ -1,5 +1,6 @@
 package com.dt.user.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.Menu;
@@ -7,7 +8,6 @@ import com.dt.user.model.UserInfo;
 import com.dt.user.service.MenuService;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
-import com.dt.user.utils.GetHeaderToken;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -37,16 +38,56 @@ public class MenuController {
 
     @GetMapping("show")
     public ResponseBase showMenu(HttpServletRequest request) {
-        String token = GetCookie.getToken(request);
-        System.out.println(token);
-        UserInfo user = jwtUser(token);
-        List<Menu> MenuList = null;
+//        String token = GetCookie.getToken(request);
+//        UserInfo user = jwtUser(token);
+        UserInfo user = new UserInfo();
+        user.setStatus(0);
+        user.setUid(1L);
+        List<Menu> rootMenu;
         if (user != null) {
-            MenuList = menuService.queryMenuList(user);
-            return BaseApiService.setResultSuccess(MenuList);
+            rootMenu = menuService.queryMenuList(user);
+            List<Menu> menuList = new ArrayList<>();
+            //先找到所有一级菜单
+            for (int i = 0; i < rootMenu.size(); i++) {
+                if (StringUtils.isBlank(rootMenu.get(i).getParentId())) {
+                    menuList.add(rootMenu.get(i));
+                }
+            }
+            // 为一级菜单设置子菜单 getChild是递归调用的
+            for (Menu menu : menuList) {
+                menu.setChildMenus(getChild(menu.getMenuId().toString(), rootMenu));
+            }
+            return BaseApiService.setResultSuccess(menuList);
         }
         return BaseApiService.setResultError("token无效!");
     }
+    //递归查找子菜单
+
+    private List<Menu> getChild(String id, List<Menu> rootMenu) {
+        // 子菜单
+        List<Menu> childList = new ArrayList<>();
+        for (Menu menu : rootMenu) {
+            // 遍历所有节点，将父菜单id与传过来的id比较
+            if (StringUtils.isNotBlank(menu.getParentId())) {
+                if (menu.getParentId().equals(id)) {
+                    childList.add(menu);
+                }
+                // 把子菜单的子菜单再循环一遍
+                for (Menu childMenu : childList) {// 没有url子菜单还有子菜单
+                    if (StringUtils.isBlank(childMenu.getUrl())) {
+                        // 递归
+                        menu.setChildMenus(getChild(childMenu.getMenuId().toString(), rootMenu));
+                    }
+                } // 递归退出条件
+                if (childList.size() == 0) {
+                    return null;
+                }
+            }
+        }
+        return childList;
+    }
+
+
     //jwt解析
     public UserInfo jwtUser(String token) {
         UserInfo userIfo = null;
