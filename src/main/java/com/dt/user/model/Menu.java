@@ -17,7 +17,7 @@ public class Menu implements Serializable {
     /**
      * 父菜单ID，一级菜单为0
      */
-    private String parentId;
+    private Long parentId;
     /**
      * 菜单名称
      */
@@ -60,11 +60,11 @@ public class Menu implements Serializable {
         this.menuId = menuId;
     }
 
-    public String getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 

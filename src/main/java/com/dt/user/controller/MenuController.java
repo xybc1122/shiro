@@ -1,6 +1,5 @@
 package com.dt.user.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.Menu;
@@ -38,45 +37,45 @@ public class MenuController {
 
     @GetMapping("show")
     public ResponseBase showMenu(HttpServletRequest request) {
-//        String token = GetCookie.getToken(request);
-//        UserInfo user = jwtUser(token);
-        UserInfo user = new UserInfo();
-        user.setStatus(0);
-        user.setUid(1L);
-        List<Menu> rootMenu;
+        String token = GetCookie.getToken(request);
+        UserInfo user = jwtUser(token);
+        List<Menu> rootMenu; //父菜单List
         if (user != null) {
             rootMenu = menuService.queryMenuList(user);
-            List<Menu> menuList = new ArrayList<>();
+            List<Menu> printMenuList = new ArrayList<>();
+            List<Menu> childMenuList = new ArrayList<>();    //子菜单List
             //先找到所有一级菜单
             for (int i = 0; i < rootMenu.size(); i++) {
-                if (StringUtils.isBlank(rootMenu.get(i).getParentId())) {
-                    menuList.add(rootMenu.get(i));
+                //如果==0代表父菜单
+                if (rootMenu.get(i).getParentId() == 0) {
+                    printMenuList.add(rootMenu.get(i));
+                } else {
+                    childMenuList.add(rootMenu.get(i));
                 }
             }
             // 为一级菜单设置子菜单 getChild是递归调用的
-            for (Menu menu : menuList) {
-                menu.setChildMenus(getChild(menu.getMenuId().toString(), rootMenu));
+            for (Menu menu : printMenuList) {
+                menu.setChildMenus(getChild(menu.getMenuId(), childMenuList));
             }
-            return BaseApiService.setResultSuccess(menuList);
+            return BaseApiService.setResultSuccess(printMenuList);
         }
         return BaseApiService.setResultError("token无效!");
     }
     //递归查找子菜单
 
-    private List<Menu> getChild(String id, List<Menu> rootMenu) {
+    private List<Menu> getChild(Long menuId, List<Menu> childMenuList) {
         // 子菜单
         List<Menu> childList = new ArrayList<>();
-        for (Menu menu : rootMenu) {
-            // 遍历所有节点，将父菜单id与传过来的id比较
-            if (StringUtils.isNotBlank(menu.getParentId())) {
-                if (menu.getParentId().equals(id)) {
-                    childList.add(menu);
-                }
+        for (Menu menu : childMenuList) {
+            // 遍历所有节点，将子菜单getParentId与传过来的父menuId比较
+            if (menu.getParentId().equals(menuId)) {
+                //如果是true 就添加到父菜单下面
+                childList.add(menu);
                 // 把子菜单的子菜单再循环一遍
                 for (Menu childMenu : childList) {// 没有url子菜单还有子菜单
                     if (StringUtils.isBlank(childMenu.getUrl())) {
                         // 递归
-                        menu.setChildMenus(getChild(childMenu.getMenuId().toString(), rootMenu));
+                        menu.setChildMenus(getChild(childMenu.getMenuId(), childMenuList));
                     }
                 } // 递归退出条件
                 if (childList.size() == 0) {
