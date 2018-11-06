@@ -3,6 +3,7 @@ package com.dt.user;
 import com.dt.user.mapper.MenuMapper;
 import com.dt.user.mapper.UserMapper;
 import com.dt.user.model.Menu;
+import com.dt.user.model.RoleMenu;
 import com.dt.user.model.UserInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,5 +43,27 @@ public class MapperTest {
         for (Menu menu : rootMenu) {
             System.out.println(menu);
         }
+    }
+
+    @Test
+    public void testFindQueryByRoleId() {
+        // 原始的数据
+        List<Menu> rootMenu = menuMapper.findQueryByRoleId(3L);
+        // 查看结果
+        for (Menu menu : rootMenu) {
+            System.out.println(menu);
+        }
+    }
+
+    @Test
+    public void testSave() {
+        // 原始的数据
+        RoleMenu r =new RoleMenu();
+        r.setmId(9L);
+        r.setrId(3L);
+        int count=menuMapper.saveMenu(r);
+        // 查看结果
+        System.out.println(count);
+
     }
 }

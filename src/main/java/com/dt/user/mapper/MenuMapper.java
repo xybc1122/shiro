@@ -1,12 +1,11 @@
 package com.dt.user.mapper;
 
 import com.dt.user.model.Menu;
+import com.dt.user.model.RoleMenu;
 import com.dt.user.model.UserInfo;
 import com.dt.user.provider.MenuProvider;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.*;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public interface MenuMapper {
     List<String> findByPermsMenu(@Param("uid") Long uid);
 
     /**
-     * 查找用户的菜单
+     * 查找用户所拥有的所有菜单
      *
      * @param
      * @return
@@ -35,5 +34,28 @@ public interface MenuMapper {
     @SelectProvider(type = MenuProvider.class, method = "findQueryMenuList")
     List<Menu> queryMenuList(UserInfo userInfo);
 
+    /**
+     * 根据角色id查询角色所拥有的菜单
+     *
+     * @param roleId
+     * @return
+     */
+    @Select("SELECT \n" +
+            "m.menu_id,m.`name`,parent_id,url,icon,`order`\n" +
+            "FROM \n" +
+            "menu m\n" +
+            "INNER JOIN role_menu rm ON m.menu_id = m_id\n" +
+            "INNER JOIN role r ON r.rid= rm.r_id\n" +
+            "WHERE rid= #{roleId}")
+     List<Menu> findQueryByRoleId(@Param("roleId") Long roleId);
+
+
+    //添加一个菜单到角色组里
+    @Insert("INSERT INTO `mydb`.`role_menu` (`m_id`,`r_id`) VALUES (#{mId},#{rId});")
+    @Options(useGeneratedKeys=true, keyProperty="id", keyColumn="id")
+    int saveMenu(RoleMenu roleMenu);
+
+
+    //新增一个菜单
 
 }
