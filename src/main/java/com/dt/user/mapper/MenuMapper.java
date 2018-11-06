@@ -36,4 +36,15 @@ public interface MenuMapper {
     List<Menu> queryMenuList(UserInfo userInfo);
 
 
+    /**
+     * 通过用户id 查询菜单
+     */
+    @Select("select m.* FROM user_info AS u inner join user_role AS ur ON u.uid=ur.u_id" +
+            "inner join role AS r  ON r.rid=ur.r_id" +
+            "inner join role_menu AS rm ON r.rid=rm.r_id" +
+            "inner join menu AS m  ON m.menu_id=rm.m_id" +
+            "where u.uid=#{uid}  group by  m.menu_id  order by m.order asc")
+    List<Menu> findByIdMenuList(@Param("uid") Long uid);
+
+
 }

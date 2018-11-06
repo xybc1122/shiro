@@ -34,10 +34,21 @@ public class MapperTest {
 
         }
     }
+
     @Test
     public void testQueryMenuList() {
         // 原始的数据
         List<Menu> rootMenu = menuMapper.queryMenuList(null);
+        // 查看结果
+        for (Menu menu : rootMenu) {
+            System.out.println(menu);
+        }
+    }
+
+    @Test
+    public void testFindByIdMenuList() {
+        // 原始的数据
+        List<Menu> rootMenu = menuMapper.findByIdMenuList(2L);
         // 查看结果
         for (Menu menu : rootMenu) {
             System.out.println(menu);

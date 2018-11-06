@@ -77,7 +77,7 @@ public class UserRealm extends AuthorizingRealm {
 
     public static void main(String[] args) {
         //盐值加密
-        ByteSource salt = ByteSource.Util.bytes("cc");
+        ByteSource salt = ByteSource.Util.bytes("bb");
         Object result = new SimpleHash("MD5", "8", salt, 1024);
         //d6f1c053e0a3faca08830aabca5f9885
         System.out.println(result);
