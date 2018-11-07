@@ -3,6 +3,7 @@ package com.dt.user.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -59,8 +60,10 @@ public class UserInfo implements Serializable {
      * 用户是否始终有效
      */
     private String userStatus;
-//
-//    private Set<String> roles;
+    //用户名
+    private String name;
+    //role对象
+    private List<Role> roles;
 
 
     public Long getUid() {
@@ -151,13 +154,21 @@ public class UserInfo implements Serializable {
         this.userStatus = userStatus;
     }
 
-//    public Set<String> getRoles() {
-//        return roles;
-//    }
-//
-//    public void setRoles(Set<String> roles) {
-//        this.roles = roles;
-//    }
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public int getAccountStatus() {
         return accountStatus;

@@ -1,6 +1,7 @@
 package com.dt.user.provider;
 
 
+import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import org.apache.ibatis.jdbc.SQL;
 
@@ -29,5 +30,9 @@ public class MenuProvider {
                 ORDER_BY("m.`order` asc");
             }
         }}.toString();
+    }
+
+    public String addMenu(final Menu menu) {
+        return null;
     }
 }

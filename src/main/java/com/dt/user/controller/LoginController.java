@@ -50,6 +50,7 @@ public class LoginController {
                 user.setStatus(userShiro.getStatus());
                 user.setCreateDate(userShiro.getCreateDate());
                 user.setEffectiveDate(userShiro.getCreateDate());
+                user.setName(userShiro.getName());
                 //设置 JwtToken
                 String userToken = JwtUtils.genJsonWebToken(user);
                 dataUserJson = new JSONObject();

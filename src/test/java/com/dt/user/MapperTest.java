@@ -1,8 +1,11 @@
 package com.dt.user;
 
 import com.dt.user.mapper.MenuMapper;
+import com.dt.user.mapper.TableHeadMapper;
 import com.dt.user.mapper.UserMapper;
 import com.dt.user.model.Menu;
+import com.dt.user.model.RoleMenu;
+import com.dt.user.model.TableHead;
 import com.dt.user.model.UserInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +22,9 @@ public class MapperTest {
     private UserMapper userMapper;
     @Autowired
     private MenuMapper menuMapper;
+
+    @Autowired
+    private TableHeadMapper tableHeadMapper;
 
     @Test
     public void findByUser() {
@@ -46,12 +52,33 @@ public class MapperTest {
     }
 
     @Test
-    public void testFindByIdMenuList() {
+    public void testFindQueryByRoleId() {
         // 原始的数据
-        List<Menu> rootMenu = menuMapper.findByIdMenuList(2L);
+        List<Menu> rootMenu = menuMapper.findQueryByRoleId(3L);
         // 查看结果
         for (Menu menu : rootMenu) {
             System.out.println(menu);
+        }
+    }
+
+    @Test
+    public void testSave() {
+        // 原始的数据
+        RoleMenu r = new RoleMenu();
+        r.setmId(9L);
+        r.setrId(2L);
+        int count = menuMapper.saveMenu(r);
+        // 查看结果
+        System.out.println(count);
+
+    }
+
+    @Test
+    public void findByHeader() {
+        // 原始的数据
+     List<TableHead>  s=  tableHeadMapper.findByHeader();
+        for (TableHead t:s) {
+            System.out.println(s);
         }
     }
 }

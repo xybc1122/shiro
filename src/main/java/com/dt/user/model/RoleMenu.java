@@ -1,9 +1,11 @@
 package com.dt.user.model;
 
+import java.io.Serializable;
+
 /**
  * menu跟role关联实体类
  */
-public class RoleMenu {
+public class RoleMenu  implements Serializable {
   /**
    * menuID
    */
