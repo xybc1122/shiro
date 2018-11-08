@@ -76,9 +76,18 @@ public class MapperTest {
     @Test
     public void findByHeader() {
         // 原始的数据
-     List<TableHead>  s=  tableHeadMapper.findByHeader();
-        for (TableHead t:s) {
+        List<TableHead> s = tableHeadMapper.findByHeader();
+        for (TableHead t : s) {
             System.out.println(s);
+        }
+    }
+
+    @Test
+    public void findMenuList() {
+        // 原始的数据
+        List<Menu> list = menuMapper.findMenuList();
+        for (Menu i : list) {
+            System.out.println(i);
         }
     }
 }

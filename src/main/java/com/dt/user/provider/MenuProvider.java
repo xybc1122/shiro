@@ -14,9 +14,9 @@ public class MenuProvider {
         return new SQL() {{
             //代表超级管理员
             if (user.getStatus() == 1) {
-                SELECT("  menu_id,`name`,parent_id,url,icon,`order`");
+                SELECT("  menu_id,`name`,parent_id,url,icon,menu_order");
                 FROM("menu");
-                ORDER_BY("`order` asc");
+                ORDER_BY("menu_order asc");
             }
             //代表用户
             if (user.getStatus() == 0) {
@@ -27,7 +27,7 @@ public class MenuProvider {
                 INNER_JOIN("menu AS m  ON m.menu_id=rm.m_id");
                 WHERE("u.uid=" + user.getUid());
                 GROUP_BY("m.menu_id");
-                ORDER_BY("m.`order` asc");
+                ORDER_BY("m.`menu_order` asc");
             }
         }}.toString();
     }

@@ -15,14 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 
 @RestController
 @RequestMapping("menu")
 public class MenuController {
     @Autowired
     private MenuService menuService;
+
 
     /**
      * 测试是否在登陆的接口
@@ -49,7 +50,7 @@ public class MenuController {
                 //如果==0代表父菜单
                 if (rootMenu.get(i).getParentId() == 0) {
                     menuList.add(rootMenu.get(i));
-                }else{
+                } else {
                     childMenuList.add(rootMenu.get(i));
                 }
             }
@@ -86,6 +87,12 @@ public class MenuController {
         return childList;
     }
 
+    //查看MenuList
+    @GetMapping("/findMenuList")
+    public ResponseBase findMenuList() {
+
+        return BaseApiService.setResultSuccess(menuService.findMenuList());
+    }
 
     //jwt解析
     public UserInfo jwtUser(String token) {

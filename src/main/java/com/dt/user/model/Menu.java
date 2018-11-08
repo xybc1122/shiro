@@ -32,7 +32,7 @@ public class Menu implements Serializable {
     private String perms;
 
     // 菜单顺序
-    private int order;
+    private int menuOrder;
     /**
      * 类型   0：目录   1：菜单   2：按钮
      */
@@ -124,13 +124,6 @@ public class Menu implements Serializable {
         this.upDate = upDate;
     }
 
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
 
     public List<Menu> getChildMenus() {
         return childMenus;
@@ -138,6 +131,14 @@ public class Menu implements Serializable {
 
     public void setChildMenus(List<Menu> childMenus) {
         this.childMenus = childMenus;
+    }
+
+    public int getMenuOrder() {
+        return menuOrder;
+    }
+
+    public void setMenuOrder(int menuOrder) {
+        this.menuOrder = menuOrder;
     }
 
     @Override
@@ -148,7 +149,7 @@ public class Menu implements Serializable {
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
                 ", perms='" + perms + '\'' +
-                ", order=" + order +
+                ", menuOrder=" + menuOrder +
                 ", type=" + type +
                 ", icon='" + icon + '\'' +
                 ", createDate=" + createDate +

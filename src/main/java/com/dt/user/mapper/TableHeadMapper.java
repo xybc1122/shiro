@@ -1,6 +1,7 @@
 package com.dt.user.mapper;
 
 import com.dt.user.model.TableHead;
+import com.dt.user.model.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

@@ -10,7 +10,11 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
 
-
+    /**
+     * 查找用户信息
+     * @param userName
+     * @return
+     */
     @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
             "user_status,account_Status,name  from user_info where user_name=#{userName}")
     @Results({
@@ -25,6 +29,19 @@ public interface UserMapper {
     })
     UserInfo findByUser(@Param("userName") String userName);
 
+
+    /**
+     * 查找用户的角色
+     * @return
+     */
     @SelectProvider(type = UserProvider.class,method = "findUserRole")
     List<UserInfo> findByUserAndRole();
+
+    /**
+     * 查找 账号管理信息
+     */
+    @SelectProvider(type = UserProvider.class,method = "findUsers")
+    List<UserInfo> findByUsers();
+
+
 }
