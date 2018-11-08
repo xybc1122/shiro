@@ -22,6 +22,6 @@ public interface MenuService {
     /**
      * 获取菜单表信息
      */
-    List<MenuDto>findMenuList();
+    List<Menu>findMenuList();
 
 }

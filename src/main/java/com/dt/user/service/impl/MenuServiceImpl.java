@@ -37,43 +37,15 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public List<MenuDto> findMenuList() {
+    public List<Menu> findMenuList() {
         List<Menu> listMenu = menuMapper.findMenuList();
-        Map<String, Object> map;
-        List<Map<String, Object>> arrMenu;
-        List<MenuDto> listDto = new ArrayList<>();
-        MenuDto mDto;
-        int menu_i = 1;
-        for (Menu menu : listMenu) {
-            int index = listMenu.indexOf(menu);
-            if ((index + 1) == menu_i) {
-                if (menu.getParentId() == 0) {
-                    arrMenu = new ArrayList<>();
-
-                    map = new HashMap<>();
-                    map.put("value", menu.getName());
-                    arrMenu.add(map);
-
-                    map = new HashMap<>();
-                    map.put("value", menu.getMenuOrder());
-                    arrMenu.add(map);
-
-                    map = new HashMap<>();
-                    map.put("value", menu.getUrl());
-                    arrMenu.add(map);
-
-                    map = new HashMap<>();
-                    map.put("value", menu.getIcon());
-                    arrMenu.add(map);
-                    //#####################################分割
-                    mDto = new MenuDto();
-                    mDto.setMenuList(arrMenu);
-                    listDto.add(mDto);
-                }
+        List<Menu> NewMenu = new ArrayList<>();
+        for (Menu menu:listMenu) {
+            if(menu.getParentId()==0){
+                NewMenu.add(menu);
             }
-            menu_i++;
         }
-        return listDto;
+        return NewMenu;
     }
 
 }
