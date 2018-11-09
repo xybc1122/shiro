@@ -1,6 +1,7 @@
 package com.dt.user.service;
 
 
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 
 import java.util.List;
@@ -11,6 +12,6 @@ public interface UserService {
 
 
     //查询账号管理信息
-    List<UserInfo> findByUsers(UserInfo userInfo);
+    List<UserInfo> findByUsers(UserDto userDto);
 
 }
