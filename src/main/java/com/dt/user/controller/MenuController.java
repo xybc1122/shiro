@@ -7,6 +7,8 @@ import com.dt.user.model.UserInfo;
 import com.dt.user.service.MenuService;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +92,18 @@ public class MenuController {
     //查看MenuList
     @GetMapping("/findMenuList")
     public ResponseBase findMenuList() {
-
-        return BaseApiService.setResultSuccess(menuService.findMenuList());
+        int page = 1;
+        int size = 3;
+        PageHelper.startPage(page, size);
+        List<Menu> listMenu = menuService.findMenuList();
+        //获得一些信息
+        PageInfo<Menu> pageInfo = new PageInfo<>(listMenu);
+        Map<String, Object> data = new HashMap<>();
+        data.put("total_size", pageInfo.getTotal());//总条数
+        data.put("total_page", pageInfo.getPages());//总页数
+        data.put("current_page", page);//当前页
+        data.put("users", pageInfo.getList());//数据
+        return BaseApiService.setResultSuccess(data);
     }
 
     //jwt解析

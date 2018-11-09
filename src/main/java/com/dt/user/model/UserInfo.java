@@ -62,9 +62,12 @@ public class UserInfo implements Serializable {
     private String userStatus;
     //用户名
     private String name;
+
     //role对象
     private List<Role> roles;
 
+    //角色名称
+    private String rName;
 
     public Long getUid() {
         return uid;
@@ -176,5 +179,34 @@ public class UserInfo implements Serializable {
 
     public void setAccountStatus(int accountStatus) {
         this.accountStatus = accountStatus;
+    }
+
+    public String getrName() {
+        return rName;
+    }
+
+    public void setrName(String rName) {
+        this.rName = rName;
+    }
+
+    @Override
+    public String toString() {
+        return "UserInfo{" +
+                "uid=" + uid +
+                ", userName='" + userName + '\'' +
+                ", pwd='" + pwd + '\'' +
+                ", status=" + status +
+                ", accountStatus=" + accountStatus +
+                ", createIdUser='" + createIdUser + '\'' +
+                ", upIdUser='" + upIdUser + '\'' +
+                ", createDate=" + createDate +
+                ", upDate=" + upDate +
+                ", effectiveDate=" + effectiveDate +
+                ", pwdStatus=" + pwdStatus +
+                ", userStatus='" + userStatus + '\'' +
+                ", name='" + name + '\'' +
+                ", roles=" + roles +
+                ", rName='" + rName + '\'' +
+                '}';
     }
 }

@@ -1,4 +1,5 @@
 package com.dt.user.controller;
+
 import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
@@ -14,15 +15,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.*;
-
 @Controller
 public class LoginController {
     @ResponseBody
     @PostMapping("/ajaxLogin")
     //@RequestParam("userName")String name,@RequestParam("pwd")String pwd
 //    @RequestBody Map userMap
-    public ResponseBase login(@RequestBody Map userMap) {
+    public ResponseBase login(@RequestBody UserInfo userInfo) {
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();
 
@@ -34,8 +33,8 @@ public class LoginController {
             // 把用户名和密码封装为 UsernamePasswordToken 对象
             UsernamePasswordToken token = new
 //            userMap.get("userName").toString(), userMap.get("pwd").toString()
-                    UsernamePasswordToken(userMap.get("userName").toString(), userMap.get("pwd").toString());
-          // rememberme   记住我
+                    UsernamePasswordToken(userInfo.getUserName(), userInfo.getPwd());
+            // rememberme   记住我
             token.setRememberMe(true);
             try {
                 // 执行登录.

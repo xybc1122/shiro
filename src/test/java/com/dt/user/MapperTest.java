@@ -7,13 +7,17 @@ import com.dt.user.model.Menu;
 import com.dt.user.model.RoleMenu;
 import com.dt.user.model.TableHead;
 import com.dt.user.model.UserInfo;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -88,6 +92,24 @@ public class MapperTest {
         List<Menu> list = menuMapper.findMenuList();
         for (Menu i : list) {
             System.out.println(i);
+        }
+    }
+
+    @Test
+    public void findUsers() {
+        int page =1;
+        int size =10;
+        List<UserInfo> listUser = userMapper.findByUsers(null);
+        PageHelper.startPage(page,size);
+        //获得一些信息
+        PageInfo<UserInfo> pageInfo= new PageInfo<>(listUser);
+        Map<String,Object> data = new HashMap<>();
+        data.put("total_size",pageInfo.getTotal());//总条数
+        data.put("total_page",pageInfo.getPages());//总页数
+        data.put("current_page",page);//当前页
+        data.put("data",pageInfo.getList());//数据
+        for (UserInfo u: pageInfo.getList()) {
+            System.out.println(u);
         }
     }
 }

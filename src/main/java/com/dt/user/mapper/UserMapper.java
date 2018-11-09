@@ -41,7 +41,7 @@ public interface UserMapper {
      * 查找 账号管理信息
      */
     @SelectProvider(type = UserProvider.class,method = "findUsers")
-    List<UserInfo> findByUsers();
+    List<UserInfo> findByUsers(UserInfo userInfo);
 
 
 }

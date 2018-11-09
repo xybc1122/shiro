@@ -34,3 +34,9 @@ mybatis :
     map-underscore-to-camel-case: true
 #打印sql 方便调试
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#page分页配置
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
