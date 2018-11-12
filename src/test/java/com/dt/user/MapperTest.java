@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,19 +98,27 @@ public class MapperTest {
 
     @Test
     public void findUsers() {
-        int page =1;
-        int size =10;
+        int page = 1;
+        int size = 10;
         List<UserInfo> listUser = userMapper.findByUsers(null);
-        PageHelper.startPage(page,size);
+        PageHelper.startPage(page, size);
         //获得一些信息
-        PageInfo<UserInfo> pageInfo= new PageInfo<>(listUser);
-        Map<String,Object> data = new HashMap<>();
-        data.put("total_size",pageInfo.getTotal());//总条数
-        data.put("total_page",pageInfo.getPages());//总页数
-        data.put("current_page",page);//当前页
-        data.put("data",pageInfo.getList());//数据
-        for (UserInfo u: pageInfo.getList()) {
+        PageInfo<UserInfo> pageInfo = new PageInfo<>(listUser);
+        Map<String, Object> data = new HashMap<>();
+        data.put("total_size", pageInfo.getTotal());//总条数
+        data.put("total_page", pageInfo.getPages());//总页数
+        data.put("current_page", page);//当前页
+        data.put("data", pageInfo.getList());//数据
+        for (UserInfo u : pageInfo.getList()) {
             System.out.println(u);
         }
+    }
+
+    @Test
+    public void upTime() {
+        UserInfo info = new UserInfo();
+        info.setLandingTime(new Date().getTime());
+        info.setUid(1L);
+        int a = userMapper.upUserLandingTime(info);
     }
 }

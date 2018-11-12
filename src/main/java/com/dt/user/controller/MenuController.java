@@ -93,7 +93,7 @@ public class MenuController {
     @GetMapping("/findMenuList")
     public ResponseBase findMenuList() {
         int page = 1;
-        int size = 3;
+        int size = 50;
         PageHelper.startPage(page, size);
         List<Menu> listMenu = menuService.findMenuList();
         //获得一些信息

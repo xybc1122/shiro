@@ -14,4 +14,7 @@ public interface UserService {
     //查询账号管理信息
     List<UserInfo> findByUsers(UserDto userDto);
 
+    //更新登陆时间
+    int upUserLandingTime(UserInfo userInfo);
+
 }

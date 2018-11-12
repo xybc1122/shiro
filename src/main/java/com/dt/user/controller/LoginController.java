@@ -4,19 +4,26 @@ import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.UserInfo;
+import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
 import com.dt.user.utils.JwtUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Date;
+
 @Controller
 public class LoginController {
+    @Autowired
+    private UserService userService;
+
     @ResponseBody
     @PostMapping("/ajaxLogin")
     //@RequestParam("userName")String name,@RequestParam("pwd")String pwd
@@ -47,11 +54,11 @@ public class LoginController {
                 user.setPwd(null);
                 user.setUserName(userShiro.getUserName());
                 user.setStatus(userShiro.getStatus());
-                user.setCreateDate(userShiro.getCreateDate());
-                user.setEffectiveDate(userShiro.getCreateDate());
                 user.setName(userShiro.getName());
+                user.setLandingTime(new Date().getTime());
                 //设置 JwtToken
                 String userToken = JwtUtils.genJsonWebToken(user);
+                userService.upUserLandingTime(user);
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);

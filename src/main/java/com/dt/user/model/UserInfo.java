@@ -43,7 +43,7 @@ public class UserInfo implements Serializable {
     /**
      * 创建日期
      */
-    private Date createDate;
+    private Long createDate;
     /**
      * 修改时间
      */
@@ -68,6 +68,9 @@ public class UserInfo implements Serializable {
 
     //角色名称
     private String rName;
+
+    //登陆时间
+   private Long landingTime;
 
     public Long getUid() {
         return uid;
@@ -117,11 +120,11 @@ public class UserInfo implements Serializable {
         this.upIdUser = upIdUser;
     }
 
-    public Date getCreateDate() {
+    public Long getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(Long createDate) {
         this.createDate = createDate;
     }
 
@@ -187,6 +190,14 @@ public class UserInfo implements Serializable {
 
     public void setrName(String rName) {
         this.rName = rName;
+    }
+
+    public Long getLandingTime() {
+        return landingTime;
+    }
+
+    public void setLandingTime(Long landingTime) {
+        this.landingTime = landingTime;
     }
 
     @Override

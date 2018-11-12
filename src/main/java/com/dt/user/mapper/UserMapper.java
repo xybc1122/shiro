@@ -45,4 +45,12 @@ public interface UserMapper {
     List<UserInfo> findByUsers(UserDto userDto);
 
 
+    /**
+     * 更新登陆时间
+     */
+    @Update("UPDATE `mydb`.`user_info`\n" +
+            "SET `landing_time` = #{landingTime}\n" +
+            "WHERE `uid` = #{uid};")
+    int upUserLandingTime(UserInfo userInfo);
+
 }

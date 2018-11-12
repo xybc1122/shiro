@@ -27,4 +27,9 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.findByUsers(userDto);
     }
+
+    @Override
+    public int upUserLandingTime(UserInfo userInfo) {
+        return userMapper.upUserLandingTime(userInfo);
+    }
 }

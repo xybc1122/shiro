@@ -4,22 +4,22 @@ import com.dt.user.model.UserInfo;
 
 public class UserDto extends UserInfo {
 
-    private Integer page;
-    private Integer size;
+    private Integer currentPage;
+    private Integer pageSize;
 
-    public Integer getPage() {
-        return page;
+    public Integer getCurrentPage() {
+        return currentPage;
     }
 
-    public void setPage(Integer page) {
-        this.page = page;
+    public void setCurrentPage(Integer currentPage) {
+        this.currentPage = currentPage;
     }
 
-    public Integer getSize() {
-        return size;
+    public Integer getPageSize() {
+        return pageSize;
     }
 
-    public void setSize(Integer size) {
-        this.size = size;
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
