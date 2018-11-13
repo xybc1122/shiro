@@ -70,7 +70,10 @@ public class UserInfo implements Serializable {
     private String rName;
 
     //登陆时间
-   private Long landingTime;
+    private Long landingTime;
+
+    //手机号码
+    private String mobilePhone;
 
     public Long getUid() {
         return uid;
@@ -190,6 +193,14 @@ public class UserInfo implements Serializable {
 
     public void setrName(String rName) {
         this.rName = rName;
+    }
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
+
+    public void setMobilePhone(String mobilePhone) {
+        this.mobilePhone = mobilePhone;
     }
 
     public Long getLandingTime() {

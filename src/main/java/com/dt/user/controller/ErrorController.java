@@ -16,4 +16,12 @@ public class ErrorController {
     {
         return BaseApiService.setResultError("您还没登陆!");
     }
+
+
+    @CrossOrigin
+    @RequestMapping("/error/403")
+    public ResponseBase error403()
+    {
+        return BaseApiService.setResultError("403!");
+    }
 }

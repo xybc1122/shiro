@@ -7,6 +7,7 @@ import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,14 @@ public class UserController {
         data.put("current_page", userDto.getCurrentPage());//当前页
         data.put("users", pageInfo.getList());//数据
         return BaseApiService.setResultSuccess(data);
+    }
+    //shiro权限控制
+    @RequiresPermissions("sys:user:up")
+    @PostMapping("/upUserInfo")
+    public ResponseBase userInfoUp (@RequestBody Map<String,Object> mapUser){
+
+        System.out.println(mapUser);
+        return BaseApiService.setResultSuccess("更新成功!");
     }
 
 }

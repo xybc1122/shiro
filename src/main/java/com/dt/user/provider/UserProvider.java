@@ -17,10 +17,11 @@ public class UserProvider {
     public String findUsers(UserDto userDto) {
         return new SQL() {{
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
-                    "r.r_name");
+                    "r.r_name,s.mobile_phone");
             FROM("user_info AS u");
             INNER_JOIN("user_role AS ur ON(ur.u_id=u.uid)");
             INNER_JOIN("role AS r ON(r.rid=ur.r_id)");
+            LEFT_OUTER_JOIN("`staff` AS s ON(u.uid=s.u_id)");
             if(StringUtils.isNotBlank(userDto.getUserName())){
                 WHERE("u.user_name=#{userName}");
             }
