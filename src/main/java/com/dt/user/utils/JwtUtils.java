@@ -4,6 +4,7 @@ import com.dt.user.model.UserInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Date;
 
@@ -54,5 +55,23 @@ public class JwtUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    //jwt解析
+    public static UserInfo jwtUser(String token) {
+        UserInfo userIfo = null;
+        if (StringUtils.isNotEmpty(token)) {
+            Claims claims = JwtUtils.checkJWT(token);
+            if (claims != null) {
+                userIfo = new UserInfo();
+                Integer id = (Integer) claims.get("id");
+                String name = (String) claims.get("name");
+                int status = (Integer) claims.get("status");
+                userIfo.setUid(id.longValue());
+                userIfo.setUserName(name);
+                userIfo.setStatus(status);
+            }
+        }
+        return userIfo;
     }
 }

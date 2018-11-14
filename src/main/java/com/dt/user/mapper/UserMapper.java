@@ -54,8 +54,8 @@ public interface UserMapper {
     int upUserLandingTime(UserInfo userInfo);
 
     /**
-     * 通过 id查询 用
+     * 通过 id查询 用户
      */
     @Select("SELECT uid,user_name,`status`,`name` FROM user_info WHERE uid=#{uid}")
-    UserInfo getSingleUser(@Param("uid") int id);
+    UserInfo getSingleUser(@Param("uid") Long id);
 }

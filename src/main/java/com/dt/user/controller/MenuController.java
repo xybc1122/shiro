@@ -41,7 +41,7 @@ public class MenuController {
     @GetMapping("show")
     public ResponseBase showMenu(HttpServletRequest request) {
         String token = GetCookie.getToken(request);
-        UserInfo user = jwtUser(token);
+        UserInfo user = JwtUtils.jwtUser(token);
         List<Menu> rootMenu; //父菜单List
         if (user != null) {
             rootMenu = menuService.queryMenuList(user);
@@ -104,23 +104,5 @@ public class MenuController {
         data.put("current_page", page);//当前页
         data.put("users", pageInfo.getList());//数据
         return BaseApiService.setResultSuccess(data);
-    }
-
-    //jwt解析
-    public UserInfo jwtUser(String token) {
-        UserInfo userIfo = null;
-        if (StringUtils.isNotEmpty(token)) {
-            Claims claims = JwtUtils.checkJWT(token);
-            if (claims != null) {
-                userIfo = new UserInfo();
-                Integer id = (Integer) claims.get("id");
-                String name = (String) claims.get("name");
-                int status = (Integer) claims.get("status");
-                userIfo.setUid(id.longValue());
-                userIfo.setUserName(name);
-                userIfo.setStatus(status);
-            }
-        }
-        return userIfo;
     }
 }

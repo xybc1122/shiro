@@ -5,12 +5,16 @@ import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
+import com.dt.user.utils.GetCookie;
+import com.dt.user.utils.JwtUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,7 @@ import java.util.Map;
 @RequestMapping("/user/")
 @RestController
 public class UserController {
+
     @Autowired
     private UserService userService;
 
@@ -40,12 +45,27 @@ public class UserController {
         data.put("users", pageInfo.getList());//数据
         return BaseApiService.setResultSuccess(data);
     }
+
     //shiro权限控制
     @RequiresPermissions("sys:user:up")
     @PostMapping("/upUserInfo")
-    public ResponseBase userInfoUp (@RequestBody Map<String,Object> mapUser) {
+    public ResponseBase userInfoUp(@RequestBody Map<String, Object> mapUser) {
 
         System.out.println(mapUser);
         return BaseApiService.setResultSuccess("更新成功!");
+    }
+
+    @GetMapping("/getUser")
+    public ResponseBase getUser(HttpServletRequest request) {
+        String token = GetCookie.getToken(request);
+        if (StringUtils.isNotEmpty(token)) {
+            UserInfo user = JwtUtils.jwtUser(token);
+            if (user != null) {
+                UserInfo userInfo = userService.getSingleUser(user.getUid());
+                return BaseApiService.setResultSuccess(userInfo);
+            }
+        }
+        return BaseApiService.setResultError("token无效~~");
+
     }
 }

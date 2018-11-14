@@ -7,9 +7,7 @@ import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
-import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
@@ -37,31 +35,31 @@ public class LoginController extends BaseApiService {
         // 把用户名和密码封装为 UsernamePasswordToken 对象 记住我
         UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd());
         try {
-            // 执行登录.
-            currentUser.login(token);
+            if (!currentUser.isAuthenticated()) {
+                // 执行登录.
+                currentUser.login(token);
+                UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
+                //设置 JwtToken
+                String userToken = JwtUtils.genJsonWebToken(user);
+                user.setPwd(null);
+                user.setLandingTime(new Date().getTime());
+                //更新登陆时间
+                userService.upUserLandingTime(user);
+                dataUserJson = new JSONObject();
+                dataUserJson.put("user", user);
+                dataUserJson.put("token", userToken);
+                //设置token到redis 保留7天的时间
+                baseRedisService.setString(user.getUserName(), dataUserJson.toString(), 24 * 60 * 7L);
+                return BaseApiService.setResultSuccess(dataUserJson);
+            } else {
+                return BaseApiService.setResultError("已登录~");
+            }
 
         } catch (IncorrectCredentialsException ie) {
             return BaseApiService.setResultError("账号或者密码错误!");
 
         } catch (AuthenticationException ae) {
             return BaseApiService.setResultError(ae.getMessage());
-        }
-        if (currentUser.isAuthenticated()) {
-            UserInfo user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
-            //设置 JwtToken
-            String userToken = JwtUtils.genJsonWebToken(user);
-            user.setPwd(null);
-            user.setLandingTime(new Date().getTime());
-            //更新登陆时间
-            userService.upUserLandingTime(user);
-            dataUserJson = new JSONObject();
-            dataUserJson.put("user", user);
-            dataUserJson.put("token", userToken);
-            //设置token到redis 保留7天的时间
-            baseRedisService.setString(user.getUserName(), dataUserJson.toString(), 24 * 60 * 7L);
-            return BaseApiService.setResultSuccess(dataUserJson);
-        } else {
-            return null;
         }
     }
 

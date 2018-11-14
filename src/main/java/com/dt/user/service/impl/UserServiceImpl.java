@@ -32,4 +32,9 @@ public class UserServiceImpl implements UserService {
     public int upUserLandingTime(UserInfo userInfo) {
         return userMapper.upUserLandingTime(userInfo);
     }
+
+    @Override
+    public UserInfo getSingleUser(Long id) {
+        return userMapper.getSingleUser(id);
+    }
 }
