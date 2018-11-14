@@ -1,10 +1,15 @@
 package com.dt.user.shiro;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.ApplicationContextRegister;
+import com.dt.user.config.BaseApiService;
+import com.dt.user.config.BaseRedisService;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.MenuService;
 import com.dt.user.service.RoleService;
 import com.dt.user.service.UserService;
+import com.dt.user.utils.GetCookie;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -12,13 +17,20 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
 /**
  * AuthorizingRealm 用户认证
  */
 public class UserRealm extends AuthorizingRealm {
+
+    @Autowired
+    private BaseRedisService baseRedisService;
 
     /**
      * 授权方法
@@ -51,8 +63,6 @@ public class UserRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        System.out.println("--------------->UserRealm doGetAuthenticationInfo");
-        //获得表单的用户输入
         String userName = (String) token.getPrincipal();
         UserService userService = ApplicationContextRegister.getBean(UserService.class);
         //查询用户信息

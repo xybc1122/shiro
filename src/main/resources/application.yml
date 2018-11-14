@@ -4,35 +4,43 @@ eureka:
     serviceUrl:
       defaultZone: http://120.79.153.77:8660/eureka/
   instance:
-      instance-id: ${spring.cloud.client.ip-address}:${server.port}
-      prefer-ip-address: true
+    instance-id: ${spring.cloud.client.ip-address}:${server.port}
+    prefer-ip-address: true
 server:
   port: 9001
 spring:
-   datasource:
-      type: com.alibaba.druid.pool.DruidDataSource
-      url: jdbc:mysql://120.79.153.77:3306/mydb?useUnicode=true&characterEncoding=utf-8
-      username: root
-      password: wawzj7788
-#redis
-   redis:
-       host: 120.79.153.77
-       port: 6379
-       jedis:
-         pool:
-           max-idle: 8
-           min-idle: 0
-           max-active: 8
-           max-wait: -1
-       timeout: 0
-         #服务的名称
-   application:
-     name: user-service
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://120.79.153.77:3306/mydb?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: wawzj7788
+    ################Redis
+    #连接第0个库
+  redis:
+    database: 0
+    #连接的地址
+    host: 120.79.153.77
+    #超时时间：单位ms
+    timeout: 3000
+    #端口号
+    port: 6379
+    ##最大连接数：能够同时建立的“最大链接个数”
+    pool:
+      maxActive: 2000
+      #最大空闲数：空闲链接数大于maxIdle时，将进行回收
+      maxIdle: 200
+      #最小空闲数：低于minIdle时，将创建新的链接
+      minIdle: 200
+      #最大等待时间：单位ms
+      maxWait: 1000
+      #服务的名称
+    application:
+      name: user-service
 #mybatis 下划线转驼峰 映射配置  有了这个不用写xml
-mybatis :
+mybatis:
   configuration:
     map-underscore-to-camel-case: true
-#打印sql 方便调试
+    #打印sql 方便调试
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 #page分页配置
 pagehelper:

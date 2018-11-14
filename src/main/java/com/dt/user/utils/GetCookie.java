@@ -9,6 +9,9 @@ public class GetCookie {
     public static String getToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         String token = "";
+        if(cookies==null){
+            return null;
+        }
         for (Cookie cookie : cookies) {
             switch (cookie.getName()) {
                 case "token":

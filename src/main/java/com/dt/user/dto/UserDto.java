@@ -7,6 +7,8 @@ public class UserDto extends UserInfo {
     private Integer currentPage;
     private Integer pageSize;
 
+    private boolean checked; //记住我
+
     public Integer getCurrentPage() {
         return currentPage;
     }
@@ -21,5 +23,13 @@ public class UserDto extends UserInfo {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }
