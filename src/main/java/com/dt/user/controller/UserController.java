@@ -43,10 +43,9 @@ public class UserController {
     //shiro权限控制
     @RequiresPermissions("sys:user:up")
     @PostMapping("/upUserInfo")
-    public ResponseBase userInfoUp (@RequestBody Map<String,Object> mapUser){
+    public ResponseBase userInfoUp (@RequestBody Map<String,Object> mapUser) {
 
         System.out.println(mapUser);
         return BaseApiService.setResultSuccess("更新成功!");
     }
-
 }
