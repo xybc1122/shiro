@@ -22,6 +22,7 @@ import java.util.Date;
 
 @Controller
 public class LoginController extends BaseApiService {
+
     @Autowired
     private UserService userService;
 

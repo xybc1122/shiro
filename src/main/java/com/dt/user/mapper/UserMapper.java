@@ -6,6 +6,7 @@ import com.dt.user.provider.UserProvider;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @Mapper
@@ -13,6 +14,7 @@ public interface UserMapper {
 
     /**
      * 查找用户信息
+     *
      * @param userName
      * @return
      */
@@ -33,15 +35,16 @@ public interface UserMapper {
 
     /**
      * 查找用户的角色
+     *
      * @return
      */
-    @SelectProvider(type = UserProvider.class,method = "findUserRole")
+    @SelectProvider(type = UserProvider.class, method = "findUserRole")
     List<UserInfo> findByUserAndRole();
 
     /**
      * 查找 账号管理信息
      */
-    @SelectProvider(type = UserProvider.class,method = "findUsers")
+    @SelectProvider(type = UserProvider.class, method = "findUsers")
     List<UserInfo> findByUsers(UserDto userDto);
 
 
@@ -57,5 +60,20 @@ public interface UserMapper {
      * 通过 id查询 用户
      */
     @Select("SELECT uid,user_name,`status`,`name` FROM user_info WHERE uid=#{uid}")
-    UserInfo getSingleUser(@Param("uid") Long id);
+    UserInfo getSingleUser(@Param("uid") Long uid);
+
+
+    /**
+     * 更新用户信息
+     */
+    @UpdateProvider(type = UserProvider.class, method = "upUserInfo")
+    int upUser(Map<String, Object> mapUser);
+
+
+    /**
+     * 更新员工表信息
+     */
+    @UpdateProvider(type = UserProvider.class,method = "upStaff")
+    int upStaff(Map<String, Object> mapStaff);
+
 }

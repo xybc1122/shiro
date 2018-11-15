@@ -6,6 +6,7 @@ import com.dt.user.model.UserInfo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService {
     //登陆查询用户
@@ -24,4 +25,16 @@ public interface UserService {
      */
     UserInfo getSingleUser(Long id);
 
+    /**
+     * 更新用户信息
+     * @param mapUser
+     * @return
+     */
+
+    int upUser(Map<String, Object> mapUser);
+
+    /**
+     * 更新员工表信息
+     */
+    int upStaff(Map<String, Object> mapStaff);
 }

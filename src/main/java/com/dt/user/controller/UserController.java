@@ -50,11 +50,11 @@ public class UserController {
     @RequiresPermissions("sys:user:up")
     @PostMapping("/upUserInfo")
     public ResponseBase userInfoUp(@RequestBody Map<String, Object> mapUser) {
-
-        System.out.println(mapUser);
-        return BaseApiService.setResultSuccess("更新成功!");
+        userService.upUser(mapUser);
+        userService.upStaff(mapUser);
+        return BaseApiService.setResultSuccess();
     }
-
+    //        String rName = mapUser.get("rName").toString();
     @GetMapping("/getUser")
     public ResponseBase getUser(HttpServletRequest request) {
         String token = GetCookie.getToken(request);

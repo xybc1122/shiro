@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,5 +37,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfo getSingleUser(Long id) {
         return userMapper.getSingleUser(id);
+    }
+
+    @Override
+    public int upUser(Map<String, Object> mapUser) {
+        return userMapper.upUser(mapUser);
+    }
+
+    @Override
+    public int upStaff(Map<String, Object> mapStaff) {
+        return userMapper.upStaff(mapStaff);
     }
 }
