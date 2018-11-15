@@ -20,7 +20,7 @@ public class UserProvider {
     public String findUsers(UserDto userDto) {
         return new SQL() {{
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
-                    "r.r_name,s.mobile_phone");
+                    "GROUP_CONCAT(r.`r_name`)as rName,s.mobile_phone");
             FROM("user_info AS u");
             INNER_JOIN("user_role AS ur ON(ur.u_id=u.uid)");
             INNER_JOIN("role AS r ON(r.rid=ur.r_id)");
@@ -34,6 +34,7 @@ public class UserProvider {
             if (StringUtils.isNotBlank(userDto.getrName())) {
                 WHERE("r.r_name=#{rName}");
             }
+            GROUP_BY("u.uid");
         }}.toString();
     }
 

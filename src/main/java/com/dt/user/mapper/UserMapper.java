@@ -76,4 +76,12 @@ public interface UserMapper {
     @UpdateProvider(type = UserProvider.class,method = "upStaff")
     int upStaff(Map<String, Object> mapStaff);
 
+//    #查询所有用户 有什么角色跟 菜单权限
+//    SELECT u.user_name,GROUP_CONCAT(DISTINCT r.r_name),GROUP_CONCAT(m.name) FROM user_info AS u
+//    INNER JOIN user_role AS ur ON ur.u_id =u.`uid`
+//    INNER JOIN role AS r ON  ur.r_id = r.`rid`
+//    INNER JOIN role_menu AS rm ON rm.`r_id`=r.`rid`
+//    INNER JOIN menu AS m ON m.`menu_id`=rm.`m_id`
+//    GROUP BY u.uid
+
 }
