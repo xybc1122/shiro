@@ -48,4 +48,11 @@ public class UserServiceImpl implements UserService {
     public int upStaff(Map<String, Object> mapStaff) {
         return userMapper.upStaff(mapStaff);
     }
+
+
+    @Override
+    public List<UserInfo> findByRoleInfo(UserDto userDto) {
+
+        return userMapper.findByRoleInfo(userDto);
+    }
 }

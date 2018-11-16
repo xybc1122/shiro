@@ -1,17 +1,20 @@
 package com.dt.user.controller;
 
 import com.dt.user.config.BaseApiService;
+import com.dt.user.config.BaseRedisService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
+import com.dt.user.utils.PageInfoUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,15 +41,12 @@ public class UserController {
         List<UserInfo> listUser = userService.findByUsers(userDto);
         //获得一些信息
         PageInfo<UserInfo> pageInfo = new PageInfo<>(listUser);
-        Map<String, Object> data = new HashMap<>();
-        data.put("total_size", pageInfo.getTotal());//总条数
-        data.put("total_page", pageInfo.getPages());//总页数
-        data.put("current_page", userDto.getCurrentPage());//当前页
-        data.put("users", pageInfo.getList());//数据
-        return BaseApiService.setResultSuccess(data);
+        Integer currentPage = userDto.getCurrentPage();
+        return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
     }
 
     //shiro权限控制
+    @Transactional //事物
     @RequiresPermissions("sys:user:up")
     @PostMapping("/upUserInfo")
     public ResponseBase userInfoUp(@RequestBody Map<String, Object> mapUser) {
@@ -54,7 +54,7 @@ public class UserController {
         userService.upStaff(mapUser);
         return BaseApiService.setResultSuccess();
     }
-    //        String rName = mapUser.get("rName").toString();
+
     @GetMapping("/getUser")
     public ResponseBase getUser(HttpServletRequest request) {
         String token = GetCookie.getToken(request);
@@ -66,6 +66,14 @@ public class UserController {
             }
         }
         return BaseApiService.setResultError("token无效~~");
+    }
 
+
+    @PostMapping("/getRoles")
+    public ResponseBase getRoles(@RequestBody UserDto userDto) {
+        List<UserInfo> listRoles = userService.findByRoleInfo(userDto);
+        PageInfo<UserInfo> pageInfo = new PageInfo<>(listRoles);
+        Integer currentPage = userDto.getCurrentPage();
+        return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
     }
 }

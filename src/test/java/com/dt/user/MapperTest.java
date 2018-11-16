@@ -121,4 +121,10 @@ public class MapperTest {
         info.setUid(1L);
         int a = userMapper.upUserLandingTime(info);
     }
+
+    @Test
+    public void findByRoleInfo() {
+        List<UserInfo> u = userMapper.findByRoleInfo(null);
+        System.out.println(u.size());
+    }
 }

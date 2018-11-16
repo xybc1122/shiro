@@ -5,6 +5,7 @@ import com.dt.user.dto.UserDto;
 import com.dt.user.utils.DateUtiils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
+
 import java.util.Map;
 
 public class UserProvider {
@@ -65,15 +66,27 @@ public class UserProvider {
         }}.toString();
     }
 
-    public String  upStaff(Map<String, Object> mapStaff){
+    public String upStaff(Map<String, Object> mapStaff) {
         Long uMobilePhone = Long.parseLong(mapStaff.get("uMobilePhone").toString());
         Long uid = Long.parseLong(mapStaff.get("uid").toString());
-        return new SQL(){{
+        return new SQL() {{
             UPDATE("`staff`");
-            if(uMobilePhone!=null){
+            if (uMobilePhone != null) {
                 SET("mobile_phone=" + uMobilePhone);
             }
             WHERE("u_id=" + uid);
+        }}.toString();
+    }
+
+
+    public String findByRoleInfo(UserDto userDto) {
+      return new SQL() {{
+            SELECT(" r.r_name,GROUP_CONCAT(DISTINCT u.user_name)as userName,GROUP_CONCAT(DISTINCT m.name)as menuName FROM user_info AS u");
+            INNER_JOIN("user_role AS ur ON ur.`u_id`=u.`uid`");
+            INNER_JOIN("role AS r ON ur.`r_id`=r.`rid`");
+            INNER_JOIN("role_menu AS rm ON rm.`r_id`=r.`rid`");
+            INNER_JOIN("menu AS m ON m.`menu_id`=rm.`m_id`");
+            GROUP_BY("r.r_name");
         }}.toString();
     }
 }

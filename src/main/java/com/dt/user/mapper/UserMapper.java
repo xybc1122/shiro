@@ -73,15 +73,15 @@ public interface UserMapper {
     /**
      * 更新员工表信息
      */
-    @UpdateProvider(type = UserProvider.class,method = "upStaff")
+    @UpdateProvider(type = UserProvider.class, method = "upStaff")
     int upStaff(Map<String, Object> mapStaff);
 
-//    #查询所有用户 有什么角色跟 菜单权限
-//    SELECT u.user_name,GROUP_CONCAT(DISTINCT r.r_name),GROUP_CONCAT(m.name) FROM user_info AS u
-//    INNER JOIN user_role AS ur ON ur.u_id =u.`uid`
-//    INNER JOIN role AS r ON  ur.r_id = r.`rid`
-//    INNER JOIN role_menu AS rm ON rm.`r_id`=r.`rid`
-//    INNER JOIN menu AS m ON m.`menu_id`=rm.`m_id`
-//    GROUP BY u.uid
+    /**
+     * 查询一个角色下的所有用户跟 菜单
+     * @param userDto
+     * @return
+     */
+    @SelectProvider(type = UserProvider.class, method = "findByRoleInfo")
+    List<UserInfo> findByRoleInfo(UserDto userDto);
 
 }

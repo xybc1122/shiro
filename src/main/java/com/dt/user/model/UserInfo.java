@@ -75,6 +75,17 @@ public class UserInfo implements Serializable {
     //手机号码
     private String mobilePhone;
 
+    //菜单名称
+    private String menuName;
+
+    public String getMenuName() {
+        return menuName;
+    }
+
+    public void setMenuName(String menuName) {
+        this.menuName = menuName;
+    }
+
     public Long getUid() {
         return uid;
     }
