@@ -4,6 +4,7 @@ import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.provider.UserProvider;
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.mapping.FetchType;
 
 import java.util.List;
 import java.util.Map;
@@ -20,16 +21,6 @@ public interface UserMapper {
      */
     @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
             "user_status,account_Status,name  from user_info where user_name=#{userName}")
-    @Results({
-            //column数据的字段  property 实体类的字段
-            @Result(id = true, column = "uid", property = "uid")
-//            @Result(column="uid",property="roles",
-//                    many=@Many(
-//                            select="com.dt.user.mapper.RolesMapper.getAllRolesByUid",
-//                            fetchType=FetchType.LAZY
-//                    )
-//            )
-    })
     UserInfo findByUser(@Param("userName") String userName);
 
 
@@ -57,9 +48,19 @@ public interface UserMapper {
     int upUserLandingTime(UserInfo userInfo);
 
     /**
-     * 通过 id查询 用户
+     * 通过 id查询 用户 跟角色
      */
+
     @Select("SELECT uid,user_name,`status`,`name` FROM user_info WHERE uid=#{uid}")
+    @Results({
+            @Result(id=true,column="uid",property="uid"),
+            @Result(column="uid",property="roles",
+                    many=@Many(
+                            select="com.dt.user.mapper.RolesMapper.getAllRolesByUid",
+                            fetchType=FetchType.LAZY
+                    )
+            )
+    })
     UserInfo getSingleUser(@Param("uid") Long uid);
 
 
@@ -78,6 +79,7 @@ public interface UserMapper {
 
     /**
      * 查询一个角色下的所有用户跟 菜单
+     *
      * @param userDto
      * @return
      */

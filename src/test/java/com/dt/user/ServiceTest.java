@@ -30,7 +30,7 @@ public class ServiceTest {
 
     @Test
     public void findByMenuIdHeadList() {
-       List<TableHead> s= tableHeadService.findByMenuIdHeadList(1L);
+       List<TableHead> s= tableHeadService.findByMenuIdHeadList(1L,1L);
         for (TableHead a: s) {
             System.out.println(a);
         }

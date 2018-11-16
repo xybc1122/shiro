@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface TableHeadService {
 
-    List<TableHead> findByMenuIdHeadList(Long id);
+    List<TableHead> findByMenuIdHeadList(Long id,Long uid);
 }

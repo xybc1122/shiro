@@ -1,6 +1,8 @@
 package com.dt.user.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.Set;
 /**
  * 用户实体类
  */
+@JsonIgnoreProperties(value = {"handler"})
 public class UserInfo implements Serializable {
     private static final long serialVersionUID = 1L;
     /**

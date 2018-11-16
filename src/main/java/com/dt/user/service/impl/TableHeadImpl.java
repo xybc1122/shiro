@@ -12,15 +12,16 @@ import java.util.List;
 
 @Service
 public class TableHeadImpl implements TableHeadService {
+
     @Autowired
     private TableHeadMapper tableHeadMapper;
 
     @Override
-    public List<TableHead> findByMenuIdHeadList(Long id) {
+    public List<TableHead> findByMenuIdHeadList(Long id,Long uid) {
         //创建一个新的数组
         List<TableHead> headNew = new ArrayList<>();
         //接收数据库传来的对象
-        List<TableHead> headList = tableHeadMapper.findByHeader();
+        List<TableHead> headList = tableHeadMapper.findByHeader(uid);
         for (TableHead head : headList) {
             //判断不为空
             if (StringUtils.isNotBlank(head.getMenuId())) {

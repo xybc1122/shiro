@@ -8,6 +8,8 @@ public class TableHead implements Serializable {
   private String headName;
   private String menuId;
 
+  private String topType;
+
 
   public long getId() {
     return id;
@@ -35,4 +37,11 @@ public class TableHead implements Serializable {
     this.menuId = menuId;
   }
 
+  public String getTopType() {
+    return topType;
+  }
+
+  public void setTopType(String topType) {
+    this.topType = topType;
+  }
 }

@@ -81,7 +81,7 @@ public class MapperTest {
     @Test
     public void findByHeader() {
         // 原始的数据
-        List<TableHead> s = tableHeadMapper.findByHeader();
+        List<TableHead> s = tableHeadMapper.findByHeader(1L);
         for (TableHead t : s) {
             System.out.println(s);
         }

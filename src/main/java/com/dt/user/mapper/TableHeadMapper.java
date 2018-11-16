@@ -3,16 +3,24 @@ package com.dt.user.mapper;
 import com.dt.user.model.TableHead;
 import com.dt.user.model.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+
 @Mapper
 public interface TableHeadMapper {
 
     /**
-     * 查询所有表头
+     * 根据用户id 查询对应显示的表头
+     *
      * @return
      */
-    @Select("select id,head_name,menu_id from `table_head`")
-    List<TableHead> findByHeader();
+    @Select("SELECT u.uid,u.user_name,t.id,t.head_name,t.menu_id,GROUP_CONCAT(DISTINCT t.`top_type`)as topType FROM user_info AS u\n" +
+            "INNER JOIN user_role AS ur ON ur.`u_id`=u.`uid`\n" +
+            "INNER JOIN role AS r ON r.`rid`=ur.`r_id`\n" +
+            "INNER JOIN tb_head_role AS tr ON tr.`rid`=r.`rid`\n" +
+            "INNER JOIN table_head AS t ON tr.`th_id`=t.id\n" +
+            "WHERE u.uid =#{uid} GROUP BY t.head_name")
+    List<TableHead> findByHeader(@Param("uid") Long uid);
 }
