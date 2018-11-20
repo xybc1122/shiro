@@ -6,7 +6,9 @@ import com.dt.user.utils.DateUtiils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Date;
 
 public class UserProvider {
 
@@ -35,6 +37,7 @@ public class UserProvider {
             if (StringUtils.isNotBlank(userDto.getrName())) {
                 WHERE("r.r_name=#{rName}");
             }
+            WHERE("del_user=0");
             GROUP_BY("u.uid");
         }}.toString();
     }
@@ -80,7 +83,7 @@ public class UserProvider {
 
 
     public String findByRoleInfo(UserDto userDto) {
-      return new SQL() {{
+        return new SQL() {{
             SELECT(" r.r_name,GROUP_CONCAT(DISTINCT u.user_name)as userName,GROUP_CONCAT(DISTINCT m.name)as menuName FROM user_info AS u");
             INNER_JOIN("user_role AS ur ON ur.`u_id`=u.`uid`");
             INNER_JOIN("role AS r ON ur.`r_id`=r.`rid`");
@@ -88,5 +91,23 @@ public class UserProvider {
             INNER_JOIN("menu AS m ON m.`menu_id`=rm.`m_id`");
             GROUP_BY("r.r_name");
         }}.toString();
+    }
+
+    public String delUserInfo(Map<String, Object> mapDel) {
+        String uidIds = mapDel.get("uidIds").toString();
+        String[] newIds = uidIds.split(",");
+        List<String> ids = java.util.Arrays.asList(newIds);
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE `user_info`\n" +
+                "SET `del_user` = 1" +
+                ",`del_date` = " + new Date().getTime() + "\n" +
+                "WHERE uid in (");
+        for (String id : ids) {
+            if (ids.indexOf(id) > 0)
+                sql.append(",");
+            sql.append("'").append(id).append("'");
+        }
+        sql.append(")");
+        return sql.toString();
     }
 }

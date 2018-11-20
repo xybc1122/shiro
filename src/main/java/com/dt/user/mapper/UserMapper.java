@@ -20,7 +20,7 @@ public interface UserMapper {
      * @return
      */
     @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
-            "user_status,account_Status,name  from user_info where user_name=#{userName}")
+            "user_status,account_Status,name,del_user  from user_info where user_name=#{userName}")
     UserInfo findByUser(@Param("userName") String userName);
 
 
@@ -53,11 +53,11 @@ public interface UserMapper {
 
     @Select("SELECT uid,user_name,`status`,`name` FROM user_info WHERE uid=#{uid}")
     @Results({
-            @Result(id=true,column="uid",property="uid"),
-            @Result(column="uid",property="roles",
-                    many=@Many(
-                            select="com.dt.user.mapper.RolesMapper.getAllRolesByUid",
-                            fetchType=FetchType.LAZY
+            @Result(id = true, column = "uid", property = "uid"),
+            @Result(column = "uid", property = "roles",
+                    many = @Many(
+                            select = "com.dt.user.mapper.RolesMapper.getAllRolesByUid",
+                            fetchType = FetchType.LAZY
                     )
             )
     })
@@ -86,4 +86,15 @@ public interface UserMapper {
     @SelectProvider(type = UserProvider.class, method = "findByRoleInfo")
     List<UserInfo> findByRoleInfo(UserDto userDto);
 
+    /**
+     * 单个删除或批量删除用户信息
+     */
+    @UpdateProvider(type = UserProvider.class, method = "delUserInfo")
+    int delUserInfo(@Param("uidIds") String uidIds);
+
+    /**
+     * 查询被删除的用户信息
+     */
+    @Select("select uid, user_name,del_date,name from user_info where del_user=1")
+    List<UserInfo> findByDelUserInfo();
 }

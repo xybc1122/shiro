@@ -3,6 +3,7 @@ package com.dt.user.service;
 
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -44,4 +45,13 @@ public interface UserService {
      * @return
      */
     List<UserInfo> findByRoleInfo(UserDto userDto);
+    /**
+     * 单个删除或批量删除用户信息
+     */
+    int delUserInfo(String uidIds);
+
+    /**
+     * 查询被删除的用户信息
+     */
+    List<UserInfo> findByDelUserInfo();
 }

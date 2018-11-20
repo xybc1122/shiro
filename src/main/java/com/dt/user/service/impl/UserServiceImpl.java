@@ -55,4 +55,14 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.findByRoleInfo(userDto);
     }
+
+    @Override
+    public int delUserInfo(String uidIds) {
+        return userMapper.delUserInfo(uidIds);
+    }
+
+    @Override
+    public List<UserInfo> findByDelUserInfo() {
+        return userMapper.findByDelUserInfo();
+    }
 }

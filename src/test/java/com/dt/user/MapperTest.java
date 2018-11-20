@@ -15,10 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -126,5 +123,12 @@ public class MapperTest {
     public void findByRoleInfo() {
         List<UserInfo> u = userMapper.findByRoleInfo(null);
         System.out.println(u.size());
+    }
+
+    @Test
+    public void delUserInfo() {
+        String uidIds = "2,3,4,5,6,7";
+        int u = userMapper.delUserInfo(uidIds);
+        System.out.println(u);
     }
 }

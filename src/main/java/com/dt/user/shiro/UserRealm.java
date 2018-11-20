@@ -17,6 +17,7 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
+
 import java.util.Set;
 
 /**
@@ -66,6 +67,9 @@ public class UserRealm extends AuthorizingRealm {
         // 账号锁定 异常
         if (user.getAccountStatus() == 1) {
             throw new LockedAccountException("账号已被锁定,请联系管理员");
+        }
+        if (user.getDelUser() == 1) {
+            throw new ExpiredCredentialsException("账号凭着已过期/或删除 请联系管理员");
         }
         //盐值加密
         ByteSource salt = ByteSource.Util.bytes(user.getUserName());

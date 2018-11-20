@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 用户实体类
@@ -80,6 +79,13 @@ public class UserInfo implements Serializable {
 
     //菜单名称
     private String menuName;
+
+    //是否删除标示
+    private Integer delUser;
+    //删除的时间
+    private Long delDate;
+    //恢复时记录的时间
+    private Long restoreDate;
 
     public String getMenuName() {
         return menuName;
@@ -223,6 +229,30 @@ public class UserInfo implements Serializable {
 
     public void setLandingTime(Long landingTime) {
         this.landingTime = landingTime;
+    }
+
+    public Integer getDelUser() {
+        return delUser;
+    }
+
+    public void setDelUser(Integer delUser) {
+        this.delUser = delUser;
+    }
+
+    public Long getDelDate() {
+        return delDate;
+    }
+
+    public void setDelDate(Long delDate) {
+        this.delDate = delDate;
+    }
+
+    public Long getRestoreDate() {
+        return restoreDate;
+    }
+
+    public void setRestoreDate(Long restoreDate) {
+        this.restoreDate = restoreDate;
     }
 
     @Override
