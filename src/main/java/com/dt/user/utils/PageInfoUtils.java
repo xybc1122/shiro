@@ -12,7 +12,7 @@ public class PageInfoUtils {
         data.put("total_size", pageInfo.getTotal());//总条数
         data.put("total_page", pageInfo.getPages());//总页数
         data.put("current_page", currentPage);//当前页
-        data.put("users", pageInfo.getList());//数据
+        data.put("dataList", pageInfo.getList());//数据
         return data;
     }
 }

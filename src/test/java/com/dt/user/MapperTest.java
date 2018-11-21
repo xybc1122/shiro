@@ -1,12 +1,10 @@
 package com.dt.user;
 
+import com.dt.user.mapper.BasicPublicCompanyMapper;
 import com.dt.user.mapper.MenuMapper;
 import com.dt.user.mapper.TableHeadMapper;
 import com.dt.user.mapper.UserMapper;
-import com.dt.user.model.Menu;
-import com.dt.user.model.RoleMenu;
-import com.dt.user.model.TableHead;
-import com.dt.user.model.UserInfo;
+import com.dt.user.model.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.junit.Test;
@@ -27,6 +25,9 @@ public class MapperTest {
 
     @Autowired
     private TableHeadMapper tableHeadMapper;
+
+    @Autowired
+    private BasicPublicCompanyMapper basicPublicCompanyMapper;
 
     @Test
     public void findByUser() {
@@ -130,5 +131,13 @@ public class MapperTest {
         String uidIds = "2,3,4,5,6,7";
         int u = userMapper.delUserInfo(uidIds);
         System.out.println(u);
+    }
+
+    @Test
+    public void findByListCompany() {
+        List<BasicPublicCompany> s = basicPublicCompanyMapper.findByListCompany();
+        for (BasicPublicCompany a:s) {
+            System.out.println(a);
+        }
     }
 }
