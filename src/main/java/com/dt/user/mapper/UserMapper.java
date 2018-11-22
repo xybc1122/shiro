@@ -56,7 +56,7 @@ public interface UserMapper {
             @Result(id = true, column = "uid", property = "uid"),
             @Result(column = "uid", property = "roles",
                     many = @Many(
-                            select = "com.dt.user.mapper.RolesMapper.getAllRolesByUid",
+                            select = "com.dt.user.mapper.RoleMapper.getAllRolesByUid",
                             fetchType = FetchType.LAZY
                     )
             )
