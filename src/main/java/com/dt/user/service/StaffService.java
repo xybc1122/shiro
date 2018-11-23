@@ -11,4 +11,9 @@ public interface StaffService {
      * 获得员工信息 没有关联用户的
      */
     List<Staff> GetStaffList();
+
+    /**
+     * 绑定用户id跟员工id信息
+     */
+    int upStaffInfo(Long uid,Long sid);
 }

@@ -18,4 +18,9 @@ public class StaffServiceImpl implements StaffService {
     public List<Staff> GetStaffList() {
         return staffMapper.GetStaffList();
     }
+
+    @Override
+    public int upStaffInfo(Long uid, Long sid) {
+        return staffMapper.upStaffInfo(uid, sid);
+    }
 }

@@ -3,7 +3,6 @@ package com.dt.user.service;
 
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -54,4 +53,14 @@ public interface UserService {
      * 查询被删除的用户信息
      */
     List<UserInfo> findByDelUserInfo();
+
+    /**
+     * 注册用户验证用户是否存在
+     */
+
+    UserInfo GetUserName(String userName);
+    /**
+     * 新增一个用户
+     */
+    int saveUserInfo(UserInfo userInfo);
 }

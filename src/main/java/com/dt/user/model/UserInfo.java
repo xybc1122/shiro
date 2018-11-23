@@ -37,7 +37,7 @@ public class UserInfo implements Serializable {
     /**
      * 创建人员id
      */
-    private String createIdUser;
+    private Long createIdUser;
     /**
      * 更新人id
      */
@@ -49,15 +49,15 @@ public class UserInfo implements Serializable {
     /**
      * 修改时间
      */
-    private Date upDate;
+    private Long upDate;
     /**
      * 用户有效时间
      */
-    private Date effectiveDate;
+    private Long effectiveDate;
     /**
      * 密码状态 0为始终有效  非0密码到期会提示修改密码
      */
-    private Integer pwdStatus;
+    private Long pwdStatus;
     /**
      * 用户是否始终有效
      */
@@ -127,11 +127,11 @@ public class UserInfo implements Serializable {
         this.status = status;
     }
 
-    public String getCreateIdUser() {
+    public Long getCreateIdUser() {
         return createIdUser;
     }
 
-    public void setCreateIdUser(String createIdUser) {
+    public void setCreateIdUser(Long createIdUser) {
         this.createIdUser = createIdUser;
     }
 
@@ -151,27 +151,27 @@ public class UserInfo implements Serializable {
         this.createDate = createDate;
     }
 
-    public Date getUpDate() {
+    public Long getUpDate() {
         return upDate;
     }
 
-    public void setUpDate(Date upDate) {
+    public void setUpDate(Long upDate) {
         this.upDate = upDate;
     }
 
-    public Date getEffectiveDate() {
+    public Long getEffectiveDate() {
         return effectiveDate;
     }
 
-    public void setEffectiveDate(Date effectiveDate) {
+    public void setEffectiveDate(Long effectiveDate) {
         this.effectiveDate = effectiveDate;
     }
 
-    public Integer getPwdStatus() {
+    public Long getPwdStatus() {
         return pwdStatus;
     }
 
-    public void setPwdStatus(Integer pwdStatus) {
+    public void setPwdStatus(Long pwdStatus) {
         this.pwdStatus = pwdStatus;
     }
 

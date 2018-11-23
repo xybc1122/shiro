@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtiils {
@@ -21,5 +22,13 @@ public class DateUtiils {
         } catch (ParseException pe) {
             return null;
         }
+    }
+    //获得当前时间+后面 N天时间的时间戳
+    public static Long GetRearDate(Integer time){
+        Date date=new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, time);
+        return calendar.getTime().getTime();
     }
 }

@@ -97,4 +97,18 @@ public interface UserMapper {
      */
     @Select("select uid, user_name,del_date,name from user_info where del_user=1")
     List<UserInfo> findByDelUserInfo();
+
+    /**
+     * 注册用户验证用户是否存在
+     */
+    @Select("SELECT uid FROM user_info WHERE user_name=#{userName}")
+    UserInfo GetUserName(@Param("userName") String userName);
+
+    /**
+     * 新增一个用户
+     */
+    @Insert("insert into user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,user_status,account_status,name) "
+            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{userStatus},#{accountStatus},#{name})")
+    @Options(useGeneratedKeys = true, keyProperty = "uid", keyColumn = "uid")
+    int saveUserInfo(UserInfo userInfo);
 }

@@ -65,4 +65,14 @@ public class UserServiceImpl implements UserService {
     public List<UserInfo> findByDelUserInfo() {
         return userMapper.findByDelUserInfo();
     }
+
+    @Override
+    public UserInfo GetUserName(String userName) {
+        return userMapper.GetUserName(userName);
+    }
+
+    @Override
+    public int saveUserInfo(UserInfo userInfo) {
+        return userMapper.saveUserInfo(userInfo);
+    }
 }

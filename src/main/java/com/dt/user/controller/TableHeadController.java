@@ -17,6 +17,7 @@ import java.util.List;
 
 @RestController
 public class TableHeadController {
+
     @Autowired
     private TableHeadService tableHeadService;
 
