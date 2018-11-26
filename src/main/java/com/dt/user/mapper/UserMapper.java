@@ -20,7 +20,7 @@ public interface UserMapper {
      * @return
      */
     @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
-            "user_status,account_Status,name,del_user  from user_info where user_name=#{userName}")
+            "account_Status,name,del_user  from user_info where user_name=#{userName}")
     UserInfo findByUser(@Param("userName") String userName);
 
 
@@ -107,8 +107,8 @@ public interface UserMapper {
     /**
      * 新增一个用户
      */
-    @Insert("insert into user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,user_status,account_status,name) "
-            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{userStatus},#{accountStatus},#{name})")
+    @Insert("insert into user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,account_status,name) "
+            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{accountStatus},#{name})")
     @Options(useGeneratedKeys = true, keyProperty = "uid", keyColumn = "uid")
     int saveUserInfo(UserInfo userInfo);
 }

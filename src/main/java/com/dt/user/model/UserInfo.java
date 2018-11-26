@@ -71,6 +71,17 @@ public class UserInfo implements Serializable {
     //角色名称
     private String rName;
 
+    //多个角色id 拼接  已,号隔开
+    private String rId;
+
+    public String getrId() {
+        return rId;
+    }
+
+    public void setrId(String rId) {
+        this.rId = rId;
+    }
+
     //登陆时间
     private Long landingTime;
 

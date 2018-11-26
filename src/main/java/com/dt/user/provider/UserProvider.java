@@ -23,7 +23,7 @@ public class UserProvider {
     public String findUsers(UserDto userDto) {
         return new SQL() {{
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
-                    "GROUP_CONCAT(r.`r_name`)as rName,s.mobile_phone");
+                    "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.effective_date,u.pwd_status");
             FROM("user_info AS u");
             INNER_JOIN("user_role AS ur ON(ur.u_id=u.uid)");
             INNER_JOIN("role AS r ON(r.rid=ur.r_id)");

@@ -11,4 +11,10 @@ public interface UserRoleService {
 	 * @return
 	 */
 	int addUserRole(UserRole userRole);
+
+
+	/**
+	 * 移除角色
+	 */
+	int delUserRole(Long rid,Long uid);
 }

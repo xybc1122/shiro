@@ -19,4 +19,9 @@ public class UserRoleServiceImpl implements UserRoleService {
         return userRoleMapper.addUserRole(userRoel);
     }
 
+    @Override
+    public int delUserRole(Long rid, Long uid) {
+        return userRoleMapper.delUserRole(rid, uid);
+    }
+
 }
