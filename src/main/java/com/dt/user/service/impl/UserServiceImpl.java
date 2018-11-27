@@ -40,13 +40,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int upUser(Map<String, Object> mapUser) {
-        return userMapper.upUser(mapUser);
-    }
-
-    @Override
-    public int upStaff(Map<String, Object> mapStaff) {
-        return userMapper.upStaff(mapStaff);
+    public int upUser(Map<String, Object> userMap) {
+        return userMapper.upUser(userMap);
     }
 
 
@@ -59,6 +54,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int delUserInfo(String uidIds) {
         return userMapper.delUserInfo(uidIds);
+    }
+
+    @Override
+    public int reUserInfo(String uidIds) {
+        return userMapper.reUserInfo(uidIds);
     }
 
     @Override

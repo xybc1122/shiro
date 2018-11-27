@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DateUtiils {
+public class DateUtils {
 
     //饿了么日期转换 时间戳
     public static Long UTCLongODefaultString(String utcString) {

@@ -2,9 +2,11 @@ package com.dt.user.provider;
 
 
 import com.dt.user.dto.UserDto;
-import com.dt.user.utils.DateUtiils;
+import com.dt.user.utils.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.util.ByteSource;
 
 import java.util.List;
 import java.util.Map;
@@ -25,8 +27,8 @@ public class UserProvider {
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
                     "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.effective_date,u.pwd_status");
             FROM("user_info AS u");
-            INNER_JOIN("user_role AS ur ON(ur.u_id=u.uid)");
-            INNER_JOIN("role AS r ON(r.rid=ur.r_id)");
+            LEFT_OUTER_JOIN("user_role AS ur ON(ur.u_id=u.uid)");
+            LEFT_OUTER_JOIN("role AS r ON(r.rid=ur.r_id)");
             LEFT_OUTER_JOIN("`staff` AS s ON(u.uid=s.u_id)");
             if (StringUtils.isNotBlank(userDto.getUserName())) {
                 WHERE("u.user_name=#{userName}");
@@ -43,41 +45,48 @@ public class UserProvider {
     }
 
 
-    public String upUserInfo(Map<String, Object> mapUser) {
-        Long uid = Long.parseLong(mapUser.get("uid").toString());
-        String name = mapUser.get("name").toString();
-        String uLandingTime = mapUser.get("uLandingTime").toString();
-        String uCreateDate = mapUser.get("uCreateDate").toString();
-        Long createDate = DateUtiils.UTCLongODefaultString(uCreateDate);
-        Long landingTime = DateUtiils.UTCLongODefaultString(uLandingTime);
-        String uAccountStatus = mapUser.get("uAccountStatus").toString();
+    public String upUserInfo(Map<String, Object> userMap) {
         return new SQL() {{
             UPDATE("`user_info`");
-            if (StringUtils.isNotBlank(name)) {
-                SET("name=" + "'" + name + "'");
+            if (userMap.get("pwd") != null && userMap.get("pwd") != "") {
+                String pwd = (String) userMap.get("pwd");
+                String userName = (String) userMap.get("uName");
+                //md5盐值密码加密
+                ByteSource salt = ByteSource.Util.bytes(userName);
+                Object result = new SimpleHash("MD5", pwd, salt, 1024);
+                SET("pwd=" + "'" + result + "'");
             }
-            if (landingTime != null) {
-                SET("landing_time=" + landingTime);
+            //如果勾选用户始终有效
+            Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
+            if (checkedUserAlways) {
+                SET("effective_date=" + 0);
+            } else if (userMap.get("effectiveDate") != null) {
+                if (userMap.get("effectiveDate") instanceof String) {
+                    String effectiveDate = (String) userMap.get("effectiveDate");
+                    SET("effective_date=" + DateUtils.UTCLongODefaultString(effectiveDate));
+                } else if (userMap.get("effectiveDate") instanceof Long) {
+                    //什么都不做
+                }
             }
-            if (createDate != null) {
-                SET("create_date=" + createDate);
+            //如果勾选密码始终有效
+            Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
+            if (checkedPwdAlways) {
+                SET("pwd_status=" + 0);
+            } else if (userMap.get("pwdStatus") != null) {
+                if (userMap.get("pwdStatus") instanceof String) {
+                    String pwdStatus = (String) userMap.get("pwdStatus");
+                    SET("pwd_status=" + DateUtils.UTCLongODefaultString(pwdStatus));
+                } else if (userMap.get("pwdStatus") instanceof Long) {
+                    //什么都不做
+                }
             }
-            if (uAccountStatus != null) {
-                SET("account_status=" + uAccountStatus);
-            }
-            WHERE("uid=" + uid);
-        }}.toString();
-    }
 
-    public String upStaff(Map<String, Object> mapStaff) {
-        Long uMobilePhone = Long.parseLong(mapStaff.get("uMobilePhone").toString());
-        Long uid = Long.parseLong(mapStaff.get("uid").toString());
-        return new SQL() {{
-            UPDATE("`staff`");
-            if (uMobilePhone != null) {
-                SET("mobile_phone=" + uMobilePhone);
+            if (userMap.get("accountStatus") != null) {
+                Integer accountStatus = (Integer) userMap.get("accountStatus");
+                SET("account_status=" + accountStatus);
             }
-            WHERE("u_id=" + uid);
+            Integer uid = (Integer) userMap.get("uid");
+            WHERE("uid=" + uid);
         }}.toString();
     }
 
@@ -100,6 +109,24 @@ public class UserProvider {
         StringBuilder sql = new StringBuilder();
         sql.append("UPDATE `user_info`\n" +
                 "SET `del_user` = 1" +
+                ",`del_date` = " + new Date().getTime() + "\n" +
+                "WHERE uid in (");
+        for (String id : ids) {
+            if (ids.indexOf(id) > 0)
+                sql.append(",");
+            sql.append("'").append(id).append("'");
+        }
+        sql.append(")");
+        return sql.toString();
+    }
+
+    public String reUserInfo(Map<String, Object> mapDel) {
+        String uidIds = mapDel.get("uidIds").toString();
+        String[] newIds = uidIds.split(",");
+        List<String> ids = java.util.Arrays.asList(newIds);
+        StringBuilder sql = new StringBuilder();
+        sql.append("UPDATE `user_info`\n" +
+                "SET `del_user` = 0" +
                 ",`del_date` = " + new Date().getTime() + "\n" +
                 "WHERE uid in (");
         for (String id : ids) {

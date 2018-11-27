@@ -21,4 +21,12 @@ public interface StaffMapper {
      */
     @Update("UPDATE `staff`SET `u_id` = #{uid} WHERE `s_id` = #{sid}")
     int upStaffInfo(@Param("uid") Long uid, @Param("sid") Long sid);
+
+
+//    /**
+//     * 更新员工表信息
+//     */
+//    @UpdateProvider(type = UserProvider.class, method = "upStaff")
+//    int upStaff(Map<String, Object> mapStaff);
+
 }

@@ -33,7 +33,7 @@ public class UserInfo implements Serializable {
     /**
      * 账户状态，被锁定之类的，默认为0，表示正常
      */
-    private int accountStatus;
+    private Integer accountStatus;
     /**
      * 创建人员id
      */
@@ -210,11 +210,11 @@ public class UserInfo implements Serializable {
         this.name = name;
     }
 
-    public int getAccountStatus() {
+    public Integer getAccountStatus() {
         return accountStatus;
     }
 
-    public void setAccountStatus(int accountStatus) {
+    public void setAccountStatus(Integer accountStatus) {
         this.accountStatus = accountStatus;
     }
 

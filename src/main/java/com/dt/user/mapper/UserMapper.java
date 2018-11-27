@@ -68,14 +68,7 @@ public interface UserMapper {
      * 更新用户信息
      */
     @UpdateProvider(type = UserProvider.class, method = "upUserInfo")
-    int upUser(Map<String, Object> mapUser);
-
-
-    /**
-     * 更新员工表信息
-     */
-    @UpdateProvider(type = UserProvider.class, method = "upStaff")
-    int upStaff(Map<String, Object> mapStaff);
+    int upUser(Map<String, Object> userMap);
 
     /**
      * 查询一个角色下的所有用户跟 菜单
@@ -92,6 +85,11 @@ public interface UserMapper {
     @UpdateProvider(type = UserProvider.class, method = "delUserInfo")
     int delUserInfo(@Param("uidIds") String uidIds);
 
+    /**
+     * 单个恢复或批量恢复用户信息
+     */
+    @UpdateProvider(type = UserProvider.class, method = "reUserInfo")
+    int reUserInfo(@Param("uidIds") String uidIds);
     /**
      * 查询被删除的用户信息
      */

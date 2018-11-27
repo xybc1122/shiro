@@ -8,7 +8,7 @@ import com.dt.user.model.UserRole;
 import com.dt.user.service.StaffService;
 import com.dt.user.service.UserRoleService;
 import com.dt.user.service.UserService;
-import com.dt.user.utils.DateUtiils;
+import com.dt.user.utils.DateUtils;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import com.dt.user.utils.PageInfoUtils;
@@ -62,16 +62,14 @@ public class UserController {
     /**
      * 更新用户信息
      *
-     * @param mapUser
      * @return
      */
     //shiro权限控制
-    @Transactional //事物
     @RequiresPermissions("sys:user:up")
     @PostMapping("/upUserInfo")
-    public ResponseBase userInfoUp(@RequestBody Map<String, Object> mapUser) {
-        userService.upUser(mapUser);
-        userService.upStaff(mapUser);
+    public ResponseBase userInfoUp(@RequestBody Map<String, Object> userMap) {
+        System.out.println(userMap);
+        userService.upUser(userMap);
         return BaseApiService.setResultSuccess();
     }
 
@@ -82,15 +80,30 @@ public class UserController {
      * @return
      */
     //shiro权限控制
-    @Transactional //事物
     @RequiresPermissions("user:del")
-    @GetMapping("/delUserInfo")
-    public ResponseBase userInfoDel(@RequestParam("uidIds") String uidIds) {
-        int count = userService.delUserInfo(uidIds);
+    @PostMapping("/delUserInfo")
+    public ResponseBase userInfoDel(@RequestBody Map<String, Object> delMap) {
+        int count = userService.delUserInfo(delMap.get("ids").toString());
         if (count > 0) {
             return BaseApiService.setResultSuccess(count);
         }
         return BaseApiService.setResultError("删除失败~");
+    }
+
+    /**
+     * 恢复用户信息
+     *
+     * @param uidIds
+     * @return
+     */
+    //shiro权限控制
+    @PostMapping("/reUserInfo")
+    public ResponseBase userInfoRe(@RequestBody Map<String, Object> reMap) {
+        int count = userService.reUserInfo(reMap.get("ids").toString());
+        if (count > 0) {
+            return BaseApiService.setResultSuccess(count);
+        }
+        return BaseApiService.setResultError("恢复失败~");
     }
 
     /**
@@ -163,6 +176,7 @@ public class UserController {
         if (user != null) {
             String userName = (String) userMap.get("userName");
             String pwd = (String) userMap.get("pwd");
+            //首次登陆修改密码修改checked
             Boolean checkedUpPwd = (Boolean) userMap.get("checkedUpPwd");
             Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
@@ -182,7 +196,7 @@ public class UserController {
                 userInfo.setEffectiveDate(0L);
             } else {
                 //设置 用户有效时间
-                userInfo.setEffectiveDate(DateUtiils.UTCLongODefaultString(pwdUserDate));
+                userInfo.setEffectiveDate(DateUtils.UTCLongODefaultString(pwdUserDate));
             }
             //如果点击了   密码始终有效
             if (checkedPwdAlways) {
@@ -191,10 +205,10 @@ public class UserController {
                 //前台会传2个类型参数 根据判断转换 来设计用户 密码有效时间
                 if (userMap.get("pwdAlwaysInput") instanceof Integer) {
                     Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
-                    userInfo.setPwdStatus(DateUtiils.GetRearDate(pwdAlwaysInput));
+                    userInfo.setPwdStatus(DateUtils.GetRearDate(pwdAlwaysInput));
                 } else {
                     String pwdAlwaysInput = (String) userMap.get("pwdAlwaysInput");
-                    userInfo.setPwdStatus(DateUtiils.GetRearDate(Integer.parseInt(pwdAlwaysInput)));
+                    userInfo.setPwdStatus(DateUtils.GetRearDate(Integer.parseInt(pwdAlwaysInput)));
                 }
             }
             userInfo.setName(staffValue.get("sName").toString());

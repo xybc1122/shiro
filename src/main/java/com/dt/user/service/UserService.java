@@ -3,6 +3,7 @@ package com.dt.user.service;
 
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -26,17 +27,10 @@ public interface UserService {
 
     /**
      * 更新用户信息
-     * @param mapUser
      * @return
      */
 
-    int upUser(Map<String, Object> mapUser);
-
-    /**
-     * 更新员工表信息
-     */
-    int upStaff(Map<String, Object> mapStaff);
-
+    int upUser(Map<String, Object> userMap);
 
     /**
      * 查询一个角色下的所有用户跟 菜单
@@ -49,6 +43,10 @@ public interface UserService {
      */
     int delUserInfo(String uidIds);
 
+    /**
+     * 单个恢复或批量恢复用户信息
+     */
+    int reUserInfo(@Param("uidIds") String uidIds);
     /**
      * 查询被删除的用户信息
      */
