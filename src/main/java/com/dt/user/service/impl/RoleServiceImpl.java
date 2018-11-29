@@ -1,8 +1,10 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.UserDto;
 import com.dt.user.mapper.RoleMapper;
 
 import com.dt.user.model.Role;
+import com.dt.user.model.UserInfo;
 import com.dt.user.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,5 +27,10 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> getRoleList() {
         return rolesMapper.getRoleList();
+    }
+
+    @Override
+    public List<UserInfo> findByRoleInfo(UserDto userDto) {
+        return rolesMapper.findByRoleInfo(userDto);
     }
 }

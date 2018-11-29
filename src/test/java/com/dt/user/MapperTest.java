@@ -120,11 +120,11 @@ public class MapperTest {
         int a = userMapper.upUserLandingTime(info);
     }
 
-    @Test
-    public void findByRoleInfo() {
-        List<UserInfo> u = userMapper.findByRoleInfo(null);
-        System.out.println(u.size());
-    }
+//    @Test
+//    public void findByRoleInfo() {
+//        List<UserInfo> u = userMapper.findByRoleInfo(null);
+//        System.out.println(u.size());
+//    }
 
     @Test
     public void delUserInfo() {

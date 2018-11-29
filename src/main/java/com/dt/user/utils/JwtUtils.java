@@ -35,6 +35,7 @@ public class JwtUtils {
                 .claim("id", user.getUid())
                 .claim("name", user.getUserName())
                 .claim("status", user.getStatus())
+                .claim("roles", user.getRoles())
                 .setIssuedAt(new Date())//设置新的时间
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE))//过期时间
                 .signWith(SignatureAlgorithm.HS256, APPSECRET).compact();

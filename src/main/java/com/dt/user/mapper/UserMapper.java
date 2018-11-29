@@ -42,7 +42,7 @@ public interface UserMapper {
     /**
      * 更新登陆时间
      */
-    @Update("UPDATE `mydb`.`user_info`\n" +
+    @Update("UPDATE `user_info`\n" +
             "SET `landing_time` = #{landingTime}\n" +
             "WHERE `uid` = #{uid};")
     int upUserLandingTime(UserInfo userInfo);
@@ -70,14 +70,6 @@ public interface UserMapper {
     @UpdateProvider(type = UserProvider.class, method = "upUserInfo")
     int upUser(Map<String, Object> userMap);
 
-    /**
-     * 查询一个角色下的所有用户跟 菜单
-     *
-     * @param userDto
-     * @return
-     */
-    @SelectProvider(type = UserProvider.class, method = "findByRoleInfo")
-    List<UserInfo> findByRoleInfo(UserDto userDto);
 
     /**
      * 单个删除或批量删除用户信息

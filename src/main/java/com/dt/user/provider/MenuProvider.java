@@ -19,7 +19,7 @@ public class MenuProvider {
                 ORDER_BY("menu_order asc");
             }
             //代表用户
-            if (user.getStatus() == 0) {
+            else if (user.getStatus() == 0) {
                 SELECT("m.* FROM user_info AS u");
                 INNER_JOIN("user_role AS ur ON u.uid=ur.u_id");
                 INNER_JOIN("role AS r  ON r.rid=ur.r_id");

@@ -125,20 +125,6 @@ public class UserController {
         return BaseApiService.setResultError("token无效~~");
     }
 
-    /**
-     * 查询一个角色下的所有用户跟 菜单
-     *
-     * @param userDto
-     * @return
-     */
-    @PostMapping("/getRoles")
-    public ResponseBase getRoles(@RequestBody UserDto userDto) {
-        PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
-        List<UserInfo> listRoles = userService.findByRoleInfo(userDto);
-        PageInfo<UserInfo> pageInfo = new PageInfo<>(listRoles);
-        Integer currentPage = userDto.getCurrentPage();
-        return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
-    }
 
     /**
      * 获得历史删除的用户信息

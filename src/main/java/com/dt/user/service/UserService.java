@@ -33,12 +33,6 @@ public interface UserService {
     int upUser(Map<String, Object> userMap);
 
     /**
-     * 查询一个角色下的所有用户跟 菜单
-     * @param userDto
-     * @return
-     */
-    List<UserInfo> findByRoleInfo(UserDto userDto);
-    /**
      * 单个删除或批量删除用户信息
      */
     int delUserInfo(String uidIds);

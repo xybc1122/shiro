@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,28 @@ public class MenuController {
     public ResponseBase showIndex() {
 
         return BaseApiService.setResultSuccess("已经登录!");
+    }
+
+    @GetMapping("/role/menu")
+    public ResponseBase roleMenu(@RequestParam("rid") String rid) {
+        List<Menu> rootMenu; //父菜单List
+        rootMenu = menuService.findQueryByRoleId(Long.parseLong(rid));
+        List<Menu> menuList = new ArrayList<>();
+        List<Menu> childMenuList = new ArrayList<>();
+        //先找到所有一级菜单
+        for (int i = 0; i < rootMenu.size(); i++) {
+            //如果==0代表父菜单
+            if (rootMenu.get(i).getParentId() == 0) {
+                menuList.add(rootMenu.get(i));
+            } else {
+                childMenuList.add(rootMenu.get(i));
+            }
+        }
+        // 为一级菜单设置子菜单 getChild是递归调用的
+        for (Menu menu : menuList) {
+            menu.setChildMenus(getChild(menu.getMenuId(), childMenuList));
+        }
+        return BaseApiService.setResultSuccess(menuList);
     }
 
     @GetMapping("show")

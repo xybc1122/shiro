@@ -44,13 +44,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.upUser(userMap);
     }
 
-
-    @Override
-    public List<UserInfo> findByRoleInfo(UserDto userDto) {
-
-        return userMapper.findByRoleInfo(userDto);
-    }
-
     @Override
     public int delUserInfo(String uidIds) {
         return userMapper.delUserInfo(uidIds);
