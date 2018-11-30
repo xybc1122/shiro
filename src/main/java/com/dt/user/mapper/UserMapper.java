@@ -23,6 +23,11 @@ public interface UserMapper {
             "account_Status,name,del_user  from user_info where user_name=#{userName}")
     UserInfo findByUser(@Param("userName") String userName);
 
+    /**
+     * 查找所有用户信息
+     */
+    @Select("select uid ,user_name  from user_info")
+    List<UserInfo> getByUsers();
 
     /**
      * 查找用户的角色
@@ -37,7 +42,6 @@ public interface UserMapper {
      */
     @SelectProvider(type = UserProvider.class, method = "findUsers")
     List<UserInfo> findByUsers(UserDto userDto);
-
 
     /**
      * 更新登陆时间
@@ -63,13 +67,11 @@ public interface UserMapper {
     })
     UserInfo getSingleUser(@Param("uid") Long uid);
 
-
     /**
      * 更新用户信息
      */
     @UpdateProvider(type = UserProvider.class, method = "upUserInfo")
     int upUser(Map<String, Object> userMap);
-
 
     /**
      * 单个删除或批量删除用户信息
@@ -82,6 +84,7 @@ public interface UserMapper {
      */
     @UpdateProvider(type = UserProvider.class, method = "reUserInfo")
     int reUserInfo(@Param("uidIds") String uidIds);
+
     /**
      * 查询被删除的用户信息
      */
@@ -92,7 +95,7 @@ public interface UserMapper {
      * 注册用户验证用户是否存在
      */
     @Select("SELECT uid FROM user_info WHERE user_name=#{userName}")
-    UserInfo GetUserName(@Param("userName") String userName);
+    UserInfo getUserName(@Param("userName") String userName);
 
     /**
      * 新增一个用户

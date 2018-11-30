@@ -1,6 +1,5 @@
 package com.dt.user.service.impl;
 
-import com.dt.user.dto.MenuDto;
 import com.dt.user.mapper.MenuMapper;
 import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
@@ -52,5 +51,4 @@ public class MenuServiceImpl implements MenuService {
     public List<Menu> findQueryByRoleId(Long roleId) {
         return menuMapper.findQueryByRoleId(roleId);
     }
-
 }

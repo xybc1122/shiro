@@ -31,4 +31,10 @@ public class TableHeadController {
         }
         return BaseApiService.setResultError(null);
     }
+
+    @GetMapping("/getByHead")
+    public ResponseBase getByHead(@RequestParam("menu_id") Long mid) {
+        TableHead head = tableHeadService.getTableHeadList(mid);
+        return BaseApiService.setResultSuccess(head);
+    }
 }

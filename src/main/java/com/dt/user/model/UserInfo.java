@@ -97,6 +97,10 @@ public class UserInfo implements Serializable {
     private Long delDate;
     //恢复时记录的时间
     private Long restoreDate;
+    /**
+     * 用户ids
+     */
+    private String uIds;
 
     public String getMenuName() {
         return menuName;
@@ -264,6 +268,14 @@ public class UserInfo implements Serializable {
 
     public void setRestoreDate(Long restoreDate) {
         this.restoreDate = restoreDate;
+    }
+
+    public String getuIds() {
+        return uIds;
+    }
+
+    public void setuIds(String uIds) {
+        this.uIds = uIds;
     }
 
     @Override

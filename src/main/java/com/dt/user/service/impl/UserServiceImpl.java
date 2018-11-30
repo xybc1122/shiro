@@ -60,12 +60,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserInfo GetUserName(String userName) {
-        return userMapper.GetUserName(userName);
+    public UserInfo getUserName(String userName) {
+        return userMapper.getUserName(userName);
     }
 
     @Override
     public int saveUserInfo(UserInfo userInfo) {
         return userMapper.saveUserInfo(userInfo);
+    }
+
+    @Override
+    public List<UserInfo> getByUsers() {
+
+        return userMapper.getByUsers();
     }
 }

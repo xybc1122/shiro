@@ -59,9 +59,18 @@ public class UserController {
         return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
     }
 
+
+    /**
+     * 获得所有用户信息
+     * @return
+     */
+    @GetMapping("/getUsers")
+    public ResponseBase getUsers() {
+        return BaseApiService.setResultSuccess(userService.getByUsers());
+    }
+
     /**
      * 更新用户信息
-     *
      * @return
      */
     //shiro权限控制
@@ -145,7 +154,7 @@ public class UserController {
      */
     @GetMapping("/getUserName")
     public ResponseBase getUserName(@RequestParam("userName") String userName) {
-        UserInfo userInfoName = userService.GetUserName(userName);
+        UserInfo userInfoName = userService.getUserName(userName);
         return BaseApiService.setResultSuccess(userInfoName);
     }
 

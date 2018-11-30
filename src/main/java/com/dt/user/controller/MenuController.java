@@ -128,4 +128,6 @@ public class MenuController {
         data.put("users", pageInfo.getList());//数据
         return BaseApiService.setResultSuccess(data);
     }
+
+    //通过菜单id查询对应的表头信息
 }

@@ -17,7 +17,7 @@ public class TableHeadImpl implements TableHeadService {
     private TableHeadMapper tableHeadMapper;
 
     @Override
-    public List<TableHead> findByMenuIdHeadList(Long id,Long uid) {
+    public List<TableHead> findByMenuIdHeadList(Long id, Long uid) {
         //创建一个新的数组
         List<TableHead> headNew = new ArrayList<>();
         //接收数据库传来的对象
@@ -36,5 +36,10 @@ public class TableHeadImpl implements TableHeadService {
             }
         }
         return headNew;
+    }
+
+    @Override
+    public TableHead getTableHeadList(Long mid) {
+        return tableHeadMapper.getTableHeadList(mid);
     }
 }

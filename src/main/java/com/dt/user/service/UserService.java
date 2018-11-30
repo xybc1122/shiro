@@ -50,9 +50,15 @@ public interface UserService {
      * 注册用户验证用户是否存在
      */
 
-    UserInfo GetUserName(String userName);
+    UserInfo getUserName(String userName);
     /**
      * 新增一个用户
      */
     int saveUserInfo(UserInfo userInfo);
+
+    /**
+     * 查找所有用户信息
+     */
+    List<UserInfo> getByUsers();
+
 }

@@ -1,7 +1,6 @@
 package com.dt.user.mapper;
 
 import com.dt.user.model.TableHead;
-import com.dt.user.model.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -27,4 +26,12 @@ public interface TableHeadMapper {
             "GROUP BY t.head_name \n" +
             "ORDER BY top_order ")
     List<TableHead> findByHeader(@Param("uid") Long uid);
+    /**
+     * 根据菜单id查询对应显示的表头
+     */
+    @Select("SELECT GROUP_CONCAT(DISTINCT t.head_name) as headName,GROUP_CONCAT(DISTINCT t.id) as id FROM `table_head` AS t\n" +
+            "LEFT JOIN `tb_head_menu` AS tm ON tm.th_id=t.id\n" +
+            "LEFT JOIN `menu` AS m ON m.`menu_id`=tm.m_id\n" +
+            "WHERE  m_id=#{mid}")
+    TableHead getTableHeadList(@Param("mid") Long mid);
 }

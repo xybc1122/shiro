@@ -1,6 +1,5 @@
 package com.dt.user.service;
 
-import com.dt.user.dto.MenuDto;
 import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import org.apache.ibatis.annotations.Param;
@@ -31,5 +30,6 @@ public interface MenuService {
      * @return
      */
     List<Menu> findQueryByRoleId(@Param("roleId") Long roleId);
+
 
 }
