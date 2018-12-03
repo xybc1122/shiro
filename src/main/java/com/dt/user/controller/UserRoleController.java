@@ -21,39 +21,66 @@ public class UserRoleController {
     private UserRoleService roleService;
 
     /**
-     *删除角色信息
+     * 删除角色信息
+     *
      * @param delMap
      * @return
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/delRole")
     public ResponseBase delRole(@RequestBody Map<String, Object> delMap) {
-        List<Integer> rid = (List<Integer>) delMap.get("movedKeys");
-        Integer uid = (Integer) delMap.get("uid");
-        for (Integer r : rid) {
-            roleService.delUserRole(r.longValue(),uid.longValue());
+        if (delMap.get("rolesId") instanceof List) {
+            List<Integer> rid = (List<Integer>) delMap.get("rolesId");
+            Integer uid = (Integer) delMap.get("uid");
+            for (Integer r : rid) {
+                roleService.delUserRole(r.longValue(), uid.longValue());
+            }
+            return BaseApiService.setResultSuccess("角色删除成功~");
+        } else if (delMap.get("rolesId") instanceof String) {
+            String rid = (String) delMap.get("rolesId");
+            List<Integer> uid = (List<Integer>) delMap.get("uid");
+            for (Integer u : uid) {
+                roleService.delUserRole(Long.parseLong(rid), u.longValue());
+            }
+            return BaseApiService.setResultSuccess("删除用户成功~");
         }
-        return BaseApiService.setResultSuccess("角色删除成功~");
+        return BaseApiService.setResultError("删除用户失败~");
     }
 
     /**
-     *增加角色信息
+     * 增加角色信息
+     *
      * @param addMap
      * @return
      */
     @SuppressWarnings("unchecked")
     @PostMapping("/addRole")
     public ResponseBase addRole(@RequestBody Map<String, Object> addMap) {
-        List<Integer> rolesId = (List<Integer>) addMap.get("movedKeys");
-        Integer uid = (Integer) addMap.get("uid");
         UserRole userRole = new UserRole();
-        for (Integer role : rolesId) {
-            userRole.setuId(uid.longValue());
-            userRole.setrId(role.longValue());
-            //新增角色信息
-            roleService.addUserRole(userRole);
+        //如果是List类型
+        if (addMap.get("rolesId") instanceof List) {
+            List<Integer> rolesId = (List<Integer>) addMap.get("rolesId");
+            Integer uid = (Integer) addMap.get("uid");
+            for (Integer role : rolesId) {
+                userRole.setuId(uid.longValue());
+                userRole.setrId(role.longValue());
+                //新增角色信息
+                roleService.addUserRole(userRole);
+            }
+            return BaseApiService.setResultSuccess("添加角色成功~");
+        } else if (addMap.get("rolesId") instanceof String) {
+            //如果上String 类型
+            String rId = (String) addMap.get("rolesId");
+            List<Integer> uid = (List<Integer>) addMap.get("uid");
+            for (Integer u : uid) {
+                userRole.setuId(u.longValue());
+                userRole.setrId(Long.parseLong(rId));
+                //新增角色信息
+                roleService.addUserRole(userRole);
+            }
+            return BaseApiService.setResultSuccess("添加用户成功~");
         }
-        return BaseApiService.setResultSuccess("添加角色成功~");
+        return BaseApiService.setResultError("添加失败~");
     }
 
 }
