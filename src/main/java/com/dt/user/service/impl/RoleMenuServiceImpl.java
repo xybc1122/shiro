@@ -24,7 +24,7 @@ public class RoleMenuServiceImpl implements RoleMenuService {
     }
 
     @Override
-    public int delRoleMenu(Long rid, Long menuId) {
-        return roleMenuMapper.delRoleMenu(rid, menuId);
+    public int delRoleMenu(RoleMenu roleMenu) {
+        return roleMenuMapper.delRoleMenu(roleMenu);
     }
 }

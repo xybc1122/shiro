@@ -22,5 +22,5 @@ public interface RoleMenuService {
     /**
      * 删除角色跟菜单
      */
-    int delRoleMenu(Long rid,Long menuId);
+    int delRoleMenu(RoleMenu roleMenu);
 }

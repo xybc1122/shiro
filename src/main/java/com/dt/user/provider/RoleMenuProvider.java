@@ -1,19 +1,20 @@
 package com.dt.user.provider;
 
+import com.dt.user.model.RoleMenu;
 import org.apache.ibatis.jdbc.SQL;
 
 
 public class RoleMenuProvider {
 
 
-    public String delRoleMenu(Long rid, Long menuIds) {
+    public String delRoleMenu(RoleMenu roleMenu) {
         return new SQL() {{
-            if (menuIds == null) {
+            if (roleMenu.getmId() == null) {
                 DELETE_FROM("`role_menu`");
-                WHERE("r_id=" + rid);
+                WHERE("r_id=" + roleMenu.getrId());
             } else {
                 DELETE_FROM("`role_menu`");
-                WHERE("r_id=" + rid + " and m_id=" + menuIds);
+                WHERE("r_id=" + roleMenu.getrId() + " and m_id=" + roleMenu.getmId());
             }
         }}.toString();
     }

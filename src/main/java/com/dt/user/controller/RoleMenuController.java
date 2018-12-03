@@ -24,6 +24,7 @@ public class RoleMenuController {
     @PostMapping("/upMenus")
     @Transactional
     public ResponseBase getMenus(@RequestBody Map<String, Object> menuMap) {
+        RoleMenu roleMenu;
         List<RoleMenu> roleMenuList;
         String rid = (String) menuMap.get("rid");
         String menuIds = (String) menuMap.get("menuIds");
@@ -46,12 +47,17 @@ public class RoleMenuController {
             //判断如果全部为空
             if (StringUtils.isBlank(menuIds)) {
                 //通过rid 删除所有的关联的菜单
-                roleMenuService.delRoleMenu(Long.parseLong(rid), null);
+                roleMenu = new RoleMenu();
+                roleMenu.setrId(Long.parseLong(rid));
+                roleMenuService.delRoleMenu(roleMenu);
                 return BaseApiService.setResultSuccess("全部删除成功~");
             } else {
+                roleMenu = new RoleMenu();
                 //通过arrMenuIds 删除关联的菜单
                 for (int i = 0; i < arrMenuIds.size(); i++) {
-                    roleMenuService.delRoleMenu(Long.parseLong(rid), Long.parseLong(arrMenuIds.get(i)));
+                    roleMenu.setrId(Long.parseLong(rid));
+                    roleMenu.setmId(Long.parseLong(arrMenuIds.get(i)));
+                    roleMenuService.delRoleMenu(roleMenu);
                 }
                 return BaseApiService.setResultSuccess("删除关联成功~");
             }
