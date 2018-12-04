@@ -17,6 +17,12 @@ public interface TableHeadService {
 
 
     /**
+     * 通过mid查询一个数据
+     * @param mid
+     * @return
+     */
+    TableHead getTableHead(@Param("mId")Long mid);
+    /**
      * 查询所有表头信息
      */
     List<TableHead> findByHeadList();

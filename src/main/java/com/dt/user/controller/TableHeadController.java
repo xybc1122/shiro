@@ -20,6 +20,12 @@ public class TableHeadController {
     @Autowired
     private TableHeadService tableHeadService;
 
+    /**
+     * 通过uid 来查询 对应的表头信息
+     * @param id
+     * @param request
+     * @return
+     */
     @GetMapping("/head")
     public ResponseBase findByHead(@RequestParam("menu_id") Long id, HttpServletRequest request) {
         String token = GetCookie.getToken(request);
@@ -31,12 +37,30 @@ public class TableHeadController {
         return BaseApiService.setResultError(null);
     }
 
+    /**
+     * 通过一组menuId  in()查询一组菜单对应表头的数据
+     * @param mapHead
+     * @return
+     */
     @PostMapping("/getByHead")
     public ResponseBase getByHead(@RequestBody Map<String, Object> mapHead) {
         return BaseApiService.setResultSuccess(tableHeadService.getTableHeadList(mapHead));
     }
 
+    /**
+     * 通过一个菜单iD查询一个菜单对应表头的数据
+     * @param mid
+     * @return
+     */
+    @GetMapping("/showByHead")
+    public ResponseBase showByHead(@RequestParam("mId") Long mid) {
+        return BaseApiService.setResultSuccess(tableHeadService.getTableHead(mid));
+    }
 
+    /**
+     * 查询所有的表头信息  无查询条件
+     * @return
+     */
     @GetMapping("/findHeads")
     public ResponseBase findHeads() {
         return BaseApiService.setResultSuccess(tableHeadService.findByHeadList());

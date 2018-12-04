@@ -3,6 +3,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TableHeadProvider {
+
     @SuppressWarnings("unchecked")
     public String showTableHead(Map<String, Object> mapHead) {
         List<Integer>ids = (List<Integer>) mapHead.get("menuIds");

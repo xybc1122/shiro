@@ -45,6 +45,11 @@ public class TableHeadImpl implements TableHeadService {
     }
 
     @Override
+    public TableHead getTableHead(Long mid) {
+        return tableHeadMapper.getTableHead(mid);
+    }
+
+    @Override
     public List<TableHead> findByHeadList() {
         return tableHeadMapper.findByHeadList();
     }
