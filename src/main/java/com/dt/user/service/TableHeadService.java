@@ -4,6 +4,7 @@ import com.dt.user.model.TableHead;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TableHeadService {
 
@@ -12,5 +13,11 @@ public interface TableHeadService {
     /**
      * 根据菜单id查询对应显示的表头
      */
-    TableHead getTableHeadList(@Param("mid") Long mid);
+    List<TableHead> getTableHeadList(Map<String, Object> mapHead);
+
+
+    /**
+     * 查询所有表头信息
+     */
+    List<TableHead> findByHeadList();
 }

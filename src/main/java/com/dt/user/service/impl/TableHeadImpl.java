@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TableHeadImpl implements TableHeadService {
@@ -39,7 +40,12 @@ public class TableHeadImpl implements TableHeadService {
     }
 
     @Override
-    public TableHead getTableHeadList(Long mid) {
-        return tableHeadMapper.getTableHeadList(mid);
+    public List<TableHead> getTableHeadList(Map<String, Object> mapHead) {
+        return tableHeadMapper.getTableHeadList(mapHead);
+    }
+
+    @Override
+    public List<TableHead> findByHeadList() {
+        return tableHeadMapper.findByHeadList();
     }
 }

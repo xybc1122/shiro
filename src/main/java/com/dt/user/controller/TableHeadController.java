@@ -8,12 +8,11 @@ import com.dt.user.service.TableHeadService;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class TableHeadController {
@@ -32,9 +31,14 @@ public class TableHeadController {
         return BaseApiService.setResultError(null);
     }
 
-    @GetMapping("/getByHead")
-    public ResponseBase getByHead(@RequestParam("menu_id") Long mid) {
-        TableHead head = tableHeadService.getTableHeadList(mid);
-        return BaseApiService.setResultSuccess(head);
+    @PostMapping("/getByHead")
+    public ResponseBase getByHead(@RequestBody Map<String, Object> mapHead) {
+        return BaseApiService.setResultSuccess(tableHeadService.getTableHeadList(mapHead));
+    }
+
+
+    @GetMapping("/findHeads")
+    public ResponseBase findHeads() {
+        return BaseApiService.setResultSuccess(tableHeadService.findByHeadList());
     }
 }

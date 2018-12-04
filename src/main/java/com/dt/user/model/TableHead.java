@@ -4,18 +4,39 @@ import java.io.Serializable;
 
 public class TableHead implements Serializable {
 
-  private long id;
+  private Long id;
   private String headName;
   private String menuId;
-
   private String topType;
+  /**
+   * 菜单名称
+   */
+  private String name ;
+  /**
+   * 接收ids
+   */
+  private String ids;
+  public String getName() {
+    return name;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
 
-  public long getId() {
+  public String getIds() {
+    return ids;
+  }
+
+  public void setIds(String ids) {
+    this.ids = ids;
+  }
+
+  public Long getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(Long id) {
     this.id = id;
   }
 
