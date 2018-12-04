@@ -21,7 +21,10 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
-
+    /**
+     * 查询所有角色信息
+     * @return
+     */
     @GetMapping("/findByListRoles")
     public ResponseBase findByListRoles() {
         List<Role> roles = roleService.getRoleList();
@@ -30,8 +33,7 @@ public class RoleController {
 
 
     /**
-     * 查询一个角色下的所有用户跟 菜单
-     *
+     * 查询一个角色下的所有用户跟菜单
      * @param userDto
      * @return
      */

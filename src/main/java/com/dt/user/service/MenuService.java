@@ -8,12 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface MenuService {
-    /**
-     * 查询获得shiro权限
-     * @param uid
-     * @return
-     */
-    Set<String> findByPermsMenuService(Long uid);
+
     /**
      * 查找用户所拥有的所有菜单
      */

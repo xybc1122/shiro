@@ -26,6 +26,11 @@ public class LoginController extends BaseApiService {
     @Autowired
     private UserService userService;
 
+    /**
+     * 登陆
+     * @param userDto
+     * @return
+     */
     @ResponseBody
     @PostMapping("/ajaxLogin")
     public ResponseBase login(@RequestBody UserDto userDto) {
@@ -64,6 +69,10 @@ public class LoginController extends BaseApiService {
         }
     }
 
+    /**
+     * 退出
+     * @return
+     */
     @ResponseBody
     @GetMapping("/logout")
     public ResponseBase logout() {

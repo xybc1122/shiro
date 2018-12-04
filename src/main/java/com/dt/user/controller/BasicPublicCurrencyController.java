@@ -20,7 +20,7 @@ public class BasicPublicCurrencyController {
     private BasicPublicCurrencyService basicPublicCurrencyService;
 
     /**
-     * 获得区域的信息
+     * 获得货币信息
      *
      * @return
      */

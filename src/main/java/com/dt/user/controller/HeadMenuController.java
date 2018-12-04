@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +19,11 @@ public class HeadMenuController {
     @Autowired
     private HeadMenuMapperService headMenuMapperService;
 
+    /**
+     * 新增菜单跟表头关联数据
+     * @param mhMap
+     * @return
+     */
     @SuppressWarnings("unchecked")
     @PostMapping("/saveHeadMenu")
     public ResponseBase saveHeadMenu(@RequestBody Map<String, Object> mhMap) {
@@ -34,6 +38,11 @@ public class HeadMenuController {
         return BaseApiService.setResultSuccess("新增成功~");
     }
 
+    /**
+     * 删除菜单跟表头关联数据
+     * @param mhMap
+     * @return
+     */
     @SuppressWarnings("unchecked")
     @PostMapping("/delTbHeadMenu")
     public ResponseBase delTbHeadMenu(@RequestBody Map<String, Object> mhMap) {

@@ -29,8 +29,7 @@ public class MenuController {
 
 
     /**
-     * 测试是否在登陆的接口
-     *
+     * 测试是否登陆了的接口
      * @return
      */
     @GetMapping("/index")
@@ -39,6 +38,11 @@ public class MenuController {
         return BaseApiService.setResultSuccess("已经登录!");
     }
 
+    /**
+     * 通过角色id获取菜单树列表
+     * @param rid
+     * @return
+     */
     @GetMapping("/role/menu")
     public ResponseBase roleMenu(@RequestParam("rid") String rid) {
         List<Menu> rootMenu; //父菜单List
@@ -60,7 +64,10 @@ public class MenuController {
         }
         return BaseApiService.setResultSuccess(menuList);
     }
-
+    /**
+     * 获取菜单列表
+     * @return
+     */
     @GetMapping("show")
     public ResponseBase showMenu(HttpServletRequest request) {
         String token = GetCookie.getToken(request);
@@ -112,7 +119,10 @@ public class MenuController {
         return childList;
     }
 
-    //查看MenuList
+    /**
+     * 查询所有的菜单列表
+     * @return
+     */
     @GetMapping("/findMenuList")
     public ResponseBase findMenuList() {
         int page = 1;

@@ -18,8 +18,7 @@ public class StaffController {
     private StaffService staffService;
 
     /**
-     * 测试是否在登陆的接口
-     *
+     * 获取员工信息 还没被注册的
      * @return
      */
     @GetMapping("/getStaff")

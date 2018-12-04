@@ -19,6 +19,12 @@ public class DBExceptionHandler {
 
     private Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * 没有权限抛出异常
+     * @param e
+     * @param request
+     * @return
+     */
     @ExceptionHandler(AuthorizationException.class)
     public Object handleAuthorizationException(AuthorizationException e, HttpServletRequest request) {
         logger.error(e.getMessage(), e);

@@ -6,6 +6,7 @@ import com.dt.user.config.BaseApiService;
 import com.dt.user.config.BaseRedisService;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.MenuService;
+import com.dt.user.service.PermsMapperService;
 import com.dt.user.service.RoleService;
 import com.dt.user.service.UserService;
 import com.dt.user.utils.GetCookie;
@@ -36,11 +37,11 @@ public class UserRealm extends AuthorizingRealm {
         System.out.println("```````````````````````````````````````++++++++++++++++++");
         Long userId = ShiroUtils.getUserId();
         RoleService roleService = ApplicationContextRegister.getBean(RoleService.class);
-        MenuService menuService = ApplicationContextRegister.getBean(MenuService.class);
+        PermsMapperService permsService = ApplicationContextRegister.getBean(PermsMapperService.class);
         //获得角色
         Set<String> roles = roleService.getAllRolesByUid(userId);
         //获得权限
-        Set<String> perms = menuService.findByPermsMenuService(userId);
+        Set<String> perms = permsService.findByPerms(userId);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         info.setRoles(roles);
         info.setStringPermissions(perms);

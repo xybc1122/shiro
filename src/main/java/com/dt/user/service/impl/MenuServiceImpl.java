@@ -16,18 +16,6 @@ public class MenuServiceImpl implements MenuService {
     @Autowired
     private MenuMapper menuMapper;
 
-    @Override
-    public Set<String> findByPermsMenuService(Long uid) {
-        //获得用户的权限
-        List<String> perms = menuMapper.findByPermsMenu(uid);
-        Set<String> permsSet = new HashSet<>();
-        for (String perm : perms) {
-            if (StringUtils.isNotBlank(perm)) {
-                permsSet.addAll(Arrays.asList(perm.trim().split(",")));
-            }
-        }
-        return permsSet;
-    }
 
     @Override
     public List<Menu> queryMenuList(UserInfo userInfo) {

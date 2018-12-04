@@ -21,6 +21,12 @@ public class RoleMenuController {
     @Autowired
     private RoleMenuService roleMenuService;
 
+    /**
+     * 角色管理修改页面 点击确定后请求此接口
+     * 包含删除菜单，新增菜单
+     * @param menuMap
+     * @return
+     */
     @PostMapping("/upMenus")
     @Transactional
     public ResponseBase getMenus(@RequestBody Map<String, Object> menuMap) {
@@ -66,7 +72,12 @@ public class RoleMenuController {
     }
 
 
-    //对比两个数组是否是否一样
+    /**
+     * 对比两个数组是否是否一直 如果有不一致的 取出不一致的数据
+     * @param arrMenuIds
+     * @param roleMenuList
+     * @return
+     */
     public List<Long> menuListRoles(List<String> arrMenuIds, List<RoleMenu> roleMenuList) {
         List<Long> resultMenuIds = new ArrayList<>();
         for (int i = 0; i < arrMenuIds.size(); i++) {

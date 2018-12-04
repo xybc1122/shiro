@@ -19,7 +19,7 @@ public class BasicPublicShopController {
     private BasicPublicShopService basicPublicShopService;
 
     /**
-     * 获得公司的信息
+     * 获得店铺信息
      *
      * @return
      */

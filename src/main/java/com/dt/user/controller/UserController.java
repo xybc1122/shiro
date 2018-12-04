@@ -44,8 +44,7 @@ public class UserController {
     }
 
     /**
-     * 查看用户信息
-     *
+     * 获取用户管理信息的一些信息
      * @param userDto
      * @return
      */
@@ -74,7 +73,7 @@ public class UserController {
      * @return
      */
     //shiro权限控制
-    @RequiresPermissions("sys:user:up")
+    @RequiresPermissions("sys:up")
     @PostMapping("/upUserInfo")
     public ResponseBase userInfoUp(@RequestBody Map<String, Object> userMap) {
         System.out.println(userMap);
@@ -84,12 +83,10 @@ public class UserController {
 
     /**
      * 删除用户信息
-     *
-     * @param uidIds
      * @return
      */
     //shiro权限控制
-    @RequiresPermissions("user:del")
+    @RequiresPermissions("sys:del")
     @PostMapping("/delUserInfo")
     public ResponseBase userInfoDel(@RequestBody Map<String, Object> delMap) {
         int count = userService.delUserInfo(delMap.get("ids").toString());
@@ -101,8 +98,6 @@ public class UserController {
 
     /**
      * 恢复用户信息
-     *
-     * @param uidIds
      * @return
      */
     //shiro权限控制
@@ -117,7 +112,6 @@ public class UserController {
 
     /**
      * 获得一个用户的信息
-     *
      * @param request
      * @return
      */
@@ -137,7 +131,6 @@ public class UserController {
 
     /**
      * 获得历史删除的用户信息
-     *
      * @return
      */
     @PostMapping("/getDelUser")

@@ -19,8 +19,7 @@ public interface HeadMenuMapper {
     /**
      * 删除菜单关联
      */
-    @Delete("DELETE\n" +
-            "FROM `tb_head_menu`\n" +
+    @Delete("DELETE FROM `tb_head_menu`\n" +
             "WHERE `th_id` = #{thId} AND m_id=#{mId};\n")
     int delHeadMenu(TbHeadMenu tbHeadMenu);
 }

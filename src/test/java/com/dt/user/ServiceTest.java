@@ -23,12 +23,6 @@ public class ServiceTest {
     private TableHeadService tableHeadService;
 
     @Test
-    public void findByPermsMenuService() {
-      Set<String> perms=  menuService.findByPermsMenuService(1L);
-      System.out.println(perms);
-    }
-
-    @Test
     public void findByMenuIdHeadList() {
        List<TableHead> s= tableHeadService.findByMenuIdHeadList(1L,1L);
         for (TableHead a: s) {

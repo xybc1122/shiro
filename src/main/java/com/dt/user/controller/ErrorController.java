@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ErrorController {
 
-
+    /**
+     * 没有登陆信息
+     * @return
+     */
     @CrossOrigin
     @RequestMapping("/error/user")
     public ResponseBase wrong()

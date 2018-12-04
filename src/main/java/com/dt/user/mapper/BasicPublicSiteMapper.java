@@ -11,25 +11,10 @@ public interface BasicPublicSiteMapper {
      * 查询所有站点信息
      * @return
      */
-    @Select("SELECT\n" +
-            "  s.`site_id`,\n" +
-            "  s.`site_number`,\n" +
-            "  s.`site_name`,\n" +
-            "  s.`site_eng`,\n" +
-            "  s.`url`,\n" +
-            "  s.`vat`,\n" +
-            "  s.`principal`,\n" +
-            "  s.`remark`,\n" +
-            "  s.`status`,\n" +
-            "  s.`create_date`,\n" +
-            "  s.`create_id_user`,\n" +
-            "  s.`modify_date`,\n" +
-            "  s.`modify_id_user`,\n" +
-            "  s.`audit_date`,\n" +
-            "  s.`audit_id_user`,\n" +
-            "  c.`currency_name`,\n" +
-            "  c.`currency_eng_short`,\n" +
-            "  a.`area_name`\n" +
+    @Select("SELECT s.`site_id`,s.`site_number`,s.`site_name`,s.`site_eng`,s.`url`,\n" +
+            "  s.`vat`,s.`principal`,s.`remark`,s.`status`,s.`create_date`,s.`create_id_user`,\n" +
+            "  s.`modify_date`,s.`modify_id_user`,s.`audit_date`,s.`audit_id_user`,\n" +
+            "  c.`currency_name`,c.`currency_eng_short`,a.`area_name`\n" +
             "FROM `basic_public_site` AS s\n" +
             "INNER JOIN `basic_public_currency` AS c ON c.`currency_id`=s.`currency_id`\n" +
             "INNER JOIN `basic_public_area` AS a ON a.`area_id`=s.`area_id`\n")
