@@ -8,7 +8,6 @@ public class RoleProvider {
 
     public String findByRoleInfo(UserDto userDto) {
         return new SQL() {{
-
             SELECT("r.rid,r.r_name,GROUP_CONCAT(DISTINCT u.user_name)AS userName,GROUP_CONCAT(DISTINCT u.uid)AS uIds FROM user_info AS u");
             INNER_JOIN("user_role AS ur ON ur.`u_id`=u.`uid`");
             LEFT_OUTER_JOIN("role AS r ON ur.`r_id`=r.`rid`");
