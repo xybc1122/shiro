@@ -193,10 +193,10 @@ public class UserController {
                 //前台会传2个类型参数 根据判断转换 来设计用户 密码有效时间
                 if (userMap.get("pwdAlwaysInput") instanceof Integer) {
                     Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
-                    userInfo.setPwdStatus(DateUtils.GetRearDate(pwdAlwaysInput));
+                    userInfo.setPwdStatus(DateUtils.getRearDate(pwdAlwaysInput));
                 } else {
                     String pwdAlwaysInput = (String) userMap.get("pwdAlwaysInput");
-                    userInfo.setPwdStatus(DateUtils.GetRearDate(Integer.parseInt(pwdAlwaysInput)));
+                    userInfo.setPwdStatus(DateUtils.getRearDate(Integer.parseInt(pwdAlwaysInput)));
                 }
             }
             userInfo.setName(staffValue.get("sName").toString());

@@ -25,11 +25,29 @@ public class DateUtils {
     }
 
     //获得当前时间+后面 N天时间的时间戳
-    public static Long GetRearDate(Integer time) {
+    public static Long getRearDate(Integer time) {
         Date date = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         calendar.add(Calendar.DAY_OF_MONTH, time);
         return calendar.getTime().getTime();
+    }
+
+    /**
+     * 德国时间转换
+     * @param DatumUhrzei
+     * @return
+     */
+    public static Long getGermanTime(String DatumUhrzei) {
+        Long time = null;
+        int indexGMT = DatumUhrzei.indexOf("G");
+        String date = DatumUhrzei.substring(0, indexGMT).replace('.', ':').trim();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd:MM:yyyy HH:mm:ss");
+        try {
+            time = sdf.parse(date).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
     }
 }
