@@ -6,7 +6,11 @@ import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface FinancialSalesBalanceMapper {
-
+    /**
+     * 插入德国数据
+     * @param financialSalesBalance
+     * @return
+     */
     @Insert("INSERT INTO `financial_sales_balance`(`date`,`shop_id`,`site_id`,`settlemen_id`,`payment_type_id`,`type`,`order_id`,\n" +
             "             `sku`,`sku_id`,`description`,`o_quantity`,`quantity`,`refund_quantity`,`order_qty`,`adjustment_qty`,`marketplace`,\n" +
             "             `fulfillment`,`city`,`state`,`postal`,`sales`,`sale_price`,`pre_sale_price`,`std_sale_price`,`new_shipping_credits`,\n" +

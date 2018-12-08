@@ -12,15 +12,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class MapperTest {
-    @Autowired
-    private FinancialSalesBalanceMapper financialSalesBalanceMapper;
 
 
-    @Test
-    public void add() {
-        String filePath = "E:/201810月31-201812月1CustomTransaction.csv";
-        CSVUtil s = new CSVUtil();
-        s.saveGermanInfo(filePath, CSVUtil.startReadLine(filePath));
-
-    }
+//    @Test
+//    public void add() {
+//        String filePath = "E:/201810月31-201812月1CustomTransaction.csv";
+//        CSVUtil s = new CSVUtil();
+//        s.saveGermanInfo(filePath, CSVUtil.startReadLine(filePath));
+//
+//    }
 }
