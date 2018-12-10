@@ -11,14 +11,14 @@ import java.util.Set;
 @Mapper
 public interface RoleMapper {
     //查询角色表的role_sign  角色类型
-    @Select("select rid, role_sign from role where rid in(select r_id from user_role where u_id=#{uid})")
+    @Select("select rid, role_sign from system_user_role where rid in(select r_id from system_user_role_user where u_id=#{uid})")
     Set<String> getAllRolesByUid(@Param("uid") Long uid);
 
     /**
      * 查询所有的角色
      * @return
      */
-    @Select("SELECT `rid`,`r_name`,`role_sign`FROM `role`")
+    @Select("SELECT `rid`,`r_name`,`role_sign`FROM `system_user_role`")
     List<Role> getRoleList();
 
 

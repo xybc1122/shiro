@@ -9,6 +9,10 @@ eureka:
 server:
   port: 9001
 spring:
+  servlet:
+    multipart:
+      maxFileSize: 100MB #单个文件大小
+      maxRequestSize: 500MB #总的文件大小
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://120.79.153.77:3306/mydb1?useUnicode=true&characterEncoding=utf-8

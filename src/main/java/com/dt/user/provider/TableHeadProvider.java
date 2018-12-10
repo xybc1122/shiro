@@ -13,7 +13,7 @@ public class TableHeadProvider {
                 "GROUP_CONCAT(DISTINCT m.`menu_id`)AS menuId,m.`name` \n" +
                 "FROM `menu` AS m \n" +
                 "LEFT JOIN `tb_head_menu` AS tm ON tm.m_id=m.menu_id \n" +
-                "LEFT JOIN `table_head` AS t ON t.id=tm.th_id  \n"+
+                "LEFT JOIN `system_user_table_head` AS t ON t.id=tm.field_id  \n"+
                 "WHERE m.`menu_id` in (");
         for (Integer id : ids) {
             if (ids.indexOf(id) > 0)

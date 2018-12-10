@@ -1,21 +1,20 @@
 package com.dt.user.controller;
 
 import com.csvreader.CsvReader;
-import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.service.FinancialSalesBalanceService;
 import com.dt.user.utils.CSVUtil;
 import com.dt.user.utils.DateUtils;
-import com.dt.user.utils.StringUtils;
+import com.dt.user.utils.FileUtils;
+import com.dt.user.utils.StrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,31 +30,38 @@ public class FinancialSalesBalanceController {
 
     /**
      * 查询从第几行开始读
-     *
-     * @param filePath 导入路径
      * @return
      * @throws Exception
      */
     @Transactional
-    @GetMapping("/germany")
+    @PostMapping("/germany")
     @Async("executor")
-    public ResponseBase germanyInfo(@RequestParam("filePath") String filePath) {
-//        String filePath = "E:/201810月31-201812月1CustomTransaction.csv";
-        int file = filePath.indexOf(".");
-        String typeFile = filePath.substring(file + 1);
-        System.out.println(typeFile);
-        switch (typeFile) {
-            //csv文件操作
-            case "csv":
-                saveCSV(filePath);
-                break;
-            case "":
-                break;
+    public ResponseBase germanyInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+        String contentType = file.getContentType();//图片||文件类型
+        String fileName = file.getOriginalFilename();//图片||文件名字
+        //指定文件存放路径，可以是相对路径或者绝对路径
+        String filePath = "D:\\";
+        try {
+            FileUtils.uploadFile(file.getBytes(), filePath, fileName);
+        } catch (Exception e) {
         }
+//        String filePath = "E:/201810月31-201812月1CustomTransaction.csv";
+//        int file = filePath.indexOf(".");
+//        String typeFile = filePath.substring(file + 1);
+//        System.out.println(typeFile);
+//        switch (typeFile) {
+//            //csv文件操作
+//            case "csv":
+//                saveCSV(filePath);
+//                break;
+//            case "":
+//                break;
+//        }
 
 
         return null;
     }
+
 
     public void saveCSV(String filePath) {
         FinancialSalesBalance financialSalesBalance = new FinancialSalesBalance();
@@ -82,25 +88,25 @@ public class FinancialSalesBalanceController {
                 }
                 if (index >= row - 1) {
                     financialSalesBalance.setDate(DateUtils.getGermanTime(csvReader.get("Datum/Uhrzeit")));
-                    financialSalesBalance.setSettlemenId(csvReader.get("Abrechnungsnummer"));
-                    financialSalesBalance.setType(csvReader.get("Typ"));
-                    financialSalesBalance.setOrderId(csvReader.get("Bestellnummer"));
-                    financialSalesBalance.setSku(csvReader.get("SKU"));
-                    financialSalesBalance.setDescription(csvReader.get("Beschreibung"));
-                    financialSalesBalance.setoQuantity(Long.parseLong(csvReader.get("Menge")));
-                    financialSalesBalance.setMarketplace(csvReader.get("Marketplace"));
-                    financialSalesBalance.setFulfillment(csvReader.get("Versand"));
-                    financialSalesBalance.setState(csvReader.get("Bundesland"));
-                    financialSalesBalance.setPostal(csvReader.get("Postleitzahl"));
-                    financialSalesBalance.setSales(StringUtils.replaceString(csvReader.get("Ums?tze")));
-                    financialSalesBalance.setShippingCredits(StringUtils.replaceString(csvReader.get("Gutschrift für Versandkosten")));
-                    financialSalesBalance.setGiftwrapCredits(StringUtils.replaceString(csvReader.get("Gutschrift für Geschenkverpackung")));
-                    financialSalesBalance.setPromotionalRebates(StringUtils.replaceString(csvReader.get("Rabatte aus Werbeaktionen")));
-                    financialSalesBalance.setSellingFees(StringUtils.replaceString(csvReader.get("Verkaufsgebühren")));
-                    financialSalesBalance.setFbaFee(StringUtils.replaceString(csvReader.get("Gebühren zu Versand durch Amazon")));
-                    financialSalesBalance.setOtherTransactionFees(StringUtils.replaceString(csvReader.get("Andere Transaktionsgebühren")));
-                    financialSalesBalance.setOther(StringUtils.replaceString(csvReader.get("Andere")));
-                    financialSalesBalance.setTotal(StringUtils.replaceString(csvReader.get("Gesamt")));
+                    financialSalesBalance.setSettlemenId(StrUtils.replaceString(csvReader.get("Abrechnungsnummer")));
+                    financialSalesBalance.setType(StrUtils.replaceString(csvReader.get("Typ")));
+                    financialSalesBalance.setOrderId(StrUtils.replaceString(csvReader.get("Bestellnummer")));
+                    financialSalesBalance.setSku(StrUtils.replaceString(csvReader.get("SKU")));
+                    financialSalesBalance.setDescription(StrUtils.replaceString(csvReader.get("Beschreibung")));
+                    financialSalesBalance.setoQuantity(StrUtils.replaceLong(csvReader.get("Menge")));
+                    financialSalesBalance.setMarketplace(StrUtils.replaceString(csvReader.get("Marketplace")));
+                    financialSalesBalance.setFulfillment(StrUtils.replaceString(csvReader.get("Versand")));
+                    financialSalesBalance.setState(StrUtils.replaceString(csvReader.get("Bundesland")));
+                    financialSalesBalance.setPostal(StrUtils.replaceString(csvReader.get("Postleitzahl")));
+                    financialSalesBalance.setSales(StrUtils.replaceDouble(csvReader.get("Ums?tze")));
+                    financialSalesBalance.setShippingCredits(StrUtils.replaceDouble(csvReader.get("Gutschrift für Versandkosten")));
+                    financialSalesBalance.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("Gutschrift für Geschenkverpackung")));
+                    financialSalesBalance.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get("Rabatte aus Werbeaktionen")));
+                    financialSalesBalance.setSellingFees(StrUtils.replaceDouble(csvReader.get("Verkaufsgebühren")));
+                    financialSalesBalance.setFbaFee(StrUtils.replaceDouble(csvReader.get("Gebühren zu Versand durch Amazon")));
+                    financialSalesBalance.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("Andere Transaktionsgebühren")));
+                    financialSalesBalance.setOther(StrUtils.replaceDouble(csvReader.get("Andere")));
+                    financialSalesBalance.setTotal(StrUtils.replaceDouble(csvReader.get("Gesamt")));
                     financialSalesBalance.setCreateDate(new Date().getTime());
                     //UserId
                     financialSalesBalance.setCreateIdUser(1L);
@@ -114,7 +120,7 @@ public class FinancialSalesBalanceController {
             if (csvReader != null) {
                 csvReader.close();
             }
-            if(isr!=null){
+            if (isr != null) {
                 try {
                     isr.close();
                 } catch (IOException e) {

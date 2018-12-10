@@ -15,13 +15,13 @@ public interface TableHeadMapper {
      *
      * @return
      */
-    @Select("SELECT u.uid,u.user_name,t.id,t.head_name,t.menu_id,t.`top_type`,t.top_order FROM user_info AS u \n" +
-            "INNER JOIN user_role AS ur ON ur.`u_id`=u.`uid` \n" +
-            "INNER JOIN role AS r ON r.`rid`=ur.`r_id` \n" +
-            "INNER JOIN role_menu AS rm ON rm.`r_id`=r.`rid`\n" +
-            "INNER JOIN menu AS m ON m.`menu_id`=rm.`m_id` \n" +
-            "INNER JOIN `tb_head_menu` AS tm ON tm.m_id = m.`menu_id` \n" +
-            "INNER JOIN `table_head` AS t ON tm.th_id = t.id\n" +
+    @Select("SELECT u.uid,u.user_name,t.id,t.head_name,t.menu_id,t.`top_type`,t.top_order FROM system_user_info AS u \n" +
+            "INNER JOIN system_user_role_user AS ur ON ur.`u_id`=u.`uid` \n" +
+            "INNER JOIN system_user_role AS r ON r.`rid`=ur.`r_id` \n" +
+            "INNER JOIN system_user_role_menu AS rm ON rm.`r_id`=r.`rid`\n" +
+            "INNER JOIN system_user_menu AS m ON m.`menu_id`=rm.`m_id` \n" +
+            "INNER JOIN `system_user_menu_field` AS tm ON tm.m_id = m.`menu_id` \n" +
+            "INNER JOIN `system_user_table_head` AS t ON tm.field_id = t.id\n" +
             "WHERE u.uid =#{uid}\n" +
             "GROUP BY t.head_name \n" +
             "ORDER BY top_order ")
@@ -32,8 +32,8 @@ public interface TableHeadMapper {
      * @param mid
      * @return
      */
-    @Select("SELECT GROUP_CONCAT(DISTINCT t.head_name) as headName,GROUP_CONCAT(DISTINCT t.id) as id,GROUP_CONCAT(DISTINCT m.`menu_id`)AS menuId FROM `table_head` AS t\n" +
-            "LEFT JOIN `tb_head_menu` AS tm ON tm.th_id=t.id\n" +
+    @Select("SELECT GROUP_CONCAT(DISTINCT t.head_name) as headName,GROUP_CONCAT(DISTINCT t.id) as id,GROUP_CONCAT(DISTINCT m.`menu_id`)AS menuId FROM `system_user_table_head` AS t\n" +
+            "LEFT JOIN `system_user_menu_field` AS tm ON tm.field_id=t.id\n" +
             "LEFT JOIN `menu` AS m ON m.`menu_id`=tm.m_id\n" +
             "WHERE  m.`menu_id`=#{mId}")
     TableHead getTableHead(@Param("mId")Long mid);
@@ -46,6 +46,6 @@ public interface TableHeadMapper {
     /**
      * 查询所有表头信息
      */
-    @Select("SELECT`id`,`head_name` FROM `table_head`")
+    @Select("SELECT`id`,`head_name` FROM `system_user_table_head`")
     List<TableHead> findByHeadList();
 }

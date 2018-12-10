@@ -13,13 +13,13 @@ public interface StaffMapper {
     /**
      * 获得员工信息 没有关联用户的
      */
-    @Select("SELECT`s_id`,`u_id`,`pt_id`,`mobile_phone`,`s_name`FROM `staff` WHERE u_id IS NULL")
+    @Select("SELECT`s_id`,`u_id`,`pt_id`,`mobile_phone`,`s_name`FROM `hr_archives_employee` WHERE u_id IS NULL")
     List<Staff> GetStaffList();
 
     /**
      * 绑定用户id跟员工id信息
      */
-    @Update("UPDATE `staff`SET `u_id` = #{uid} WHERE `s_id` = #{sid}")
+    @Update("UPDATE `hr_archives_employee`SET `u_id` = #{uid} WHERE `s_id` = #{sid}")
     int upStaffInfo(@Param("uid") Long uid, @Param("sid") Long sid);
 
 

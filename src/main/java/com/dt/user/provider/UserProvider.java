@@ -26,10 +26,10 @@ public class UserProvider {
         return new SQL() {{
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
                     "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.effective_date,u.pwd_status");
-            FROM("user_info AS u");
-            LEFT_OUTER_JOIN("user_role AS ur ON(ur.u_id=u.uid)");
-            LEFT_OUTER_JOIN("role AS r ON(r.rid=ur.r_id)");
-            LEFT_OUTER_JOIN("`staff` AS s ON(u.uid=s.u_id)");
+            FROM("system_user_info AS u");
+            LEFT_OUTER_JOIN("system_user_role_user AS ur ON(ur.u_id=u.uid)");
+            LEFT_OUTER_JOIN("system_user_role AS r ON(r.rid=ur.r_id)");
+            LEFT_OUTER_JOIN("`hr_archives_employee` AS s ON(u.uid=s.u_id)");
             if (StringUtils.isNotBlank(userDto.getUserName())) {
                 WHERE("u.user_name=#{userName}");
             }
@@ -47,7 +47,7 @@ public class UserProvider {
 
     public String upUserInfo(Map<String, Object> userMap) {
         return new SQL() {{
-            UPDATE("`user_info`");
+            UPDATE("`system_user_info`");
             if (userMap.get("pwd") != null && userMap.get("pwd") != "") {
                 String pwd = (String) userMap.get("pwd");
                 String userName = (String) userMap.get("uName");
@@ -93,10 +93,10 @@ public class UserProvider {
 
     public String findByRoleInfo(UserDto userDto) {
         return new SQL() {{
-            SELECT(" r.r_name,GROUP_CONCAT(DISTINCT u.user_name)as userName,GROUP_CONCAT(DISTINCT m.name)as menuName FROM user_info AS u");
-            INNER_JOIN("user_role AS ur ON ur.`u_id`=u.`uid`");
-            INNER_JOIN("role AS r ON ur.`r_id`=r.`rid`");
-            LEFT_OUTER_JOIN("role_menu AS rm ON rm.`r_id`=r.`rid`");
+            SELECT(" r.r_name,GROUP_CONCAT(DISTINCT u.user_name)as userName,GROUP_CONCAT(DISTINCT m.name)as menuName FROM system_user_info AS u");
+            INNER_JOIN("system_user_role_user AS ur ON ur.`u_id`=u.`uid`");
+            INNER_JOIN("system_user_role AS r ON ur.`r_id`=r.`rid`");
+            LEFT_OUTER_JOIN("system_user_role_menu AS rm ON rm.`r_id`=r.`rid`");
             LEFT_OUTER_JOIN("menu AS m ON m.`menu_id`=rm.`m_id`");
             GROUP_BY("r.rid");
         }}.toString();
@@ -107,7 +107,7 @@ public class UserProvider {
         String[] newIds = uidIds.split(",");
         List<String> ids = java.util.Arrays.asList(newIds);
         StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE `user_info`\n" +
+        sql.append("UPDATE `system_user_info`\n" +
                 "SET `del_user` = 1" +
                 ",`del_date` = " + new Date().getTime() + "\n" +
                 "WHERE uid in (");
@@ -125,7 +125,7 @@ public class UserProvider {
         String[] newIds = uidIds.split(",");
         List<String> ids = java.util.Arrays.asList(newIds);
         StringBuilder sql = new StringBuilder();
-        sql.append("UPDATE `user_info`\n" +
+        sql.append("UPDATE `system_user_info`\n" +
                 "SET `del_user` = 0" +
                 ",`del_date` = " + new Date().getTime() + "\n" +
                 "WHERE uid in (");

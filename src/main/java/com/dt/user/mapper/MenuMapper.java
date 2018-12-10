@@ -1,7 +1,6 @@
 package com.dt.user.mapper;
 
 import com.dt.user.model.Menu;
-import com.dt.user.model.RoleMenu;
 import com.dt.user.model.UserInfo;
 import com.dt.user.provider.MenuProvider;
 import org.apache.ibatis.annotations.*;
@@ -29,9 +28,9 @@ public interface MenuMapper {
      */
     @Select("SELECT \n" +
             "m.menu_id,m.`name`,parent_id,url,icon,menu_order\n" +
-            "FROM menu m\n" +
-            "INNER JOIN role_menu rm ON m.menu_id = m_id\n" +
-            "INNER JOIN role r ON r.rid= rm.r_id\n" +
+            "FROM system_user_menu m\n" +
+            "INNER JOIN system_user_role_menu rm ON m.menu_id = m_id\n" +
+            "INNER JOIN system_user_role r ON r.rid= rm.r_id\n" +
             "WHERE rid= #{roleId}")
     List<Menu> findQueryByRoleId(@Param("roleId") Long roleId);
 
@@ -49,7 +48,7 @@ public interface MenuMapper {
     /**
      * * 获取菜单表信息
      */
-    @Select("select menu_id,`name`,parent_id,url,icon,menu_order,perms from menu where parent_id=0 ORDER BY menu_order ASC")
+    @Select("select menu_id,`name`,parent_id,url,icon,menu_order from system_user_menu where parent_id=0 ORDER BY menu_order ASC")
     List<Menu> findMenuList();
 
 

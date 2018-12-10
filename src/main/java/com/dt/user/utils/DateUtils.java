@@ -35,10 +35,14 @@ public class DateUtils {
 
     /**
      * 德国时间转换
+     *
      * @param DatumUhrzei
      * @return
      */
     public static Long getGermanTime(String DatumUhrzei) {
+        if (StringUtils.isBlank(DatumUhrzei)) {
+            return null;
+        }
         Long time = null;
         int indexGMT = DatumUhrzei.indexOf("G");
         String date = DatumUhrzei.substring(0, indexGMT).replace('.', ':').trim();

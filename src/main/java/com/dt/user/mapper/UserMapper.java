@@ -20,13 +20,13 @@ public interface UserMapper {
      * @return
      */
     @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
-            "account_Status,name,del_user  from user_info where user_name=#{userName}")
+            "account_Status,name,del_user  from system_user_info where user_name=#{userName}")
     UserInfo findByUser(@Param("userName") String userName);
 
     /**
      * 查找所有用户信息
      */
-    @Select("select uid ,user_name  from user_info")
+    @Select("select uid ,user_name  from system_user_info")
     List<UserInfo> getByUsers();
 
     /**
@@ -46,7 +46,7 @@ public interface UserMapper {
     /**
      * 更新登陆时间
      */
-    @Update("UPDATE `user_info`\n" +
+    @Update("UPDATE `system_user_info`\n" +
             "SET `landing_time` = #{landingTime}\n" +
             "WHERE `uid` = #{uid};")
     int upUserLandingTime(UserInfo userInfo);
@@ -55,7 +55,7 @@ public interface UserMapper {
      * 通过 id查询 用户 跟角色
      */
 
-    @Select("SELECT uid,user_name,`status`,`name` FROM user_info WHERE uid=#{uid}")
+    @Select("SELECT uid,user_name,`status`,`name` FROM system_user_info WHERE uid=#{uid}")
     @Results({
             @Result(id = true, column = "uid", property = "uid"),
             @Result(column = "uid", property = "roles",
@@ -88,19 +88,19 @@ public interface UserMapper {
     /**
      * 查询被删除的用户信息
      */
-    @Select("select uid, user_name,del_date,name from user_info where del_user=1")
+    @Select("select uid, user_name,del_date,name from system_user_info where del_user=1")
     List<UserInfo> findByDelUserInfo();
 
     /**
      * 注册用户验证用户是否存在
      */
-    @Select("SELECT uid FROM user_info WHERE user_name=#{userName}")
+    @Select("SELECT uid FROM system_user_info WHERE user_name=#{userName}")
     UserInfo getUserName(@Param("userName") String userName);
 
     /**
      * 新增一个用户
      */
-    @Insert("insert into user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,account_status,name) "
+    @Insert("insert into system_user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,account_status,name) "
             + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{accountStatus},#{name})")
     @Options(useGeneratedKeys = true, keyProperty = "uid", keyColumn = "uid")
     int saveUserInfo(UserInfo userInfo);
