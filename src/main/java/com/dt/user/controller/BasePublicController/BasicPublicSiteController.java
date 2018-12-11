@@ -1,4 +1,4 @@
-package com.dt.user.controller;
+package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;

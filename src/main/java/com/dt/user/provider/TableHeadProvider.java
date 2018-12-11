@@ -11,9 +11,9 @@ public class TableHeadProvider {
         sql.append("SELECT GROUP_CONCAT(DISTINCT t.head_name)as headName," +
                 "GROUP_CONCAT(DISTINCT t.id)as ids," +
                 "GROUP_CONCAT(DISTINCT m.`menu_id`)AS menuId,m.`name` \n" +
-                "FROM `menu` AS m \n" +
-                "LEFT JOIN `tb_head_menu` AS tm ON tm.m_id=m.menu_id \n" +
-                "LEFT JOIN `system_user_table_head` AS t ON t.id=tm.field_id  \n"+
+                "FROM `system_user_menu` AS m \n" +
+                "LEFT JOIN `system_user_menu_field` AS tf ON tf.m_id=m.menu_id \n" +
+                "LEFT JOIN `system_user_table_head` AS t ON t.id=tf.field_id  \n"+
                 "WHERE m.`menu_id` in (");
         for (Integer id : ids) {
             if (ids.indexOf(id) > 0)

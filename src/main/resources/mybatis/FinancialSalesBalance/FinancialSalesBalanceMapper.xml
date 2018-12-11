@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dt.user.mapper.FinancialSalesBalanceMapper">
+
+    <insert id="addInfoGerman" parameterType="java.util.List" useGeneratedKeys="false">
+        insert into financial_sales_amazon_balance
+        (`date`,`shop_id`,`site_id`,`settlemen_id`,`payment_type_id`,`type`,`order_id`,
+        `sku`,`sku_id`,`description`,`o_quantity`,`quantity`,`refund_quantity`,`order_qty`,`adjustment_qty`,`marketplace`,
+        `fulfillment`,`city`,`state`,`postal`,`sales`,`sale_price`,`pre_sale_price`,`std_sale_price`,`new_shipping_credits`,
+        `shipping_credits`,`giftwrap_credits`,`promotional_rebates`,`sales_tax`,`marketplace_facilitator_tax`,`selling_fees`,`fba_fee`,
+        `other_transaction_fees`, `other`,
+        `total`,`service_fee`,`transfer`,`adjustment`,`new_promotional_rebates`,`new_shipping_fba`,`std_product_sales`,`std_sales_original`,`std_sales_add`,
+        `std_sales_minus`,`std_fba`,`std_fbas`,`std_fba_original`,`lightning_deal_fee`, `fba_inventory_fee`,`status`,
+        `create_date`,`create_id_user`,`modify_date`,`modify_id_user`, `audit_date`, `audit_id_user`)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.date},#{item.shopId},#{item.siteId},#{item.settlemenId},#{item.paymentTypeId},#{item.type},
+            #{item.orderId},#{item.sku},#{item.skuId},
+            #{item.description},#{item.oQuantity},#{item.quantity},
+            #{item.refundQuantity},#{item.orderQty},#{item.adjustmentQty},
+            #{item.marketplace},#{item.fulfillment},#{item.city},#{item.state},
+            #{item.postal},#{item.sales},#{item.salePrice},#{item.preSalePrice},
+            #{item.stdSalePrice},#{item.newShippingCredits},#{item.shippingCredits},#{item.giftwrapCredits},
+            #{item.promotionalRebates},#{item.salesTax},#{item.marketplaceFacilitatorTax},
+            #{item.sellingFees},#{item.fbaFee},#{item.otherTransactionFees},#{item.other},
+            #{item.total},#{item.serviceFee},#{item.transfer},#{item.adjustment},#{item.newPromotionalRebates},#{item.newShippingFba},
+            #{item.stdProductSales},#{item.stdSalesOriginal},#{item.stdSalesAdd},#{item.stdSalesMinus},#{item.stdFba},#{item.stdFbas},
+            #{item.stdFbaOriginal},#{item.lightningDealFee},#{item.fbaInventoryFee},#{item.status},#{item.createDate},#{item.createIdUser},
+            #{item.modifyDate},#{item.modifyIdUser},#{item.auditDate},#{item.auditIdUser}
+            )
+        </foreach>
+    </insert>
+</mapper>

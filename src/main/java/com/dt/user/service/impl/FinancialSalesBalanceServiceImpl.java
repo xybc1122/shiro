@@ -6,6 +6,8 @@ import com.dt.user.service.FinancialSalesBalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class FinancialSalesBalanceServiceImpl implements FinancialSalesBalanceService {
 
@@ -13,7 +15,7 @@ public class FinancialSalesBalanceServiceImpl implements FinancialSalesBalanceSe
     private FinancialSalesBalanceMapper financialSalesBalanceMapper;
 
     @Override
-    public int addInfoGerman(FinancialSalesBalance financialSalesBalance) {
-        return financialSalesBalanceMapper.addInfoGerman(financialSalesBalance);
+    public int addInfoGerman(List<FinancialSalesBalance> financialSalesBalanceList) {
+        return financialSalesBalanceMapper.addInfoGerman(financialSalesBalanceList);
     }
 }

@@ -1,25 +1,22 @@
 package com.dt.user.controller;
 
 import com.csvreader.CsvReader;
+import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.service.FinancialSalesBalanceService;
-import com.dt.user.utils.CSVUtil;
-import com.dt.user.utils.DateUtils;
-import com.dt.user.utils.FileUtils;
-import com.dt.user.utils.StrUtils;
+import com.dt.user.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/upload")
@@ -29,44 +26,58 @@ public class FinancialSalesBalanceController {
     private FinancialSalesBalanceService financialSalesBalanceService;
 
     /**
-     * 查询从第几行开始读
+     * 德国csv表操作
+     * @param file
+     * @param request
      * @return
      * @throws Exception
      */
     @Transactional
     @PostMapping("/germany")
-    @Async("executor")
-    public ResponseBase germanyInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-        String contentType = file.getContentType();//图片||文件类型
+    public ResponseBase germanyInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+        //String contentType = file.getContentType();//图片||文件类型
         String fileName = file.getOriginalFilename();//图片||文件名字
-        //指定文件存放路径，可以是相对路径或者绝对路径
-        String filePath = "D:\\";
+        //指定文件存放路径
+        String saveFilePath = "D:/csv/";
         try {
-            FileUtils.uploadFile(file.getBytes(), filePath, fileName);
+            FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
+        } catch (FileNotFoundException e) {
+            return BaseApiService.setResultError("上传失败" + e.getMessage());
+        } catch (IOException e) {
+            return BaseApiService.setResultError("上传失败" + e.getMessage());
         } catch (Exception e) {
+            return BaseApiService.setResultError("上传失败" + e.getMessage());
         }
-//        String filePath = "E:/201810月31-201812月1CustomTransaction.csv";
-//        int file = filePath.indexOf(".");
-//        String typeFile = filePath.substring(file + 1);
-//        System.out.println(typeFile);
-//        switch (typeFile) {
-//            //csv文件操作
-//            case "csv":
-//                saveCSV(filePath);
-//                break;
-//            case "":
-//                break;
-//        }
-
-
-        return null;
-    }
-
-
-    public void saveCSV(String filePath) {
-        FinancialSalesBalance financialSalesBalance = new FinancialSalesBalance();
+        String filePath = saveFilePath + fileName;
         //获得头信息长度
         int row = CSVUtil.startReadLine(filePath);
+        if (row == 0) {
+            throw new Exception("存入数据失败,请检查Datum/Uhrzeit是否正确");
+        }
+        int fileIndex = filePath.indexOf(".");
+        String typeFile = filePath.substring(fileIndex + 1);
+        switch (typeFile) {
+            //csv文件操作
+            case "csv":
+                boolean isCsv = saveGermanyCSV(filePath, row);
+                if (isCsv) {
+                    return BaseApiService.setResultSuccess("数据存入成功~");
+                }
+                FileUtils.deleteFile(filePath);
+                return BaseApiService.setResultError("数据存入失败~");
+            case "":
+                break;
+        }
+        return null;
+    }
+    /**
+     * 德国数据配置解析
+     *
+     * @param filePath
+     */
+    public boolean saveGermanyCSV(String filePath, int row) {
+        FinancialSalesBalance financialSalesBalance = new FinancialSalesBalance();
+        boolean isFlg;
         InputStreamReader isr = null;
         // 创建CSV读对象
         CsvReader csvReader = null;
@@ -74,6 +85,7 @@ public class FinancialSalesBalanceController {
         try {
             isr = new InputStreamReader(new FileInputStream(new File(filePath)), "GBK");
             csvReader = new CsvReader(isr);
+            List<FinancialSalesBalance> financialSalesBalanceList = new ArrayList<>();
             while (csvReader.readRecord()) {
                 //如果正确设置表头
                 if (index == (row - 2)) {
@@ -81,9 +93,11 @@ public class FinancialSalesBalanceController {
                     csvReader.readHeaders();
                     //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
                     String[] head = csvReader.getRawRecord().split(",");
-                    for (int i = 0; i < head.length; i++) {
-                        System.out.println(head[i]);
-                        //return BaseApiService.setResultError("数据库字段不一致~");
+                    List<String> headList = Arrays.asList(head);
+                    List<String> fBalanceHead = new ArrayList<>();
+                    isFlg = ArrUtils.equalList(headList, fBalanceHead);
+                    if (!isFlg) {
+                        return false;
                     }
                 }
                 if (index >= row - 1) {
@@ -110,9 +124,13 @@ public class FinancialSalesBalanceController {
                     financialSalesBalance.setCreateDate(new Date().getTime());
                     //UserId
                     financialSalesBalance.setCreateIdUser(1L);
-                    financialSalesBalanceService.addInfoGerman(financialSalesBalance);
+                    financialSalesBalanceList.add(financialSalesBalance);
                 }
                 index++;
+            }
+            int count = financialSalesBalanceService.addInfoGerman(financialSalesBalanceList);
+            if (count != 0) {
+                return true;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,5 +146,6 @@ public class FinancialSalesBalanceController {
                 }
             }
         }
+        return false;
     }
 }

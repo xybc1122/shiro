@@ -20,8 +20,8 @@ public interface TableHeadMapper {
             "INNER JOIN system_user_role AS r ON r.`rid`=ur.`r_id` \n" +
             "INNER JOIN system_user_role_menu AS rm ON rm.`r_id`=r.`rid`\n" +
             "INNER JOIN system_user_menu AS m ON m.`menu_id`=rm.`m_id` \n" +
-            "INNER JOIN `system_user_menu_field` AS tm ON tm.m_id = m.`menu_id` \n" +
-            "INNER JOIN `system_user_table_head` AS t ON tm.field_id = t.id\n" +
+            "INNER JOIN `system_user_menu_field` AS tf ON tf.m_id = m.`menu_id` \n" +
+            "INNER JOIN `system_user_table_head` AS t ON tf.field_id = t.id\n" +
             "WHERE u.uid =#{uid}\n" +
             "GROUP BY t.head_name \n" +
             "ORDER BY top_order ")
@@ -33,8 +33,8 @@ public interface TableHeadMapper {
      * @return
      */
     @Select("SELECT GROUP_CONCAT(DISTINCT t.head_name) as headName,GROUP_CONCAT(DISTINCT t.id) as id,GROUP_CONCAT(DISTINCT m.`menu_id`)AS menuId FROM `system_user_table_head` AS t\n" +
-            "LEFT JOIN `system_user_menu_field` AS tm ON tm.field_id=t.id\n" +
-            "LEFT JOIN `menu` AS m ON m.`menu_id`=tm.m_id\n" +
+            "LEFT JOIN `system_user_menu_field` AS tf ON tf.field_id=t.id\n" +
+            "LEFT JOIN `system_user_menu` AS m ON m.`menu_id`=tf.m_id\n" +
             "WHERE  m.`menu_id`=#{mId}")
     TableHead getTableHead(@Param("mId")Long mid);
     /**

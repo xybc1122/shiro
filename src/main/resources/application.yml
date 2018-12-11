@@ -9,13 +9,9 @@ eureka:
 server:
   port: 9001
 spring:
-  servlet:
-    multipart:
-      maxFileSize: 100MB #单个文件大小
-      maxRequestSize: 500MB #总的文件大小
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://120.79.153.77:3306/mydb1?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.1.191:3306/mydb?useUnicode=true&characterEncoding=utf-8
     username: root
     password: wawzj7788
     ################Redis
@@ -46,6 +42,7 @@ mybatis:
     map-underscore-to-camel-case: true
     #打印sql 方便调试
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: mybatis/**/*Mapper.xml
 #page分页配置
 pagehelper:
   helperDialect: mysql

@@ -1,6 +1,5 @@
 package com.dt.user.utils;
 
-import com.csvreader.CsvReader;
 import java.io.*;
 
 
@@ -34,28 +33,6 @@ public class CSVUtil {
                 }
             }
         }
-        return -1;
-    }
-
-    public static void read() {
-
-        String filePath = "E:/201810月31-201812月1CustomTransaction.csv";
-
-        try {
-            // 创建CSV读对象
-            CsvReader csvReader = new CsvReader(filePath);
-
-            // 读表头
-            csvReader.readHeaders();
-            while (csvReader.readRecord()) {
-                // 读一整行
-//                System.out.println(csvReader.getRawRecord());
-                // 读这行的某一列
-                System.out.println(csvReader.get("Abrechnungsnummer"));
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return 0;
     }
 }
