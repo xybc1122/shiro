@@ -11,7 +11,8 @@ server:
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://192.168.1.191:3306/mydb?useUnicode=true&characterEncoding=utf-8
+    #120.79.153.77
+    url: jdbc:mysql://120.79.153.77:3306/mydb?useUnicode=true&characterEncoding=utf-8
     username: root
     password: wawzj7788
     ################Redis

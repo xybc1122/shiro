@@ -24,6 +24,7 @@ public class RoleMenuController {
     /**
      * 角色管理修改页面 点击确定后请求此接口
      * 包含删除菜单，新增菜单
+     *
      * @param menuMap
      * @return
      */
@@ -38,16 +39,20 @@ public class RoleMenuController {
         Boolean menuFlg = (Boolean) menuMap.get("menuFlg");
         //true =添加菜单  false =删除菜单
         if (menuFlg) {
-            //先查询已有的关联菜单
-            roleMenuList = roleMenuService.gerRoleMenus(Long.parseLong(rid));
-            List<Long> resultMenuIds = menuListRoles(arrMenuIds, roleMenuList);
-            if (resultMenuIds.size() != 0) {
-                //新增菜单
-                for (int i = 0; i < resultMenuIds.size(); i++) {
-                    Long menuId = resultMenuIds.get(i);
-                    roleMenuService.addRoleMenu(menuId, Long.parseLong(rid));
+            if (StringUtils.isNotBlank(menuIds)) {
+                //先查询已有的关联菜单
+                roleMenuList = roleMenuService.gerRoleMenus(Long.parseLong(rid));
+                List<Long> resultMenuIds = menuListRoles(arrMenuIds, roleMenuList);
+                if (resultMenuIds.size() != 0) {
+                    //新增菜单
+                    for (int i = 0; i < resultMenuIds.size(); i++) {
+                        Long menuId = resultMenuIds.get(i);
+                        roleMenuService.addRoleMenu(menuId, Long.parseLong(rid));
+                    }
+                    return BaseApiService.setResultSuccess("添加菜单成功~");
                 }
-                return BaseApiService.setResultSuccess("添加菜单成功~");
+            }else{
+                return BaseApiService.setResultSuccess("无菜单添加操作~");
             }
         } else {
             //判断如果全部为空
@@ -74,6 +79,7 @@ public class RoleMenuController {
 
     /**
      * 对比两个数组是否是否一直 如果有不一致的 取出不一致的数据
+     *
      * @param arrMenuIds
      * @param roleMenuList
      * @return
