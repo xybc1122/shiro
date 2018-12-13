@@ -1,29 +1,45 @@
-package com.dt.user.model;
+package com.dt.user.model.BasePublicModel;
 
 /**
- * 店铺表
+ * 站点类
  */
-public class BasicPublicShop {
+public class BasicPublicSite {
     /**
-     * 店铺ID
+     * 站点ID
      */
-    private Long shopId;
+    private Long siteId;
     /**
-     * 店铺编号
+     * 站点编号
      */
-    private Long shopNumber;
+    private Long siteNumber;
     /**
-     * 店铺名称
+     * 站点名称
      */
-    private String shopName;
+    private String siteName;
     /**
-     * 店铺英文
+     * 英文简称
      */
-    private String shopEng;
+    private String siteEng;
     /**
-     * 公司ID
+     * 区域名称
      */
-    private String companyFullName;
+    private String areaName;
+    /**
+     * 币别名称
+     */
+    private String currencyName;
+    /**
+     * 币别英文简写
+     */
+    private String currencyEngShort;
+    /**
+     * URL
+     */
+    private String url;
+    /**
+     * VAT税率
+     */
+    private String vat;
     /**
      * 负责人
      */
@@ -61,44 +77,68 @@ public class BasicPublicShop {
      */
     private Long auditIdUser;
 
-    public Long getShopId() {
-        return shopId;
+    public String getCurrencyName() {
+        return currencyName;
     }
 
-    public void setShopId(Long shopId) {
-        this.shopId = shopId;
+    public void setCurrencyName(String currencyName) {
+        this.currencyName = currencyName;
     }
 
-    public Long getShopNumber() {
-        return shopNumber;
+    public String getCurrencyEngShort() {
+        return currencyEngShort;
     }
 
-    public void setShopNumber(Long shopNumber) {
-        this.shopNumber = shopNumber;
+    public void setCurrencyEngShort(String currencyEngShort) {
+        this.currencyEngShort = currencyEngShort;
     }
 
-    public String getShopName() {
-        return shopName;
+    public Long getSiteId() {
+        return siteId;
     }
 
-    public void setShopName(String shopName) {
-        this.shopName = shopName;
+    public void setSiteId(Long siteId) {
+        this.siteId = siteId;
     }
 
-    public String getShopEng() {
-        return shopEng;
+    public Long getSiteNumber() {
+        return siteNumber;
     }
 
-    public void setShopEng(String shopEng) {
-        this.shopEng = shopEng;
+    public void setSiteNumber(Long siteNumber) {
+        this.siteNumber = siteNumber;
     }
 
-    public String getCompanyFullName() {
-        return companyFullName;
+    public String getSiteName() {
+        return siteName;
     }
 
-    public void setCompanyFullName(String companyFullName) {
-        this.companyFullName = companyFullName;
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    public String getSiteEng() {
+        return siteEng;
+    }
+
+    public void setSiteEng(String siteEng) {
+        this.siteEng = siteEng;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getVat() {
+        return vat;
+    }
+
+    public void setVat(String vat) {
+        this.vat = vat;
     }
 
     public String getPrincipal() {
@@ -171,5 +211,13 @@ public class BasicPublicShop {
 
     public void setAuditIdUser(Long auditIdUser) {
         this.auditIdUser = auditIdUser;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
     }
 }

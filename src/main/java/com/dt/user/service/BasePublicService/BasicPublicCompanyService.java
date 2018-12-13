@@ -1,6 +1,6 @@
-package com.dt.user.service;
+package com.dt.user.service.BasePublicService;
 
-import com.dt.user.model.BasicPublicCompany;
+import com.dt.user.model.BasePublicModel.BasicPublicCompany;
 
 import java.util.List;
 

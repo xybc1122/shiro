@@ -76,7 +76,6 @@ public class UserController {
     @RequiresPermissions("sys:up")
     @PostMapping("/upUserInfo")
     public ResponseBase userInfoUp(@RequestBody Map<String, Object> userMap) {
-        System.out.println(userMap);
         userService.upUser(userMap);
         return BaseApiService.setResultSuccess();
     }

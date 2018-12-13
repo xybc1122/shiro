@@ -52,7 +52,7 @@ public class HeadMenuController {
         for (int i = 0; i < thIds.size(); i++) {
             tbHeadMenu.setmId(Long.parseLong(mId));
             tbHeadMenu.setThId(thIds.get(i).longValue());
-            headMenuMapperService.delHeadMenu(tbHeadMenu);
+                headMenuMapperService.delHeadMenu(tbHeadMenu);
         }
         return BaseApiService.setResultSuccess("删除成功~");
     }

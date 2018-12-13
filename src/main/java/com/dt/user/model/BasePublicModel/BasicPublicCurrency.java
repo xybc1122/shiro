@@ -1,29 +1,25 @@
-package com.dt.user.model;
+package com.dt.user.model.BasePublicModel;
 
 /**
- * 区域类
+ * 币别类
  */
-public class BasicPublicArea {
+public class BasicPublicCurrency {
   /**
-   * 区域ID
+   * 币别ID
    */
-  private Long areaId;
+  private Long currencyId;
   /**
-   * 区域编号
+   * 币别编号
    */
-  private Long areaNumber;
+  private Long currencyNumber;
   /**
-   * 区域名称
+   * 币别名称
    */
-  private String areaName;
+  private String currencyName;
   /**
-   * 区域英文
+   * 币别英文简写
    */
-  private String areaEng;
-  /**
-   *负责人
-   */
-  private String principal;
+  private String currencyEngShort;
   /**
    * 备注
    */
@@ -57,44 +53,36 @@ public class BasicPublicArea {
    */
   private Long auditIdUser;
 
-  public Long getAreaId() {
-    return areaId;
+  public Long getCurrencyId() {
+    return currencyId;
   }
 
-  public void setAreaId(Long areaId) {
-    this.areaId = areaId;
+  public void setCurrencyId(Long currencyId) {
+    this.currencyId = currencyId;
   }
 
-  public Long getAreaNumber() {
-    return areaNumber;
+  public Long getCurrencyNumber() {
+    return currencyNumber;
   }
 
-  public void setAreaNumber(Long areaNumber) {
-    this.areaNumber = areaNumber;
+  public void setCurrencyNumber(Long currencyNumber) {
+    this.currencyNumber = currencyNumber;
   }
 
-  public String getAreaName() {
-    return areaName;
+  public String getCurrencyName() {
+    return currencyName;
   }
 
-  public void setAreaName(String areaName) {
-    this.areaName = areaName;
+  public void setCurrencyName(String currencyName) {
+    this.currencyName = currencyName;
   }
 
-  public String getAreaEng() {
-    return areaEng;
+  public String getCurrencyEngShort() {
+    return currencyEngShort;
   }
 
-  public void setAreaEng(String areaEng) {
-    this.areaEng = areaEng;
-  }
-
-  public String getPrincipal() {
-    return principal;
-  }
-
-  public void setPrincipal(String principal) {
-    this.principal = principal;
+  public void setCurrencyEngShort(String currencyEngShort) {
+    this.currencyEngShort = currencyEngShort;
   }
 
   public String getRemark() {

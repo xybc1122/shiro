@@ -1,4 +1,4 @@
-package com.dt.user.model;
+package com.dt.user.model.BasePublicModel;
 
 /**
  * 公司表

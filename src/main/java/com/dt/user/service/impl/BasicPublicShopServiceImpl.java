@@ -1,8 +1,8 @@
 package com.dt.user.service.impl;
 
-import com.dt.user.mapper.BasicPublicShopMapper;
-import com.dt.user.model.BasicPublicShop;
-import com.dt.user.service.BasicPublicShopService;
+import com.dt.user.mapper.BasePublicMapper.BasicPublicShopMapper;
+import com.dt.user.model.BasePublicModel.BasicPublicShop;
+import com.dt.user.service.BasePublicService.BasicPublicShopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

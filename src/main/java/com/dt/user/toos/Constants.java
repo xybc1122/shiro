@@ -14,12 +14,10 @@ public interface Constants {
 	Integer HTTP_RES_CODE_200 = 200;
 	// 系统错误
 	Integer HTTP_RES_CODE = -1;
+	//美国时间解析
+	String USA_TIME="MMM d, yyyy HH:mm:ss a";
+	//加拿大时间解析
+	String CANADA_TIME = "yyyy-MM-dd HH:mm:ss a";
 
-
-	// COOKIE
-	int COOKIE_TOKEN_MEMBER_TIME = (60 * 60 * 24 * 3);
-
-	// cookie token名称
-	String COOKIE_MEMBER_TOKEN = "cookie_member_token";
 
 }

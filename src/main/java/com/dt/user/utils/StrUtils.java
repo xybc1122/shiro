@@ -3,7 +3,7 @@ package com.dt.user.utils;
 public class StrUtils {
     /**
      * 替换字符串
-     *
+     *s
      * @param number
      * @return
      */

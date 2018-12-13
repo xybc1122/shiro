@@ -1,6 +1,6 @@
-package com.dt.user.mapper;
+package com.dt.user.mapper.BasePublicMapper;
 
-import com.dt.user.model.BasicPublicArea;
+import com.dt.user.model.BasePublicModel.BasicPublicArea;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

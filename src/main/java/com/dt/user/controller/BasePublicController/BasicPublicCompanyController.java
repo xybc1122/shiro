@@ -2,8 +2,8 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.model.BasicPublicCompany;
-import com.dt.user.service.BasicPublicCompanyService;
+import com.dt.user.model.BasePublicModel.BasicPublicCompany;
+import com.dt.user.service.BasePublicService.BasicPublicCompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

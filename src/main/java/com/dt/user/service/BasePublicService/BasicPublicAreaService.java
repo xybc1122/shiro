@@ -1,6 +1,6 @@
-package com.dt.user.service;
+package com.dt.user.service.BasePublicService;
 
-import com.dt.user.model.BasicPublicArea;
+import com.dt.user.model.BasePublicModel.BasicPublicArea;
 
 import java.util.List;
 

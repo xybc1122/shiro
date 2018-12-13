@@ -2,10 +2,12 @@ package com.dt.user.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtils {
 
@@ -54,4 +56,29 @@ public class DateUtils {
         }
         return time;
     }
+
+
+    /**
+     * 美国/加拿大时间转换
+     *
+     * @throws ParseException
+     */
+    public static Long getTime(String date,String pattern) {
+        if (StringUtils.isBlank(date)) {
+            return null;
+        }
+        Long time=null;
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern, Locale.ENGLISH);
+        try {
+            time = sdf.parse(date).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
+    }
+//    public static void main(String[] args) throws ParseException {
+//        String stringDate = "2018-10-31 11:34:49 AM PDT";
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a", Locale.ENGLISH);
+//        System.out.println(sdf.parse(stringDate).getTime());
+//    }
 }

@@ -24,7 +24,7 @@ public class MenuProvider {
                 INNER_JOIN("system_user_role_user AS ur ON u.uid=ur.u_id");
                 INNER_JOIN("system_user_role AS r  ON r.rid=ur.r_id");
                 INNER_JOIN("system_user_role_menu AS rm ON r.rid=rm.r_id");
-                INNER_JOIN("menu AS m  ON m.menu_id=rm.m_id");
+                INNER_JOIN("system_user_menu AS m  ON m.menu_id=rm.m_id");
                 WHERE("u.uid=" + user.getUid());
                 GROUP_BY("m.menu_id");
                 ORDER_BY("m.`menu_order` asc");

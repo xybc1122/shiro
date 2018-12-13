@@ -1,12 +1,15 @@
 package com.dt.user.utils;
 
+import com.csvreader.CsvWriter;
+
 import java.io.*;
+import java.nio.charset.Charset;
+import java.util.List;
 
 
 public class CSVUtil {
     /**
      * 从第几行开始读
-     *
      * @param filePath 文件路径
      */
     public static int startReadLine(String filePath) {
@@ -18,7 +21,9 @@ public class CSVUtil {
             while ((line = reader.readLine()) != null) {
                 String item[] = line.split(",");//CSV格式文件为逗号分隔符文件，这里根据逗号切分
                 index++;
-                if (item[0].equals("Datum/Uhrzeit")) {
+                if (item[0].replace("\"", "").equals("Datum/Uhrzeit")) {
+                    return index;
+                } else if (item[0].replace("\"", "").equals("date/time")) {
                     return index;
                 }
             }
@@ -34,5 +39,74 @@ public class CSVUtil {
             }
         }
         return 0;
+    }
+
+    /**
+     * 写入操作
+     * @param headers       表头 信息
+     * @param isNoSkuIdList 表体信息
+     * @param filePath      路径
+     * @param fileName      文件名
+     */
+    public static void write(List<String> headers, List<List<String>> isNoSkuIdList, String filePath, String fileName) {
+        File targetFile = new File(filePath);
+        if (!targetFile.exists()) {
+            targetFile.mkdirs();
+        }
+        String[] headersArr = new String[headers.size()];
+        //List头转换数组
+        headersArr = headers.toArray(headersArr);
+        CsvWriter csvWriter = null;
+        try {
+            // 创建CSV写对象
+            csvWriter = new CsvWriter(filePath + fileName, ',', Charset.forName("GBK"));
+            // 先写表头
+            csvWriter.writeRecord(headersArr);
+            //循环表内容
+            for (int i = 0; i < isNoSkuIdList.size(); i++) {
+                String[] skuIdArr = new String[isNoSkuIdList.get(i).size()];
+                skuIdArr = isNoSkuIdList.get(i).toArray(skuIdArr);
+                csvWriter.writeRecord(skuIdArr);
+            }
+            csvWriter.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (csvWriter != null) {
+                csvWriter.close();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        String s = "30.10.2018 23:23:19 GMT+00:00,10748248842,Erstattung,306-2436090-0881134,A004-45Bsda,rabbitgoo Fensterfolie bunt Sichtschutzfolie 3D Folie statisch selbsthaftend Privatsph?re Dekofolie Anti-UV für Zuhause oder Büro 44.5 x 200 cm,1,amazon.de,Amazon,Kleve,Germany,47533,\"-9,99\",0,0,0,\"1,20\",0,0,0,\"-8,79\"";
+        int c = s.indexOf("\"");
+        System.out.println(s.substring(c));
+        String ss[] = s.split(",");
+        //        String file = "D:/";
+//
+//        List<UserInfo> arrList = new ArrayList();
+//        UserInfo s = new UserInfo();
+//        s.setName("a");
+//        s.setPwd("a");
+//        arrList.add(s);
+//        UserInfo b = new UserInfo();
+//        b.setName("a");
+//        b.setPwd("a");
+//        b.setEffectiveDate(2L);
+//        arrList.add(b);
+//        List<String> c = new ArrayList<>();
+//        for (int i = 0; i < arrList.size(); i++){
+//            try {
+//                System.out.println(JSON.toJSON(arrList.get(i)));
+//            } catch (Exception e) {
+//                System.out.println("数组转json失败");
+//            }
+//        }
+//        String[] arr = new String[c.size()];
+////        arr = arrList.toArray(arr);
+////        System.out.println(arr.length);
+//        String[] arr = new String[]{"aa", "bb", "cc"};
+//        CSVUtil.write(arr);
     }
 }

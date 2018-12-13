@@ -1,25 +1,29 @@
-package com.dt.user.model;
+package com.dt.user.model.BasePublicModel;
 
 /**
- * 币别类
+ * 区域类
  */
-public class BasicPublicCurrency {
+public class BasicPublicArea {
   /**
-   * 币别ID
+   * 区域ID
    */
-  private Long currencyId;
+  private Long areaId;
   /**
-   * 币别编号
+   * 区域编号
    */
-  private Long currencyNumber;
+  private Long areaNumber;
   /**
-   * 币别名称
+   * 区域名称
    */
-  private String currencyName;
+  private String areaName;
   /**
-   * 币别英文简写
+   * 区域英文
    */
-  private String currencyEngShort;
+  private String areaEng;
+  /**
+   *负责人
+   */
+  private String principal;
   /**
    * 备注
    */
@@ -53,36 +57,44 @@ public class BasicPublicCurrency {
    */
   private Long auditIdUser;
 
-  public Long getCurrencyId() {
-    return currencyId;
+  public Long getAreaId() {
+    return areaId;
   }
 
-  public void setCurrencyId(Long currencyId) {
-    this.currencyId = currencyId;
+  public void setAreaId(Long areaId) {
+    this.areaId = areaId;
   }
 
-  public Long getCurrencyNumber() {
-    return currencyNumber;
+  public Long getAreaNumber() {
+    return areaNumber;
   }
 
-  public void setCurrencyNumber(Long currencyNumber) {
-    this.currencyNumber = currencyNumber;
+  public void setAreaNumber(Long areaNumber) {
+    this.areaNumber = areaNumber;
   }
 
-  public String getCurrencyName() {
-    return currencyName;
+  public String getAreaName() {
+    return areaName;
   }
 
-  public void setCurrencyName(String currencyName) {
-    this.currencyName = currencyName;
+  public void setAreaName(String areaName) {
+    this.areaName = areaName;
   }
 
-  public String getCurrencyEngShort() {
-    return currencyEngShort;
+  public String getAreaEng() {
+    return areaEng;
   }
 
-  public void setCurrencyEngShort(String currencyEngShort) {
-    this.currencyEngShort = currencyEngShort;
+  public void setAreaEng(String areaEng) {
+    this.areaEng = areaEng;
+  }
+
+  public String getPrincipal() {
+    return principal;
+  }
+
+  public void setPrincipal(String principal) {
+    this.principal = principal;
   }
 
   public String getRemark() {

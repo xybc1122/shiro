@@ -1,6 +1,6 @@
-package com.dt.user.service;
+package com.dt.user.service.BasePublicService;
 
-import com.dt.user.model.BasicPublicCurrency;
+import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
 import java.util.List;
 
 public interface BasicPublicCurrencyService {
