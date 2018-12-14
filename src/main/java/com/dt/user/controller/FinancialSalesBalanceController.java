@@ -58,6 +58,10 @@ public class FinancialSalesBalanceController {
         }
         //String contentType = file.getContentType();//图片||文件类型
         String fileName = file.getOriginalFilename();//图片||文件名字
+        int fileShopName = fileName.indexOf("电兔");
+        if (fileShopName == -1) {
+            return BaseApiService.setResultError("不是电兔的表/请注意操作~");
+        }
         //指定文件存放路径
         String saveFilePath = "D:/csv/";
         try {

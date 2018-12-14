@@ -25,7 +25,6 @@ public class FileUtils {
 
     /**
      * 删除单个文件
-     *
      * @param fileName 要删除的文件的文件名
      * @return 单个文件删除成功返回true，否则返回false
      */

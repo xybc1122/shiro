@@ -2,9 +2,7 @@ package com.dt.user.utils;
 
 public class StrUtils {
     /**
-     * 替换字符串
-     * s
-     *
+     * 字符串替换Double
      * @param number
      * @return
      */
@@ -21,6 +19,11 @@ public class StrUtils {
         return Double.parseDouble(number.replace(',', '.'));
     }
 
+    /**
+     * 返回字符串
+     * @param number
+     * @return
+     */
     public static String replaceString(String number) {
         if (org.apache.commons.lang3.StringUtils.isBlank(number)) {
             return null;
@@ -28,6 +31,11 @@ public class StrUtils {
         return number;
     }
 
+    /**
+     * 返回Long 类型
+     * @param number
+     * @return
+     */
     public static Long replaceLong(String number) {
         if (org.apache.commons.lang3.StringUtils.isBlank(number)) {
             return null;

@@ -76,9 +76,9 @@ public class DateUtils {
         }
         return time;
     }
-//    public static void main(String[] args) throws ParseException {
-//        String stringDate = "2018-10-31 11:34:49 AM PDT";
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a", Locale.ENGLISH);
-//        System.out.println(sdf.parse(stringDate).getTime());
-//    }
+    public static void main(String[] args) throws ParseException {
+        String stringDate = "30/11/2018 10:25:28 AM GMT+09:00";
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss a", Locale.ENGLISH);
+        System.out.println(sdf.parse(stringDate).getTime());
+    }
 }

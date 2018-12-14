@@ -6,7 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PageInfoUtils {
-
+    /**
+     * 封装分页
+     * @param pageInfo
+     * @param currentPage
+     * @return
+     */
     public static Map<String, Object> getPage(PageInfo pageInfo,Integer currentPage) {
         Map<String, Object> data = new HashMap<>();
         data.put("total_size", pageInfo.getTotal());//总条数

@@ -5,7 +5,11 @@ import javax.servlet.http.HttpServletRequest;
 
 public class GetCookie {
 
-
+    /**
+     * 获得cookie里面的token
+     * @param request
+     * @return
+     */
     public static String getToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         String token = "";
