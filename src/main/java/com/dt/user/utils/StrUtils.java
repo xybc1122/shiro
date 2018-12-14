@@ -3,7 +3,8 @@ package com.dt.user.utils;
 public class StrUtils {
     /**
      * 替换字符串
-     *s
+     * s
+     *
      * @param number
      * @return
      */
@@ -11,7 +12,13 @@ public class StrUtils {
         if (org.apache.commons.lang3.StringUtils.isBlank(number)) {
             return null;
         }
-        return Double.parseDouble(number.replace(".", "").replace(',', '.'));
+        int i = number.indexOf(".");
+        int j = number.indexOf(",");
+        //如果都有有
+        if (i != -1 && j != -1) {
+            Double.parseDouble(number.replace(".", "").replace(',', '.'));
+        }
+        return Double.parseDouble(number.replace(',', '.'));
     }
 
     public static String replaceString(String number) {

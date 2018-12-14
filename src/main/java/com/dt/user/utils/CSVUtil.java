@@ -1,5 +1,6 @@
 package com.dt.user.utils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvWriter;
 
 import java.io.*;
@@ -10,58 +11,94 @@ import java.util.List;
 public class CSVUtil {
     /**
      * 从第几行开始读
+     *
      * @param filePath 文件路径
      */
-    public static int startReadLine(String filePath) {
+    public static String startReadLine(String filePath, int site) {
+        JSONObject readJson = new JSONObject();
         BufferedReader reader = null;
+        InputStreamReader isr = null;
         try {
-            reader = new BufferedReader(new FileReader(filePath));
+            isr = new InputStreamReader(new FileInputStream(filePath), "GBK");
+            reader = new BufferedReader(isr);
             String line;
             int index = 0;
             while ((line = reader.readLine()) != null) {
-                String item[] = line.split(",");//CSV格式文件为逗号分隔符文件，这里根据逗号切分
-                index++;
-                if (item[0].replace("\"", "").equals("Datum/Uhrzeit")) {
-                    return index;
-                } else if (item[0].replace("\"", "").equals("date/time")) {
-                    return index;
+                //CSV格式文件为逗号分隔符文件，这里根据逗号切分
+                String item[] = line.split(",");
+                //1美国
+                if (item[0].replace("\"", "").equals("date/time") && site == 1) {
+                    return headJson(readJson, line, index);
+                //2加拿大
+                } else if (item[0].replace("\"", "").equals("date/time") && site == 2) {
+                    return headJson(readJson, line, index);
+                //3澳大利亚
+                } else if (item[0].replace("\"", "").equals("fecha/hora") && site == 3) {
+                    return headJson(readJson, line, index);
+                //4英国
+                } else if (item[0].replace("\"", "").equals("fecha/hora") && site == 4) {
+                    return headJson(readJson, line, index);
+                //5德国
+                } else if (item[0].replace("\"", "").equals("Datum/Uhrzeit") && site == 5) {
+                    return headJson(readJson, line, index);
                 }
+                index++;
             }
+            readJson.put("index", -1);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (reader != null) {
-                try {
+            try {
+                if (reader != null) {
                     reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+                if (isr != null) {
+                    isr.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
         }
-        return 0;
+        return readJson.toJSONString();
+    }
+
+    /**
+     * 封装获得CSV表头信息的JSON 数据
+     *
+     * @param readJson
+     * @param line
+     * @param index
+     * @return
+     */
+    public static String headJson(JSONObject readJson, String line, int index) {
+        String[] headArr = line.split(",");
+        readJson.put("head", headArr);
+        readJson.put("index", index);
+        return readJson.toJSONString();
     }
 
     /**
      * 写入操作
-     * @param headers       表头 信息
+     *
+     * @param headerList    表头 信息
      * @param isNoSkuIdList 表体信息
      * @param filePath      路径
      * @param fileName      文件名
      */
-    public static void write(List<String> headers, List<List<String>> isNoSkuIdList, String filePath, String fileName) {
+    public static void write(List<String> headerList, List<List<String>> isNoSkuIdList, String filePath, String fileName) {
         File targetFile = new File(filePath);
         if (!targetFile.exists()) {
             targetFile.mkdirs();
         }
-        String[] headersArr = new String[headers.size()];
-        //List头转换数组
-        headersArr = headers.toArray(headersArr);
         CsvWriter csvWriter = null;
         try {
             // 创建CSV写对象
             csvWriter = new CsvWriter(filePath + fileName, ',', Charset.forName("GBK"));
+            String[] headers = new String[headerList.size()];
+            headers = headerList.toArray(headers);
             // 先写表头
-            csvWriter.writeRecord(headersArr);
+            csvWriter.writeRecord(headers);
             //循环表内容
             for (int i = 0; i < isNoSkuIdList.size(); i++) {
                 String[] skuIdArr = new String[isNoSkuIdList.get(i).size()];
