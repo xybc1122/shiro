@@ -7,5 +7,5 @@ import java.util.List;
 public interface FinancialSalesBalanceService {
 
 
-    int addInfoGerman(List<FinancialSalesBalance> financialSalesBalanceList);
+    int addInfoGerman(int size, FinancialSalesBalance fb);
 }

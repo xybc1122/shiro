@@ -48,6 +48,8 @@ public class FinancialSalesBalanceController {
     @Transactional
     @PostMapping("/file")
     public ResponseBase saveFileInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request, @RequestParam("sId") String sId, @RequestParam("seId") String seId) {
+        //指定文件存放路径
+        String saveFilePath = Constants.SAVEFILEPATH;
         errCount = 0;
         Integer shopId = Integer.parseInt(sId);
         Integer siteId = Integer.parseInt(seId);
@@ -58,12 +60,35 @@ public class FinancialSalesBalanceController {
         }
         //String contentType = file.getContentType();//图片||文件类型
         String fileName = file.getOriginalFilename();//图片||文件名字
-        int fileShopName = fileName.indexOf("电兔");
-        if (fileShopName == -1) {
-            return BaseApiService.setResultError("不是电兔的表/请注意操作~");
+        //电兔
+        int fileShopNameDt = fileName.indexOf("电兔");
+        //宏名
+        int fileShopNameHm = fileName.indexOf("宏名");
+        //诚夕
+        int fileShopNameCx = fileName.indexOf("诚夕");
+        if (fileShopNameDt == -1 && shopId == 1) {
+            return BaseApiService.setResultError("不是电兔的文件/请注意操作~");
+        } else if (fileShopNameHm == -1 && shopId == 2) {
+            return BaseApiService.setResultError("不是宏名的文件/请注意操作~");
+        } else if (fileShopNameCx == -1 && shopId == 3) {
+            return BaseApiService.setResultError("不是诚夕的文件/请注意操作~");
+        } else {
+            return shopSelection(file, saveFilePath, fileName, siteId, shopId, user);
         }
-        //指定文件存放路径
-        String saveFilePath = "D:/csv/";
+    }
+
+    /**
+     * 封装店铺选择
+     *
+     * @param file
+     * @param saveFilePath
+     * @param fileName
+     * @param siteId
+     * @param shopId
+     * @param user
+     * @return
+     */
+    public ResponseBase shopSelection(MultipartFile file, String saveFilePath, String fileName, Integer siteId, Integer shopId, UserInfo user) {
         try {
             FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
         } catch (Exception e) {
@@ -80,22 +105,22 @@ public class FinancialSalesBalanceController {
         List<String> oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
         int fileIndex = filePath.indexOf(".");
         String typeFile = filePath.substring(fileIndex + 1);
-        switch (seId) {
+        switch (siteId) {
             //1 美国操作
-            case "1":
+            case 1:
                 return switchCountry(typeFile, filePath, row, shopId, siteId, user, fileName, oldHeadList);
-            case "2":
+            case 2:
                 return switchCountry(typeFile, filePath, row, shopId, siteId, user, fileName, oldHeadList);
-            case "3":
-            case "4":
-            case "5":
+            case 3:
+            case 4:
+            case 5:
                 //5 德国操作
                 return switchCountry(typeFile, filePath, row, shopId, siteId, user, fileName, oldHeadList);
-            case "6":
-            case "7":
-            case "8":
-            case "9":
-            case "10":
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
                 break;
         }
         return null;
@@ -151,18 +176,20 @@ public class FinancialSalesBalanceController {
      * @return
      */
     public ResponseBase saveCSV(String filePath, int row, Long sId, Long seId, Long uid, List<String> head) {
+        // 开始时间
+        Long begin = new Date().getTime();
         boolean isFlg;
         InputStreamReader isr = null;
         // 创建CSV读对象
         CsvReader csvReader = null;
         int index = 0;
+        FinancialSalesBalance fb = null;
         try {
             isr = new InputStreamReader(new FileInputStream(new File(filePath)), "GBK");
             csvReader = new CsvReader(isr);
             List<FinancialSalesBalance> financialSalesBalanceList = new ArrayList<>();
             skuNoIdList = new ArrayList<>();
             List<String> headList = new ArrayList<>();
-            FinancialSalesBalance fb;
             //如果表里没有别的数据 第一行就是头
             if (row == 0) {
                 csvReader.readHeaders();
@@ -208,14 +235,19 @@ public class FinancialSalesBalanceController {
                 index++;
             }
             if (financialSalesBalanceList.size() > 0) {
-                int count = financialSalesBalanceService.addInfoGerman(financialSalesBalanceList);
+                int count = financialSalesBalanceService.addInfoGerman(financialSalesBalanceList.size(), fb);
                 if (count != 0) {
+                    // 结束时间
+                    Long end = new Date().getTime();
+                    // 耗时
+                    System.out.println(errCount+"条数据插入花费时间 : " + (end - begin) / 1000 + " s");
+                    System.out.println("插入完成");
                     return BaseApiService.setResultSuccess("添加数据成功~");
                 }
             }
             return BaseApiService.setResultError("表里的skuID全部不一致 请修改~");
         } catch (Exception e) {
-            return BaseApiService.setResultError("第" + errCount + "行信息错误,数据存入失败~");
+            return BaseApiService.setResultError("第" + errCount + "行信息错误,数据存入失败~" + e.getMessage());
         } finally {
             if (csvReader != null) {
                 csvReader.close();

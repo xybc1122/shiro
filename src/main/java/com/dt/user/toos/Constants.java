@@ -5,7 +5,10 @@ public interface Constants {
 	 * 分页页数
 	 */
 	int PAGE_SIEZ = 10;
-
+	/**
+	 * 文件存放地址
+	 */
+	String SAVEFILEPATH="D:/csv/";
 	/**
 	 * 响应请求成功
 	 */

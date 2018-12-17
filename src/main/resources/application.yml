@@ -43,7 +43,7 @@ mybatis:
     map-underscore-to-camel-case: true
     #打印sql 方便调试
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  mapper-locations: mybatis/**/*Mapper.xml
+  #mapper-locations: mybatis/**/*Mapper.xml
 #page分页配置
 pagehelper:
   helperDialect: mysql

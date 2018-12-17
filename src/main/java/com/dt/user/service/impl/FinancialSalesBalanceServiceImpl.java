@@ -15,7 +15,7 @@ public class FinancialSalesBalanceServiceImpl implements FinancialSalesBalanceSe
     private FinancialSalesBalanceMapper financialSalesBalanceMapper;
 
     @Override
-    public int addInfoGerman(List<FinancialSalesBalance> financialSalesBalanceList) {
-        return financialSalesBalanceMapper.addInfoGerman(financialSalesBalanceList);
+    public int addInfoGerman(int size, FinancialSalesBalance fb) {
+        return financialSalesBalanceMapper.addInfoGerman(size, fb);
     }
 }
