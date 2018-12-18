@@ -45,6 +45,7 @@ public class UserController {
 
     /**
      * 获取用户管理信息的一些信息
+     *
      * @param userDto
      * @return
      */
@@ -61,6 +62,7 @@ public class UserController {
 
     /**
      * 获得所有用户信息
+     *
      * @return
      */
     @GetMapping("/getUsers")
@@ -70,6 +72,7 @@ public class UserController {
 
     /**
      * 更新用户信息
+     *
      * @return
      */
     //shiro权限控制
@@ -82,6 +85,7 @@ public class UserController {
 
     /**
      * 删除用户信息
+     *
      * @return
      */
     //shiro权限控制
@@ -97,6 +101,7 @@ public class UserController {
 
     /**
      * 恢复用户信息
+     *
      * @return
      */
     //shiro权限控制
@@ -111,6 +116,7 @@ public class UserController {
 
     /**
      * 获得一个用户的信息
+     *
      * @param request
      * @return
      */
@@ -130,6 +136,7 @@ public class UserController {
 
     /**
      * 获得历史删除的用户信息
+     *
      * @return
      */
     @PostMapping("/getDelUser")
@@ -203,15 +210,15 @@ public class UserController {
             userService.saveUserInfo(userInfo);
             Long uid = userInfo.getUid();
             Long sid = Long.parseLong(staffValue.get("sId").toString());
-            //关联员工信息
+            //关联员工信息 更新
             staffService.upStaffInfo(uid, sid);
+            //新增角色信息
+            List<UserRole> urList = new ArrayList<>();
             UserRole userRole = new UserRole();
-            for (Integer role : rolesId) {
-                userRole.setuId(uid);
-                userRole.setrId(role.longValue());
-                //新增角色信息
-                userRoleSerivce.addUserRole(userRole);
-            }
+            userRole.setuId(uid);
+            userRole.setrIds(rolesId);
+            urList.add(userRole);
+            userRoleSerivce.addUserRole(urList);
             return BaseApiService.setResultSuccess("新增成功~");
         }
         return BaseApiService.setResultError("token失效");

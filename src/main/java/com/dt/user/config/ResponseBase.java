@@ -26,7 +26,6 @@ public class ResponseBase{
         this.code = code;
         this.msg = msg;
     }
-
     public ResponseBase() {
 
     }

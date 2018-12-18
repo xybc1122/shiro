@@ -6,6 +6,8 @@ import com.dt.user.service.UserRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class UserRoleServiceImpl implements UserRoleService {
@@ -14,8 +16,8 @@ public class UserRoleServiceImpl implements UserRoleService {
     private UserRoleMapper userRoleMapper;
 
     @Override
-    public int addUserRole(UserRole userRole) {
-        return userRoleMapper.addUserRole(userRole);
+    public int addUserRole(List<UserRole> urList) {
+        return userRoleMapper.addUserRole(urList);
     }
 
     @Override

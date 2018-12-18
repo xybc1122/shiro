@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,27 +58,27 @@ public class UserRoleController {
     @PostMapping("/addRole")
     public ResponseBase addRole(@RequestBody Map<String, Object> addMap) {
         UserRole userRole = new UserRole();
+        List<UserRole> urList = new ArrayList<>();
         //如果是List类型
         if (addMap.get("rolesId") instanceof List) {
             List<Integer> rolesId = (List<Integer>) addMap.get("rolesId");
             Integer uid = (Integer) addMap.get("uid");
-            for (Integer role : rolesId) {
-                userRole.setuId(uid.longValue());
-                userRole.setrId(role.longValue());
-                //新增角色信息
-                roleService.addUserRole(userRole);
-            }
+            userRole.setuId(uid.longValue());
+            userRole.setrIds(rolesId);
+            urList.add(userRole);
+            //新增角色信息
+            roleService.addUserRole(urList);
             return BaseApiService.setResultSuccess("添加角色成功~");
         } else if (addMap.get("rolesId") instanceof String) {
-            //如果上String 类型
+            //如果是String 类型
             String rId = (String) addMap.get("rolesId");
             List<Integer> uid = (List<Integer>) addMap.get("uid");
-            for (Integer u : uid) {
-                userRole.setuId(u.longValue());
-                userRole.setrId(Long.parseLong(rId));
-                //新增角色信息
-                roleService.addUserRole(userRole);
-            }
+            userRole.setuIds(uid);
+            userRole.setrId(Long.parseLong(rId));
+            urList.add(userRole);
+            //新增角色信息
+            roleService.addUserRole(urList);
+
             return BaseApiService.setResultSuccess("添加用户成功~");
         }
         return BaseApiService.setResultError("添加失败~");

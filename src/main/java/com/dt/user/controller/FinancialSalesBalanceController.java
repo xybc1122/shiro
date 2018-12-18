@@ -6,9 +6,11 @@ import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.model.UserInfo;
+import com.dt.user.model.UserUpload;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonCsvTxtXslHeaderService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonSkuService;
 import com.dt.user.service.FinancialSalesBalanceService;
+import com.dt.user.service.UserUploadService;
 import com.dt.user.toos.Constants;
 import com.dt.user.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +36,17 @@ public class FinancialSalesBalanceController {
 
     @Autowired
     private BasicSalesAmazonSkuService skuService;
+
+    @Autowired
+    private UserUploadService userUploadService;
     //获取没有SKU的List集合
     private List<List<String>> skuNoIdList;
-    //报错行数
-    private int errCount;
+    //行数 /报错行数
+    private int count = 1;
+    //没有sku有几行存入
+    private int sumNoSku;
+    //用户上传记录实体类
+    private UserUpload userUpload;
 
     /**
      * @param file
@@ -48,9 +57,11 @@ public class FinancialSalesBalanceController {
     @Transactional
     @PostMapping("/file")
     public ResponseBase saveFileInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request, @RequestParam("sId") String sId, @RequestParam("seId") String seId) {
+        userUpload = new UserUpload();
         //指定文件存放路径
         String saveFilePath = Constants.SAVEFILEPATH;
-        errCount = 0;
+        count = 1;
+        sumNoSku = 0;
         Integer shopId = Integer.parseInt(sId);
         Integer siteId = Integer.parseInt(seId);
         String token = GetCookie.getToken(request);
@@ -60,21 +71,15 @@ public class FinancialSalesBalanceController {
         }
         //String contentType = file.getContentType();//图片||文件类型
         String fileName = file.getOriginalFilename();//图片||文件名字
-        //电兔
-        int fileShopNameDt = fileName.indexOf("电兔");
-        //宏名
-        int fileShopNameHm = fileName.indexOf("宏名");
-        //诚夕
-        int fileShopNameCx = fileName.indexOf("诚夕");
-        if (fileShopNameDt == -1 && shopId == 1) {
-            return BaseApiService.setResultError("不是电兔的文件/请注意操作~");
-        } else if (fileShopNameHm == -1 && shopId == 2) {
-            return BaseApiService.setResultError("不是宏名的文件/请注意操作~");
-        } else if (fileShopNameCx == -1 && shopId == 3) {
-            return BaseApiService.setResultError("不是诚夕的文件/请注意操作~");
-        } else {
-            return shopSelection(file, saveFilePath, fileName, siteId, shopId, user);
-        }
+        //存入文件名字
+        userUpload.setFileName(fileName);
+        //存入上传时间
+        userUpload.setCreateDate(new Date().getTime());
+        //用户ID
+        userUpload.setUid(user.getUid());
+        //上传服务器路径
+        userUpload.setFilePath(saveFilePath);
+        return shopSelection(file, saveFilePath, fileName, siteId, shopId, user);
     }
 
     /**
@@ -144,14 +149,28 @@ public class FinancialSalesBalanceController {
                 ResponseBase responseCsv = saveCSV(filePath, row, sId.longValue(), seId.longValue(), user.getUid(), head);
                 if (responseCsv.getCode() == 200) {
                     if (skuNoIdList.size() != 0) {
-                        String skuNoPath = "D:/skuNo/";
+                        //文件写入到服务器的地址
+                        String skuNoPath = Constants.WRITESAVEFILEPATH;
                         //写入CSV文件到本地
                         CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
-                        return BaseApiService.setResultSuccess("数据存入成功~", false);
+                        //上传成功 有些skuId~
+                        userUpload.setStatus(2);
+                        userUpload.setWriteFilePath(skuNoPath);
+                        userUpload.setRemark(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件");
+                        userUploadService.addUserUploadInfo(userUpload);
+                        return BaseApiService.setResultSuccess(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件", false);
                     }
-                    return BaseApiService.setResultSuccess("数据存入成功~", true);
+                    //上传成功 都有skuId~
+                    userUpload.setStatus(0);
+                    userUpload.setRemark(responseCsv.getMsg());
+                    userUploadService.addUserUploadInfo(userUpload);
+                    return BaseApiService.setResultSuccess(responseCsv.getMsg(), true);
                 } else {
+                    //存入信息报错
                     FileUtils.deleteFile(filePath);
+                    userUpload.setStatus(1);
+                    //userUpload.setRemark(responseCsv.getMsg().substring(0, 200));
+                    userUploadService.addUserUploadInfo(userUpload);
                     return responseCsv;
                 }
             case "txt":
@@ -183,7 +202,7 @@ public class FinancialSalesBalanceController {
         // 创建CSV读对象
         CsvReader csvReader = null;
         int index = 0;
-        FinancialSalesBalance fb = null;
+        FinancialSalesBalance fb;
         try {
             isr = new InputStreamReader(new FileInputStream(new File(filePath)), "GBK");
             csvReader = new CsvReader(isr);
@@ -200,7 +219,7 @@ public class FinancialSalesBalanceController {
                 }
             }
             while (csvReader.readRecord()) {
-                errCount++;
+                count++;
                 //如果是多行的
                 if (index == (row - 1)) {
                     csvReader.readHeaders();
@@ -235,19 +254,16 @@ public class FinancialSalesBalanceController {
                 index++;
             }
             if (financialSalesBalanceList.size() > 0) {
-                int count = financialSalesBalanceService.addInfoGerman(financialSalesBalanceList.size(), fb);
-                if (count != 0) {
+                int number = financialSalesBalanceService.addInfo(financialSalesBalanceList);
+                if (number != 0) {
                     // 结束时间
                     Long end = new Date().getTime();
-                    // 耗时
-                    System.out.println(errCount+"条数据插入花费时间 : " + (end - begin) / 1000 + " s");
-                    System.out.println("插入完成");
-                    return BaseApiService.setResultSuccess("添加数据成功~");
+                    return BaseApiService.setResultSuccess((count - row - 1) + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
                 }
             }
             return BaseApiService.setResultError("表里的skuID全部不一致 请修改~");
         } catch (Exception e) {
-            return BaseApiService.setResultError("第" + errCount + "行信息错误,数据存入失败~" + e.getMessage());
+            return BaseApiService.setResultError("第" + count + "行信息错误,数据存入失败~");
         } finally {
             if (csvReader != null) {
                 csvReader.close();
@@ -274,6 +290,9 @@ public class FinancialSalesBalanceController {
      * @throws IOException
      */
     public FinancialSalesBalance canadaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
+        if (count == 40) {
+               System.out.println("sdsa");
+        }
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.CANADA_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
         fsb.setType(StrUtils.replaceString(csvReader.get("type")));
@@ -385,6 +404,8 @@ public class FinancialSalesBalanceController {
      */
     public FinancialSalesBalance skuList(Long skuId, CsvReader csvReader, FinancialSalesBalance fsb) throws IOException {
         if (skuId == null) {
+            count--;
+            sumNoSku++;
             List<String> skuListNo = new ArrayList();
             for (int i = 0; i < csvReader.getColumnCount(); i++) {
                 skuListNo.add(csvReader.get(i).replace(",", "."));
@@ -407,7 +428,7 @@ public class FinancialSalesBalanceController {
         //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
         for (int i = 0; i < oldHeadList.size(); i++) {
             headList.add(oldHeadList.get(i).replace("\"", ""));
-            //System.out.println(head[i].replace("\"", ""));
+            System.out.println(oldHeadList.get(i).replace("\"", ""));
         }
         //拿到数据库里的表头信息
         List<String> fBalanceHead = salesAmazonCsvTxtXslHeaderService.headerList(seId);

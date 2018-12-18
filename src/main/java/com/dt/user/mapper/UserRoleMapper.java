@@ -1,21 +1,21 @@
 package com.dt.user.mapper;
 
 import com.dt.user.model.UserRole;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import com.dt.user.provider.UserRoleProvider;
+import org.apache.ibatis.annotations.*;
+
+import java.util.List;
 
 @Mapper
 public interface UserRoleMapper {
     /**
      * 设置角色信息
      *
-     * @param userRole
      * @return
      */
-    @Insert("insert into system_user_role_user(u_id,r_id) values(#{uId}, #{rId})")
-    int addUserRole(UserRole userRole);
+    @InsertProvider(type = UserRoleProvider.class, method = "addUserRole")
+    int addUserRole(@Param("userRoleList") List<UserRole> userRoleList);
+
 
     /**
      * 移除角色

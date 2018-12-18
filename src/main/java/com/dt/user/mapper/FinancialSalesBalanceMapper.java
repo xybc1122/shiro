@@ -4,6 +4,7 @@ import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.provider.FinancialSalesBalanceProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,6 +15,6 @@ public interface FinancialSalesBalanceMapper {
      *
      * @return
      */
-    @InsertProvider(type = FinancialSalesBalanceProvider.class, method = "addInfoGerman")
-    int addInfoGerman(int size, FinancialSalesBalance fb);
+    @InsertProvider(type = FinancialSalesBalanceProvider.class, method = "addInfo")
+    int addInfo(@Param("fsbList") List<FinancialSalesBalance> fsbList);
 }
