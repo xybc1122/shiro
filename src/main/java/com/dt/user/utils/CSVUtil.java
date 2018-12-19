@@ -19,27 +19,45 @@ public class CSVUtil {
         BufferedReader reader = null;
         InputStreamReader isr = null;
         try {
-            isr = new InputStreamReader(new FileInputStream(filePath), "GBK");
+            //设置编码格式 ,日文解码shift_jis
+            String coding = site == 9 ? "shift_jis" : "GBK";
+            isr = new InputStreamReader(new FileInputStream(filePath), coding);
             reader = new BufferedReader(isr);
             String line;
             int index = 0;
             while ((line = reader.readLine()) != null) {
                 //CSV格式文件为逗号分隔符文件，这里根据逗号切分
                 String item[] = line.split(",");
+                String itemHead = item[0].replace("\"", "");
                 //1美国
-                if (item[0].replace("\"", "").equals("date/time") && site == 1) {
+                if (itemHead.equals("date/time") && site == 1) {
                     return headJson(readJson, line, index);
-                //2加拿大
-                } else if (item[0].replace("\"", "").equals("date/time") && site == 2) {
+                    //2加拿大
+                } else if (itemHead.equals("date/time") && site == 2) {
                     return headJson(readJson, line, index);
-                //3澳大利亚
-                } else if (item[0].replace("\"", "").equals("fecha/hora") && site == 3) {
+                    //3澳大利亚
+                } else if (itemHead.equals("date/time") && site == 3) {
                     return headJson(readJson, line, index);
-                //4英国
-                } else if (item[0].replace("\"", "").equals("fecha/hora") && site == 4) {
+                    //4英国
+                } else if (itemHead.equals("date/time") && site == 4) {
                     return headJson(readJson, line, index);
-                //5德国
-                } else if (item[0].replace("\"", "").equals("Datum/Uhrzeit") && site == 5) {
+                    //5德国
+                } else if (itemHead.equals("Datum/Uhrzeit") && site == 5) {
+                    return headJson(readJson, line, index);
+                    //6 法国
+                } else if (itemHead.equals("date/heure") && site == 6) {
+                    return headJson(readJson, line, index);
+                    // 7 意大利
+                } else if (itemHead.equals("Data/Ora:") && site == 7) {
+                    return headJson(readJson, line, index);
+                    //8 西班牙
+                } else if (itemHead.equals("fecha y hora") && site == 8) {
+                    return headJson(readJson, line, index);
+                    // 9 日本
+                } else if (itemHead.equals("日付/時間") && site == 9) {
+                    return headJson(readJson, line, index);
+                }//10 墨西哥
+                else if (itemHead.equals("fecha/hora") && site == 10) {
                     return headJson(readJson, line, index);
                 }
                 index++;

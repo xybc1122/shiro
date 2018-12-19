@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 public class StrUtils {
     /**
      * 字符串替换Double
-     *
      * @param number
      * @return
      */
@@ -15,16 +14,22 @@ public class StrUtils {
         }
         int i = number.indexOf(".");
         int j = number.indexOf(",");
+        int k = number.indexOf("?");
         //如果都有 并且 j > i 等于德国的
         if (i != -1 && j != -1 && j > i) {
             String newNumber = number.replace(".", "").replace(',', '.');
             return Double.parseDouble(newNumber);
-        }
-        //如果都有 并且 j > i 等于加拿大的
-        if (i != -1 && j != -1 && j < i) {
-            String newNumber = number.replace(",", "");
-            return Double.parseDouble(newNumber);
-        }
+        } else
+            //如果都有 并且 j > i 等于加拿大的
+            if (i != -1 && j != -1 && j < i) {
+                String newNumber = number.replace(",", "");
+                return Double.parseDouble(newNumber);
+            } else
+                //法国会出现,号
+                if (k != -1 && j != -1) {
+                    String newNumber = number.replace("?", "").replace(',', '.');
+                    return Double.parseDouble(newNumber);
+                }
         return Double.parseDouble(number.replace(',', '.'));
     }
 

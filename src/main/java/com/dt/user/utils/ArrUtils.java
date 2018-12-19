@@ -17,14 +17,14 @@ public class ArrUtils {
             return arrOne.containsAll(arrTwo);
         }
     }
-    public static void main(String [] args){
-        String [] arr = new String []{"Datum/Uhrzeit","A","B"};
-        List<String> headList = Arrays.asList(arr);
-        List<String> fBalanceHead = new ArrayList<>();
-
-        fBalanceHead.add("Datum/Uhrzeit");
-        fBalanceHead.add("B");
-        fBalanceHead.add("A");
-       System.out.println(ArrUtils.equalList(headList, fBalanceHead));
-    }
+//    public static void main(String [] args){
+//        String [] arr = new String []{"Datum/Uhrzeit","A","B"};
+//        List<String> headList = Arrays.asList(arr);
+//        List<String> fBalanceHead = new ArrayList<>();
+//
+//        fBalanceHead.add("Datum/Uhrzeit");
+//        fBalanceHead.add("B");
+//        fBalanceHead.add("A");
+//       System.out.println(ArrUtils.equalList(headList, fBalanceHead));
+//    }
 }
