@@ -13,6 +13,7 @@ import com.dt.user.service.FinancialSalesBalanceService;
 import com.dt.user.service.UserUploadService;
 import com.dt.user.toos.Constants;
 import com.dt.user.utils.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/upload")
@@ -72,13 +71,17 @@ public class FinancialSalesBalanceController {
         //String contentType = file.getContentType();//图片||文件类型
         String fileName = file.getOriginalFilename();//图片||文件名字
         //存入文件名字
-        userUpload.setFileName(fileName);
+        userUpload.setName(fileName);
         //存入上传时间
         userUpload.setCreateDate(new Date().getTime());
         //用户ID
         userUpload.setUid(user.getUid());
         //上传服务器路径
         userUpload.setFilePath(saveFilePath);
+        //站点ID
+        userUpload.setSiteId(siteId.longValue());
+        //店铺ID
+        userUpload.setShopId(shopId.longValue());
         return shopSelection(file, saveFilePath, fileName, siteId, shopId, user);
     }
 
@@ -141,21 +144,22 @@ public class FinancialSalesBalanceController {
                         userUpload.setStatus(2);
                         userUpload.setWriteFilePath(skuNoPath);
                         userUpload.setRemark(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件");
+                        //存入文件名字
+                        userUpload.setName("NO" + fileName);
                         userUploadService.addUserUploadInfo(userUpload);
-                        return BaseApiService.setResultError(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件");
+                        return BaseApiService.setResultError(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件", userUpload);
                     }
                     //上传成功 都有skuId~
                     userUpload.setStatus(0);
                     userUpload.setRemark(responseCsv.getMsg());
                     userUploadService.addUserUploadInfo(userUpload);
-                    return BaseApiService.setResultSuccess(responseCsv.getMsg());
+                    return BaseApiService.setResultSuccess(responseCsv.getMsg(), userUpload);
                 } else {
                     //存入信息报错
-                    FileUtils.deleteFile(filePath);
                     userUpload.setStatus(1);
                     userUpload.setRemark(responseCsv.getMsg());
                     userUploadService.addUserUploadInfo(userUpload);
-                    return responseCsv;
+                    return BaseApiService.setResultError(responseCsv.getMsg(), userUpload);
                 }
             case "txt":
                 break;
@@ -192,7 +196,7 @@ public class FinancialSalesBalanceController {
             String coding = seId == 9 ? "shift_jis" : "GBK";
             isr = new InputStreamReader(new FileInputStream(new File(filePath)), coding);
             csvReader = new CsvReader(isr);
-            List<FinancialSalesBalance> financialSalesBalanceList = new ArrayList<>();
+            List<FinancialSalesBalance> fsbList = new ArrayList<>();
             skuNoIdList = new ArrayList<>();
             List<String> headList = new ArrayList<>();
             //如果表里没有别的数据 第一行就是头
@@ -220,71 +224,71 @@ public class FinancialSalesBalanceController {
                 if (index >= row && seId == 1L) {
                     fb = usaDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }
                 //加拿大站
                 else if (index >= row && seId == 2L) {
                     fb = canadaDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }   //澳大利亚站
                 else if (index >= row && seId == 3L) {
                     fb = australiaDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }
                 //英国站
                 else if (index >= row && seId == 4L) {
                     fb = unitedKingdomDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }
                 //德国站
                 else if (index >= row && seId == 5L) {
                     fb = germanDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }
                 //法国
                 else if (index >= row && seId == 6L) {
                     fb = franceDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 } //意大利
                 else if (index >= row && seId == 7L) {
                     fb = italyDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }  //西班牙
                 else if (index >= row && seId == 8L) {
                     fb = spainDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 } //日本
                 else if (index >= row && seId == 9L) {
                     fb = japanDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 } //墨西哥
                 else if (index >= row && seId == 10L) {
                     fb = mexicoDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
                     if (fb != null) {
-                        financialSalesBalanceList.add(fb);
+                        fsbList.add(fb);
                     }
                 }
                 index++;
             }
-            if (financialSalesBalanceList.size() > 0) {
-                int number = financialSalesBalanceService.addInfo(financialSalesBalanceList);
+            if (fsbList.size() > 0) {
+                int number = financialSalesBalanceService.addInfo(fsbList);
                 if (number != 0) {
                     // 结束时间
                     Long end = new Date().getTime();
@@ -668,15 +672,17 @@ public class FinancialSalesBalanceController {
      * @return
      */
     public FinancialSalesBalance skuList(Long skuId, CsvReader csvReader, FinancialSalesBalance fsb) throws IOException {
-        if (skuId == null) {
-            count--;
-            sumNoSku++;
-            List<String> skuListNo = new ArrayList();
-            for (int i = 0; i < csvReader.getColumnCount(); i++) {
-                skuListNo.add(csvReader.get(i).replace(",", "."));
+        if (StringUtils.isNotEmpty(fsb.getSku())) {
+            if (skuId == null) {
+                count--;
+                sumNoSku++;
+                List<String> skuListNo = new ArrayList<>();
+                for (int i = 0; i < csvReader.getColumnCount(); i++) {
+                    skuListNo.add(csvReader.get(i).replace(",", "."));
+                }
+                skuNoIdList.add(skuListNo);
+                return null;
             }
-            skuNoIdList.add(skuListNo);
-            return null;
         }
         fsb.setSkuId(skuId);
         return fsb;

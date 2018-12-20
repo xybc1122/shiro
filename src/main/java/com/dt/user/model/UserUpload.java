@@ -7,7 +7,7 @@ public class UserUpload {
     /**
      * 上传文件名称
      */
-    private String fileName;
+    private String name;
     private Long createDate;
     private Long delDate;
     private Long delDateId;
@@ -29,7 +29,14 @@ public class UserUpload {
      * 上传状态0代表成功,1代表失败,2代表上传成功后 有些没有skuId的没上传
      */
     private Integer status;
-
+    /**
+     * 店铺ID
+     */
+    private Long shopId;
+    /**
+     * 站点ID
+     */
+    private Long siteId;
     public Long getId() {
         return id;
     }
@@ -46,12 +53,12 @@ public class UserUpload {
         this.uid = uid;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getName() {
+        return name;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Long getCreateDate() {
@@ -108,5 +115,21 @@ public class UserUpload {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Long getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(Long shopId) {
+        this.shopId = shopId;
+    }
+
+    public Long getSiteId() {
+        return siteId;
+    }
+
+    public void setSiteId(Long siteId) {
+        this.siteId = siteId;
     }
 }

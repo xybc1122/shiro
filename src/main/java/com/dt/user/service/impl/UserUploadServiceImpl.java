@@ -6,6 +6,8 @@ import com.dt.user.service.UserUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserUploadServiceImpl implements UserUploadService {
     @Autowired
@@ -14,5 +16,15 @@ public class UserUploadServiceImpl implements UserUploadService {
     @Override
     public int addUserUploadInfo(UserUpload userUpload) {
         return userUploadMapper.addUserUploadInfo(userUpload);
+    }
+
+    @Override
+    public List<UserUpload> getUserUploadInfo(Long uid, Long sId, Long siteId) {
+        return userUploadMapper.getUserUploadInfo(uid, sId, siteId);
+    }
+
+    @Override
+    public int delUploadInfo(Long id) {
+        return userUploadMapper.delUploadInfo(id);
     }
 }

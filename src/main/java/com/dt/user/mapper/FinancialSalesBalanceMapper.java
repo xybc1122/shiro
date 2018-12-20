@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface FinancialSalesBalanceMapper {
     /**
-     * 插入德国数据
+     * 插入数据
      *
      * @return
      */
