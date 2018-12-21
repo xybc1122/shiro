@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvReader;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
 import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.model.UserInfo;
 import com.dt.user.model.UserUpload;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 
@@ -38,6 +40,9 @@ public class FinancialSalesBalanceController {
 
     @Autowired
     private UserUploadService userUploadService;
+
+    @Autowired
+    private BasicPublicAmazonTypeMapper bAmazonTypeMapper;
     //获取没有SKU的List集合
     private List<List<String>> skuNoIdList;
     //行数 /报错行数
@@ -46,6 +51,20 @@ public class FinancialSalesBalanceController {
     private int sumNoSku;
     //用户上传记录实体类
     private UserUpload userUpload;
+
+    @GetMapping("/downloadCommonFile")
+    public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest request, HttpServletResponse response) {
+        String path = "D:/";
+        try {
+            FileUtils.downloadFile(path, response, request);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
+    }
+
 
     /**
      * @param file
@@ -318,7 +337,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance mexicoDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("fecha/hora"), Constants.MEXICO_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("Id. de liquidación")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("tipo ")));
+        String type = StrUtils.replaceString(csvReader.get("tipo "));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("Id. del pedido")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -337,6 +361,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("tarifas de otra transacción")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("otro")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -352,7 +377,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance japanDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("日付/時間"), Constants.JAPAN_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("決済番号")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("トランザクションの種類")));
+        String type = StrUtils.replaceString(csvReader.get("トランザクションの種類"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("注文番号")));
         String skuName = StrUtils.replaceString(csvReader.get("SKU"));
         fsb.setSku(skuName);
@@ -372,6 +402,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("その他")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("合計")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("数量")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -387,7 +418,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance franceDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getFranceTime(csvReader.get("date/heure"), Constants.FRANCE_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("numéro de versement")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("type")));
+        String type = StrUtils.replaceString(csvReader.get("type"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("numéro de la commande")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -407,6 +443,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("autres frais de transaction")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("autre")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -422,7 +459,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance spainDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("fecha y hora"), Constants.SPAIN_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("identificador de pago")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("tipo")));
+        String type = StrUtils.replaceString(csvReader.get("tipo"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("número de pedido")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -442,6 +484,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("tarifas de otras transacciones")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("otro")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -457,7 +500,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance italyDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getItalyTime(csvReader.get("Data/Ora:"), Constants.ITALY_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("Numero pagamento")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("Tipo")));
+        String type = StrUtils.replaceString(csvReader.get("Tipo"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("Numero ordine")));
         String skuName = StrUtils.replaceString(csvReader.get("SKU"));
         fsb.setSku(skuName);
@@ -477,6 +525,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("Altri costi relativi alle transazioni")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("Altro")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("totale")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -492,7 +541,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance unitedKingdomDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.UNITED_KINGDOM_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("type")));
+        String type = StrUtils.replaceString(csvReader.get("type"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -512,6 +566,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("other transaction fees")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -527,7 +582,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance australiaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.AUSTRALIA_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("type")));
+        String type = StrUtils.replaceString(csvReader.get("type"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -548,6 +608,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("other transaction fees")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -563,7 +624,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance canadaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.CANADA_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("type")));
+        String type = StrUtils.replaceString(csvReader.get("type"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -582,6 +648,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantity")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -597,7 +664,12 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance usaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.USA_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("type")));
+        String type = StrUtils.replaceString(csvReader.get("type"));
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
         String skuName = StrUtils.replaceString(csvReader.get("sku"));
         fsb.setSku(skuName);
@@ -619,6 +691,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("other transaction fees")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -634,7 +707,13 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance germanDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("Datum/Uhrzeit"), Constants.GERMAN_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("Abrechnungsnummer")));
-        fsb.setType(StrUtils.replaceString(csvReader.get("Typ")));
+        String type = StrUtils.replaceString(csvReader.get("Typ"));
+        //Type类型转换
+        if (StringUtils.isEmpty(type)) {
+            fsb.setType(type);
+        } else if (!setType(type, seId, csvReader, fsb)) {
+            return null;
+        }
         fsb.setOrderId(StrUtils.replaceString(csvReader.get("Bestellnummer")));
         String skuName = StrUtils.replaceString(csvReader.get("SKU"));
         fsb.setSku(skuName);
@@ -653,6 +732,7 @@ public class FinancialSalesBalanceController {
         fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("Andere Transaktionsgebühren")));
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("Andere")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("Gesamt")));
+        StrUtils.isService(fsb.getType(), fsb);
         fsb.setCreateDate(new Date().getTime());
         fsb.setSiteId(seId);
         fsb.setShopId(sId);
@@ -686,6 +766,44 @@ public class FinancialSalesBalanceController {
         }
         fsb.setSkuId(skuId);
         return fsb;
+    }
+
+    /**
+     * 设置TypeName
+     */
+    public boolean setType(String type, Long seId, CsvReader csvReader, FinancialSalesBalance fsb) {
+        String typeName;
+        try {
+            typeName = orderTypeName(type, seId, csvReader);
+            if (StringUtils.isNotEmpty(typeName)) {
+                fsb.setType(typeName);
+                return true;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * 获取没有typeName的文件List
+     *
+     * @param csvReader
+     * @return
+     */
+    public String orderTypeName(String type, Long seId, CsvReader csvReader) throws IOException {
+        String typeName = bAmazonTypeMapper.getTypeName(seId, type);
+        //如果数据库查询出来为空
+        if (StringUtils.isEmpty(typeName)) {
+            count--;
+            List<String> typeListNo = new ArrayList<>();
+            for (int i = 0; i < csvReader.getColumnCount(); i++) {
+                typeListNo.add(csvReader.get(i).replace(",", "."));
+            }
+            skuNoIdList.add(typeListNo);
+            return null;
+        }
+        return typeName;
     }
 
     /**

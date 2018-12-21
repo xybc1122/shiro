@@ -2,8 +2,13 @@ package com.dt.user.model.BasePublicModel;
 
 
 public class BasicSalesAmazonCsvTxtXslHeader {
-
+    /**
+     * 站点ID
+     */
     private Long siteId;
+    /**
+     * 对应表头字段
+     */
     private String importTemplet;
     private Long createDate;
     private Long createIdUser;
@@ -11,6 +16,9 @@ public class BasicSalesAmazonCsvTxtXslHeader {
     private Long modifyIdUser;
     private Long auditDate;
     private Long auditIdUser;
+    /**
+     * 标识ID
+     */
     private Long id;
 
 

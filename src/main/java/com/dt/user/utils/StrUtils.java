@@ -1,10 +1,12 @@
 package com.dt.user.utils;
 
+import com.dt.user.model.FinancialSalesBalance;
 import org.apache.commons.lang3.StringUtils;
 
 public class StrUtils {
     /**
      * 字符串替换Double
+     *
      * @param number
      * @return
      */
@@ -73,6 +75,50 @@ public class StrUtils {
             sb.append("'" + str + "'");
         }
         return sb;
+    }
+
+    /**
+     * 判断TypeName是否== xxxxx
+     */
+    public static void isService(String typeName, FinancialSalesBalance fsb) {
+        if (StringUtils.isNotEmpty(typeName)) {
+            //促销费用（abs(运费)<abs(促销费用)）
+            if (Math.abs(fsb.getShippingCredits()) < Math.abs(fsb.getPromotionalRebates())) {
+                fsb.setNewPromotionalRebates(fsb.getShippingCredits() + fsb.getPromotionalRebates());
+            }
+            //促销费用（abs(运费)>abs(促销费用)）
+            if (Math.abs(fsb.getShippingCredits()) > Math.abs(fsb.getPromotionalRebates())) {
+                fsb.setNewShippingCredits(fsb.getShippingCredits());
+                fsb.setNewPromotionalRebates(fsb.getPromotionalRebates());
+            }
+            //促销费用（abs(运费)=abs(促销费用)）
+            if (Math.abs(fsb.getShippingCredits()) == Math.abs(fsb.getPromotionalRebates())) {
+                fsb.setNewShippingCredits(0.0);
+                fsb.setNewPromotionalRebates(0.0);
+            }
+            fsb.setNewShippingFba(fsb.getNewShippingCredits() + fsb.getFbaFee());
+            if (!typeName.equals("退货")) {
+                fsb.setQuantity(fsb.getoQuantity());
+            }
+            if (typeName.equals("服务费")) {
+                fsb.setServiceFee(fsb.getOtherTransactionFees());
+            } else if (typeName.equals("转账")) {
+                fsb.setTransfer(fsb.getTotal());
+            } else if (typeName.equals("调整")) {
+                fsb.setAdjustment(fsb.getOther());
+                fsb.setAdjustmentQty(fsb.getoQuantity());
+            } else if (typeName.equals("库存费")) {
+                fsb.setFbaInventoryFee(fsb.getOther());
+            } else if (typeName.equals("秒杀费")) {
+                fsb.setLightningDealFee(fsb.getOtherTransactionFees());
+            } else if (typeName.equals("退货")) {
+                fsb.setRefundQuantity(fsb.getoQuantity());
+            } else if (typeName.equals("订单")) {
+                fsb.setOrderQty(fsb.getoQuantity());
+            }
+        }
+
+
     }
 
     public static void main(String[] args) {

@@ -7,6 +7,7 @@ import com.dt.user.model.UserUpload;
 import com.dt.user.service.UserUploadService;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,9 +50,11 @@ public class UserUploadController {
      */
     @GetMapping("/delInfo")
     public ResponseBase delInfo(@RequestParam("id") String id) {
-        int count = userUploadService.delUploadInfo(Long.parseLong(id));
-        if (count != 0) {
-            return BaseApiService.setResultSuccess("删除成功~");
+        if (StringUtils.isNotEmpty(id)) {
+            int count = userUploadService.delUploadInfo(Long.parseLong(id));
+            if (count != 0) {
+                return BaseApiService.setResultSuccess("删除成功~");
+            }
         }
         return BaseApiService.setResultError("删除失败~");
     }
