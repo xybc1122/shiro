@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class FinancialSalesBalanceProvider {
 
-
+    @SuppressWarnings("unchecked")
     public String addInfo(Map<String, Object> infoMap) {
         List<FinancialSalesBalance> fsbList = (List<FinancialSalesBalance>) infoMap.get("fsbList");
         // sql前缀

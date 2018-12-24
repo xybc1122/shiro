@@ -10,12 +10,13 @@ import java.util.List;
 public interface BasicSalesAmazonCsvTxtXslHeaderMapper {
     /**
      * 通过seId获取 header信息
+     *
      * @param seId
      * @return
      */
     @Select("SELECT\n" +
             "  `import_templet`\n" +
             "FROM `basic_sales_amazon_csv_txt_xsl_header`\n" +
-            "WHERE site_id=#{seId}\n")
+            "WHERE site_id=#{seId} and tb_id = 1\n")
     List<String> headerList(@Param("seId") Long seId);
 }

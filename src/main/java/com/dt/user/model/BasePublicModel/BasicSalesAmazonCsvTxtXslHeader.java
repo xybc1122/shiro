@@ -17,6 +17,10 @@ public class BasicSalesAmazonCsvTxtXslHeader {
     private Long auditDate;
     private Long auditIdUser;
     /**
+     * 位置标识
+     */
+    private Integer position;
+    /**
      * 标识ID
      */
     private Long id;
@@ -92,5 +96,13 @@ public class BasicSalesAmazonCsvTxtXslHeader {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 }

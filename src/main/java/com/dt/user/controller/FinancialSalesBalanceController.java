@@ -74,34 +74,27 @@ public class FinancialSalesBalanceController {
      */
     @Transactional
     @PostMapping("/file")
-    public ResponseBase saveFileInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request, @RequestParam("sId") String sId, @RequestParam("seId") String seId) {
-        userUpload = new UserUpload();
+    public ResponseBase saveFileInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request,
+                                     @RequestParam("sId") String sId, @RequestParam("seId") String seId, @RequestParam("payId") String payId) {
+        String token = GetCookie.getToken(request);
+        UserInfo user = JwtUtils.jwtUser(token);
+        if (user == null) {
+            return BaseApiService.setResultError("用户无效~");
+        }
         //指定文件存放路径
         String saveFilePath = Constants.SAVE_FILE_PATH;
         count = 1;
         sumNoSku = 0;
+        //店铺ID
         Integer shopId = Integer.parseInt(sId);
+        //站点ID
         Integer siteId = Integer.parseInt(seId);
-        String token = GetCookie.getToken(request);
-        UserInfo user = JwtUtils.jwtUser(token);
-        if (user == null) {
-            return BaseApiService.setResultError("token无效~~");
-        }
+        // pId
+        Integer pId = Integer.parseInt(payId);
         //String contentType = file.getContentType();//图片||文件类型
         String fileName = file.getOriginalFilename();//图片||文件名字
-        //存入文件名字
-        userUpload.setName(fileName);
-        //存入上传时间
-        userUpload.setCreateDate(new Date().getTime());
-        //用户ID
-        userUpload.setUid(user.getUid());
-        //上传服务器路径
-        userUpload.setFilePath(saveFilePath);
-        //站点ID
-        userUpload.setSiteId(siteId.longValue());
-        //店铺ID
-        userUpload.setShopId(shopId.longValue());
-        return shopSelection(file, saveFilePath, fileName, siteId, shopId, user);
+        userUpload = FileUtils.uploadOperating(shopId, siteId, fileName, saveFilePath, user);
+        return shopSelection(file, saveFilePath, fileName, siteId, shopId, user, pId);
     }
 
     /**
@@ -115,7 +108,7 @@ public class FinancialSalesBalanceController {
      * @param user
      * @return
      */
-    public ResponseBase shopSelection(MultipartFile file, String saveFilePath, String fileName, Integer siteId, Integer shopId, UserInfo user) {
+    public ResponseBase shopSelection(MultipartFile file, String saveFilePath, String fileName, Integer siteId, Integer shopId, UserInfo user, Integer pId) {
         try {
             FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
         } catch (Exception e) {
@@ -127,13 +120,14 @@ public class FinancialSalesBalanceController {
         JSONObject rowJson = JSONObject.parseObject(csvJson);
         int row = (Integer) rowJson.get("index");
         if (row == -1) {
-            return BaseApiService.setResultError("存入数据失败,请检查表头第一行是否正确/请检查上传的站点~");
+            String msg = "存入数据失败,请检查表头第一行是否正确/请检查上传的站点~";
+            recordInfo(3, null, msg, fileName);
+            return BaseApiService.setResultError(msg);
         }
         List<String> oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
         int fileIndex = filePath.lastIndexOf(".");
         String typeFile = filePath.substring(fileIndex + 1);
-
-        return switchCountry(typeFile, filePath, row, shopId, siteId, user, fileName, oldHeadList);
+        return switchCountry(typeFile, filePath, row, shopId, siteId, user, fileName, oldHeadList, pId);
 
     }
 
@@ -149,35 +143,26 @@ public class FinancialSalesBalanceController {
      * @param head     表头信息
      * @return
      */
-    public ResponseBase switchCountry(String typeFile, String filePath, int row, Integer sId, Integer seId, UserInfo user, String fileName, List<String> head) {
+    public ResponseBase switchCountry(String typeFile, String filePath, int row, Integer sId, Integer seId, UserInfo user, String fileName, List<String> head, Integer pId) {
         switch (typeFile) {
             case "csv":
-                ResponseBase responseCsv = saveCSV(filePath, row, sId.longValue(), seId.longValue(), user.getUid(), head);
+                ResponseBase responseCsv = saveCsv(filePath, row, sId.longValue(), seId.longValue(), user.getUid(), head, pId.longValue());
                 if (responseCsv.getCode() == 200) {
                     if (skuNoIdList.size() != 0) {
                         //文件写入到服务器的地址
                         String skuNoPath = Constants.WRITE_SAVE_FILE_PATH;
                         //写入CSV文件到本地
                         CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
-                        //上传成功 有些skuId~
-                        userUpload.setStatus(2);
-                        userUpload.setWriteFilePath(skuNoPath);
-                        userUpload.setRemark(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件");
-                        //存入文件名字
-                        userUpload.setName("NO" + fileName);
-                        userUploadService.addUserUploadInfo(userUpload);
+                        //上传成功 有些skuId 记录上传信息~
+                        recordInfo(2, skuNoPath, responseCsv.getMsg(), fileName);
                         return BaseApiService.setResultError(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件", userUpload);
                     }
                     //上传成功 都有skuId~
-                    userUpload.setStatus(0);
-                    userUpload.setRemark(responseCsv.getMsg());
-                    userUploadService.addUserUploadInfo(userUpload);
+                    recordInfo(0, null, responseCsv.getMsg(), fileName);
                     return BaseApiService.setResultSuccess(responseCsv.getMsg(), userUpload);
                 } else {
                     //存入信息报错
-                    userUpload.setStatus(1);
-                    userUpload.setRemark(responseCsv.getMsg());
-                    userUploadService.addUserUploadInfo(userUpload);
+                    recordInfo(1, null, responseCsv.getMsg(), fileName);
                     return BaseApiService.setResultError(responseCsv.getMsg(), userUpload);
                 }
             case "txt":
@@ -186,6 +171,7 @@ public class FinancialSalesBalanceController {
             case "xls":
                 break;
             case "xlsx":
+
                 break;
         }
         return null;
@@ -201,7 +187,7 @@ public class FinancialSalesBalanceController {
      * @param uid
      * @return
      */
-    public ResponseBase saveCSV(String filePath, int row, Long sId, Long seId, Long uid, List<String> head) {
+    public ResponseBase saveCsv(String filePath, int row, Long sId, Long seId, Long uid, List<String> head, Long pId) {
         // 开始时间
         Long begin = new Date().getTime();
         boolean isFlg;
@@ -210,6 +196,7 @@ public class FinancialSalesBalanceController {
         CsvReader csvReader = null;
         int index = 0;
         FinancialSalesBalance fb;
+        FinancialSalesBalance fsb = new FinancialSalesBalance();
         try {
             //设置编码格式 ,日文解码shift_jis
             String coding = seId == 9 ? "shift_jis" : "GBK";
@@ -219,6 +206,10 @@ public class FinancialSalesBalanceController {
             skuNoIdList = new ArrayList<>();
             List<String> headList = new ArrayList<>();
             //如果表里没有别的数据 第一行就是头
+            fsb.setCreateDate(new Date().getTime());
+            fsb.setSiteId(seId);
+            fsb.setShopId(sId);
+            fsb.setCreateIdUser(uid);
             if (row == 0) {
                 csvReader.readHeaders();
                 //比较头部
@@ -241,65 +232,65 @@ public class FinancialSalesBalanceController {
                 //如果正确 通过站点ID 判断 存入 哪个站点数据
                 //美国站
                 if (index >= row && seId == 1L) {
-                    fb = usaDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = usaDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //加拿大站
                 else if (index >= row && seId == 2L) {
-                    fb = canadaDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = canadaDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }   //澳大利亚站
                 else if (index >= row && seId == 3L) {
-                    fb = australiaDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = australiaDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //英国站
                 else if (index >= row && seId == 4L) {
-                    fb = unitedKingdomDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = unitedKingdomDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //德国站
                 else if (index >= row && seId == 5L) {
-                    fb = germanDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = germanDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //法国
                 else if (index >= row && seId == 6L) {
-                    fb = franceDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = franceDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 } //意大利
                 else if (index >= row && seId == 7L) {
-                    fb = italyDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = italyDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }  //西班牙
                 else if (index >= row && seId == 8L) {
-                    fb = spainDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = spainDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 } //日本
                 else if (index >= row && seId == 9L) {
-                    fb = japanDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = japanDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 } //墨西哥
                 else if (index >= row && seId == 10L) {
-                    fb = mexicoDepositObject(new FinancialSalesBalance(), csvReader, sId, seId, uid);
+                    fb = mexicoDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
@@ -362,12 +353,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("otro")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -403,12 +389,7 @@ public class FinancialSalesBalanceController {
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("合計")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("数量")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -444,12 +425,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("autre")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -485,12 +461,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("otro")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -526,12 +497,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("Altro")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("totale")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -567,12 +533,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -609,12 +570,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -622,6 +578,9 @@ public class FinancialSalesBalanceController {
      * 加拿大存入对象
      */
     public FinancialSalesBalance canadaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
+        if (count == 28) {
+            System.out.println("ceshi");
+        }
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.CANADA_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
         String type = StrUtils.replaceString(csvReader.get("type"));
@@ -649,12 +608,7 @@ public class FinancialSalesBalanceController {
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantity")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -692,12 +646,7 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
@@ -733,15 +682,43 @@ public class FinancialSalesBalanceController {
         fsb.setOther(StrUtils.replaceDouble(csvReader.get("Andere")));
         fsb.setTotal(StrUtils.replaceDouble(csvReader.get("Gesamt")));
         StrUtils.isService(fsb.getType(), fsb);
-        fsb.setCreateDate(new Date().getTime());
-        fsb.setSiteId(seId);
-        fsb.setShopId(sId);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
-        //UserId
-        fsb.setCreateIdUser(uid);
         return skuList(skuId, csvReader, fsb);
     }
 
+    /**
+     * 封装上传记录信息
+     */
+    public void recordInfo(Integer status, String skuNoPath, String msg, String fileName) {
+        //上传成功 有些skuId~
+        switch (status) {
+            case 0:
+                userUpload.setStatus(status);
+                userUpload.setRemark(msg);
+                break;
+            case 1:
+                //存入信息报错
+                userUpload.setStatus(status);
+                userUpload.setRemark(msg);
+                break;
+            case 2:
+                userUpload.setStatus(status);
+                userUpload.setWriteFilePath(skuNoPath);
+                userUpload.setRemark(msg + "/有" + sumNoSku + "个没有sku文件");
+                //存入文件名字
+                userUpload.setName("NO" + fileName);
+                break;
+            case 3:
+                //存入信息报错
+                userUpload.setStatus(status);
+                userUpload.setRemark(msg);
+                break;
+            case 4:
+                break;
+        }
+        userUploadService.addUserUploadInfo(userUpload);
+        userUpload.setFilePath(null);
+    }
 
     /**
      * 获取没有SKU的文件List
@@ -766,6 +743,13 @@ public class FinancialSalesBalanceController {
         }
         fsb.setSkuId(skuId);
         return fsb;
+    }
+
+    /**
+     * 设置通用对象
+     */
+    public FinancialSalesBalance setFsb(Long sId, Long seId, Long uid, Long pId) {
+        return new FinancialSalesBalance(sId, seId, pId, new Date().getTime(), uid);
     }
 
     /**
@@ -825,4 +809,5 @@ public class FinancialSalesBalanceController {
         //如果不一致返回false
         return ArrUtils.equalList(headList, fBalanceHead);
     }
+    //###############################封装exe
 }

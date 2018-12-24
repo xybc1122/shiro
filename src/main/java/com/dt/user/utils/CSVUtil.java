@@ -76,7 +76,6 @@ public class CSVUtil {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
         return readJson.toJSONString();
     }

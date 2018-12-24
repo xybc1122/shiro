@@ -5,13 +5,31 @@ import org.apache.commons.lang3.StringUtils;
 
 public class StrUtils {
     /**
+     * 通用替换字符串转Double
+     */
+    public static Double repDouble(String number) {
+        if (StringUtils.isBlank(number)) {
+            return null;
+        }
+        return Double.parseDouble(number);
+    }
+    /**
+     * 通用替换字符串判断
+     */
+    public static String repString(String number) {
+        if (StringUtils.isBlank(number)) {
+            return null;
+        }
+        return number;
+    }
+    /**
      * 字符串替换Double
      *
      * @param number
      * @return
      */
     public static Double replaceDouble(String number) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(number)) {
+        if (StringUtils.isBlank(number)) {
             return null;
         }
         int i = number.indexOf(".");
@@ -42,7 +60,7 @@ public class StrUtils {
      * @return
      */
     public static String replaceString(String number) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(number)) {
+        if (StringUtils.isBlank(number)) {
             return null;
         }
         int i = number.indexOf("'");
@@ -59,7 +77,7 @@ public class StrUtils {
      * @return
      */
     public static Long replaceLong(String number) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(number)) {
+        if (StringUtils.isBlank(number)) {
             return null;
         }
         return Long.parseLong(number);
@@ -76,9 +94,8 @@ public class StrUtils {
         }
         return sb;
     }
-
     /**
-     * 判断TypeName是否== xxxxx
+     * 判断TypeName是否== xxxxx  计算一些数据
      */
     public static void isService(String typeName, FinancialSalesBalance fsb) {
         if (StringUtils.isNotEmpty(typeName)) {
@@ -95,6 +112,12 @@ public class StrUtils {
             if (Math.abs(fsb.getShippingCredits()) == Math.abs(fsb.getPromotionalRebates())) {
                 fsb.setNewShippingCredits(0.0);
                 fsb.setNewPromotionalRebates(0.0);
+            }
+            if (fsb.getNewShippingCredits() == null) {
+                fsb.setNewShippingCredits(0.0);
+            }
+            if (fsb.getFbaFee() == null) {
+                fsb.setFbaFee(0.0);
             }
             fsb.setNewShippingFba(fsb.getNewShippingCredits() + fsb.getFbaFee());
             if (!typeName.equals("退货")) {
@@ -116,14 +139,16 @@ public class StrUtils {
             } else if (typeName.equals("订单")) {
                 fsb.setOrderQty(fsb.getoQuantity());
             }
+        } else {
+            fsb.setQuantity(fsb.getoQuantity());
         }
 
 
     }
 
-    public static void main(String[] args) {
-        String b = "-12.8624,00";
-        String a = "-22,224.88";
-        System.out.println(StrUtils.replaceDouble(a));
-    }
+//    public static void main(String[] args) {
+//        String b = "-12.8624,00";
+//        String a = "-22,224.88";
+//        System.out.println(StrUtils.replaceDouble(a));
+//    }
 }
