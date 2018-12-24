@@ -14,13 +14,13 @@ public class CSVUtil {
      *
      * @param filePath 文件路径
      */
-    public static String startReadLine(String filePath, int site) {
+    public static String startReadLine(String filePath, Long site) {
         JSONObject readJson = new JSONObject();
         BufferedReader reader = null;
         InputStreamReader isr = null;
         try {
             //设置编码格式 ,日文解码shift_jis
-            String coding = site == 9 ? "shift_jis" : "GBK";
+            String coding = site == 9L ? "shift_jis" : "GBK";
             isr = new InputStreamReader(new FileInputStream(filePath), coding);
             reader = new BufferedReader(isr);
             String line;

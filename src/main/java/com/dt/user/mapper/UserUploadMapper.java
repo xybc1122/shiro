@@ -20,6 +20,7 @@ public interface UserUploadMapper {
             "`create_date`," +
             "`del_date`,`del_date_id`,`remark`,`file_path`,`write_file_path`,`status`,`shop_id`,`site_id`)" +
             "VALUES (#{uid},#{name},#{createDate},#{delDate},#{delDateId},#{remark},#{filePath},#{writeFilePath},#{status},#{shopId},#{siteId})")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int addUserUploadInfo(UserUpload userUpload);
 
     /**
