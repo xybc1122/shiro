@@ -37,6 +37,20 @@ public class UserUpload {
      * 站点ID
      */
     private Long siteId;
+
+    /**
+     * payId
+     */
+    private Integer pId;
+
+    public Integer getpId() {
+        return pId;
+    }
+
+    public void setpId(Integer pId) {
+        this.pId = pId;
+    }
+
     public Long getId() {
         return id;
     }

@@ -27,4 +27,9 @@ public class UserUploadServiceImpl implements UserUploadService {
     public int delUploadInfo(Long id) {
         return userUploadMapper.delUploadInfo(id);
     }
+
+    @Override
+    public int upUploadInfo(UserUpload userUpload) {
+        return userUploadMapper.upUploadInfo(userUpload);
+    }
 }

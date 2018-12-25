@@ -26,4 +26,9 @@ public interface UserUploadService {
      * 删除 上传记录 更新标示符
      */
     int delUploadInfo( Long id);
+
+    /**
+     * 更新用户信息
+     */
+    int upUploadInfo(UserUpload userUpload);
 }

@@ -7,6 +7,15 @@ import java.util.List;
 
 @Mapper
 public interface UserUploadMapper {
+    /**
+     * 更新用户信息
+     */
+    @Update("UPDATE `system_user_upload`\n" +
+            "SET\n" +
+            "`remark` = #{remark},\n" +
+            "`status` = #{status}\n" +
+            "WHERE `id` = #{id}")
+    int upUploadInfo(UserUpload userUpload);
 
     /**
      * 用户上传记录表

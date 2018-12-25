@@ -3,6 +3,7 @@ package com.dt.user.utils;
 import com.dt.user.model.UserInfo;
 import com.dt.user.model.UserUpload;
 import com.sun.deploy.net.URLEncoder;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -34,32 +35,6 @@ public class FileUtils {
                 out.close();
             }
         }
-    }
-
-    /**
-     * 通过记录用户上传信息操作
-     * @param siteId
-     * @param shopId
-     * @param fileName
-     * @param saveFilePath
-     * @param user
-     * @return
-     */
-    public static UserUpload uploadOperating(Integer siteId, Integer shopId, String fileName, String saveFilePath, UserInfo user) {
-        UserUpload userUpload = new UserUpload();
-        //存入文件名字
-        userUpload.setName(fileName);
-        //存入上传时间
-        userUpload.setCreateDate(new Date().getTime());
-        //用户ID
-        userUpload.setUid(user.getUid());
-        //上传服务器路径
-        userUpload.setFilePath(saveFilePath);
-        //站点ID
-        userUpload.setSiteId(siteId.longValue());
-        //店铺ID
-        userUpload.setShopId(shopId.longValue());
-        return userUpload;
     }
 
     /**

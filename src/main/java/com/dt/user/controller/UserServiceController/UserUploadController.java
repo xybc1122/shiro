@@ -50,13 +50,14 @@ public class UserUploadController {
      */
     @GetMapping("/delInfo")
     public ResponseBase delInfo(@RequestParam("id") String id) {
-        if (StringUtils.isNotEmpty(id)) {
-            int count = userUploadService.delUploadInfo(Long.parseLong(id));
-            if (count != 0) {
-                return BaseApiService.setResultSuccess("删除成功~");
-            }
+        if (StringUtils.isEmpty(id) || id.equals("undefined")) {
+            return BaseApiService.setResultError("删除ID错误~");
         }
-        return BaseApiService.setResultError("删除失败~");
+        int count = userUploadService.delUploadInfo(Long.parseLong(id));
+        if (count != 0) {
+            return BaseApiService.setResultSuccess("删除成功~");
+        }
+        return BaseApiService.setResultError("上除失败~");
     }
 
 }

@@ -16,7 +16,6 @@ import com.dt.user.toos.Constants;
 import com.dt.user.utils.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,14 +46,12 @@ public class FinancialSalesBalanceController {
     @Autowired
     private BasicPublicAmazonTypeMapper bAmazonTypeMapper;
     //获取没有SKU的List集合
-    private List<List<String>> skuNoIdList;
+    private volatile List<List<String>> skuNoIdList;
     //行数 /报错行数
-    private volatile int count = 1;
+    private volatile int count;
     //没有sku有几行存入
     private volatile int sumNoSku;
-    //用户上传记录实体类
-    private UserUpload userUpload;
-
+    //线程锁
     private Lock lock = new ReentrantLock();
 
     @GetMapping("/downloadCommonFile")
@@ -77,7 +74,6 @@ public class FinancialSalesBalanceController {
      * @return
      * @throws Exception
      */
-    @Transactional
     @PostMapping("/file")
     public ResponseBase saveFileInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request, @RequestParam("sId") String sId, @RequestParam("seId") String seId, @RequestParam("payId") String payId) {
         String token = GetCookie.getToken(request);
@@ -100,30 +96,24 @@ public class FinancialSalesBalanceController {
         Integer siteId = Integer.parseInt(seId);
         // pId
         Integer pId = Integer.parseInt(payId);
-        userUpload = FileUtils.uploadOperating(shopId, siteId, fileName, saveFilePath, user);
-        //上传成功 都有skuId~
-        recordInfo(0, null, "上传成功~", fileName);
-        return BaseApiService.setResultSuccess("上传成功~", userUpload);
+        //记录用户上传信息~
+        UserUpload upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, 0, "上传成功");
+        return BaseApiService.setResultSuccess("上传成功~", upload);
     }
 
-    @Async("executor")
-    @PostMapping("addInfo")
-    public void redFileInfo(@RequestBody UserUpload userUpload) {
+    @PostMapping("/addInfo")
+    @Transactional
+    public synchronized ResponseBase redFileInfo(@RequestBody UserUpload userUpload) {
         count = 1;
         sumNoSku = 0;
-        //pId
-//       Integer pId = Integer.parseInt(payId);
         int fileIndex = userUpload.getName().lastIndexOf(".");
         String typeFile = userUpload.getName().substring(fileIndex + 1);
+
         switch (typeFile) {
             case "csv":
-                try {
-                    shopSelection(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), 1);
-                } catch (Exception e) {
-                    System.out.println("记录异常" + e.getMessage());
-                }
-                break;
+                return shopSelection(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getpId(), userUpload.getId());
         }
+        return null;
     }
 
     /**
@@ -135,7 +125,7 @@ public class FinancialSalesBalanceController {
      * @param shopId
      * @return
      */
-    public void shopSelection(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId) throws Exception {
+    public ResponseBase shopSelection(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId, Long id) {
         String filePath = saveFilePath + fileName;
         //获得头信息长度
         String csvJson = CSVUtil.startReadLine(filePath, siteId);
@@ -143,42 +133,11 @@ public class FinancialSalesBalanceController {
         int row = (Integer) rowJson.get("index");
         if (row == -1) {
             String msg = "存入数据失败,请检查表头第一行是否正确/请检查上传的站点~";
-            recordInfo(3, null, msg, fileName);
-            throw new Exception(msg);
+            recordInfo(3, msg, id);
+            return BaseApiService.setResultError(msg);
         }
         List<String> oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
-        switchCountry(filePath, row, shopId, siteId, uid, fileName, oldHeadList, pId);
-    }
-
-    //++
-    public void inCreateCountUp() {
-        try {
-            lock.lock();//上锁
-            count++;
-        } finally {
-            lock.unlock();//解锁
-        }
-    }
-
-    //--
-    public void inCreateCountDel() {
-        try {
-            lock.lock();//上锁
-            count--;
-        } finally {
-            lock.unlock();//解锁
-        }
-    }
-
-    //++
-    public void inCreateNoSkuUp() {
-        try {
-            lock.lock();//上锁
-            sumNoSku++;
-            count--;
-        } finally {
-            lock.unlock();//解锁
-        }
+        return switchCountry(filePath, row, shopId, siteId, uid, fileName, oldHeadList, pId, id);
     }
 
     /**
@@ -191,8 +150,8 @@ public class FinancialSalesBalanceController {
      * @param head     表头信息
      * @return
      */
-    public void switchCountry(String filePath, int row, Long sId, Long seId, Long uid, String fileName, List<String> head, Integer pId) throws Exception {
-        ResponseBase responseCsv = saveCsv(filePath, row, sId.longValue(), seId.longValue(), uid, head, pId.longValue());
+    public ResponseBase switchCountry(String filePath, int row, Long sId, Long seId, Long uid, String fileName, List<String> head, Integer pId, Long id) {
+        ResponseBase responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue());
         if (responseCsv.getCode() == 200) {
             if (skuNoIdList.size() != 0) {
                 //文件写入到服务器的地址
@@ -200,17 +159,39 @@ public class FinancialSalesBalanceController {
                 //写入CSV文件到本地
                 CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
                 //上传成功 有些skuId 记录上传信息~
-                recordInfo(2, skuNoPath, responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件", fileName);
-                throw new Exception(responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件");
+                String msg = responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件";
+                recordInfo(2, msg, id);
+                return BaseApiService.setResultSuccess(msg, false);
             }
             //上传成功 都有skuId~
-            recordInfo(0, null, responseCsv.getMsg(), fileName);
-            throw new Exception(responseCsv.getMsg());
+            return BaseApiService.setResultSuccess(responseCsv.getMsg());
         } else {
             //存入信息报错
-            recordInfo(1, null, responseCsv.getMsg(), fileName);
-            throw new Exception(responseCsv.getMsg());
+            recordInfo(1, responseCsv.getMsg(), id);
+            return BaseApiService.setResultError("error");
         }
+    }
+
+    /**
+     * 封装更新信息
+     *
+     * @param status
+     * @param msg
+     */
+    public void recordInfo(Integer status, String msg, Long id) {
+        UserUpload userUpload = new UserUpload();
+        userUpload.setId(id);
+        if (status == 3) {
+            userUpload.setStatus(status);
+        }
+        if (status == 2) {
+            userUpload.setStatus(status);
+        }
+        if (status == 1) {
+            userUpload.setStatus(status);
+        }
+        userUpload.setRemark(msg);
+        userUploadService.upUploadInfo(userUpload);
     }
 
     /**
@@ -255,8 +236,8 @@ public class FinancialSalesBalanceController {
                 }
             }
             while (csvReader.readRecord()) {
-                //conut ++
-                inCreateCountUp();
+                //count ++
+                count++;
                 //如果是多行的
                 if (index == (row - 1)) {
                     csvReader.readHeaders();
@@ -346,7 +327,6 @@ public class FinancialSalesBalanceController {
         } catch (Exception e) {
             return BaseApiService.setResultError("第" + count + "行信息错误,数据存入失败~");
         } finally {
-            lock.unlock();
             if (csvReader != null) {
                 csvReader.close();
             }
@@ -616,9 +596,6 @@ public class FinancialSalesBalanceController {
      * 加拿大存入对象
      */
     public FinancialSalesBalance canadaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
-        if (count == 28) {
-            System.out.println("ceshi");
-        }
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.CANADA_TIME));
         fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
         String type = StrUtils.replaceString(csvReader.get("type"));
@@ -725,38 +702,36 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 封装上传记录信息
+     * 通过记录用户上传信息操作
+     *
+     * @param siteId
+     * @param shopId
+     * @param fileName
+     * @param saveFilePath
+     * @param user
+     * @return
      */
-    public void recordInfo(Integer status, String skuNoPath, String msg, String fileName) {
-        //上传成功 有些skuId~
-        switch (status) {
-            case 0:
-                userUpload.setStatus(status);
-                userUpload.setRemark(msg);
-                break;
-            case 1:
-                //存入信息报错
-                userUpload.setStatus(status);
-                userUpload.setRemark(msg);
-                break;
-            case 2:
-                userUpload.setStatus(status);
-                userUpload.setWriteFilePath(skuNoPath);
-                userUpload.setRemark(msg + "/有" + sumNoSku + "个没有sku文件");
-                //存入文件名字
-                userUpload.setName("NO" + fileName);
-                break;
-            case 3:
-                //存入信息报错
-                userUpload.setStatus(status);
-                userUpload.setRemark(msg);
-                break;
-            case 4:
-                break;
-        }
-        int id = userUploadService.addUserUploadInfo(userUpload);
-        Integer upId = Integer.valueOf(id);
-        userUpload.setId(upId.longValue());
+    public UserUpload uploadOperating(UserUpload upload, Integer siteId, Integer shopId, String fileName, String saveFilePath, UserInfo user, Integer pId, Integer status, String msg) {
+        //存入文件名字
+        upload.setName(fileName);
+        //存入上传时间
+        upload.setCreateDate(new Date().getTime());
+        //用户ID
+        upload.setUid(user.getUid());
+        //上传服务器路径
+        upload.setFilePath(saveFilePath);
+        //站点ID
+        upload.setSiteId(siteId.longValue());
+        //店铺ID
+        upload.setShopId(shopId.longValue());
+        //付款类型ID
+        upload.setpId(pId);
+        //上传状态
+        upload.setStatus(status);
+        //上传信息
+        upload.setRemark(msg);
+        userUploadService.addUserUploadInfo(upload);
+        return upload;
     }
 
     /**
@@ -771,7 +746,8 @@ public class FinancialSalesBalanceController {
         if (StringUtils.isNotEmpty(fsb.getSku())) {
             if (skuId == null) {
                 //count -- NoSku ++
-                inCreateNoSkuUp();
+                count--;
+                sumNoSku++;
                 List<String> skuListNo = new ArrayList<>();
                 for (int i = 0; i < csvReader.getColumnCount(); i++) {
                     skuListNo.add(csvReader.get(i).replace(",", "."));
@@ -819,7 +795,7 @@ public class FinancialSalesBalanceController {
         //如果数据库查询出来为空
         if (StringUtils.isEmpty(typeName)) {
             //count --
-            inCreateCountDel();
+            count--;
             List<String> typeListNo = new ArrayList<>();
             for (int i = 0; i < csvReader.getColumnCount(); i++) {
                 typeListNo.add(csvReader.get(i).replace(",", "."));
