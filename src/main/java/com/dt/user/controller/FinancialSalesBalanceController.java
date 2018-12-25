@@ -25,7 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @RestController
 @RequestMapping("/upload")
@@ -53,6 +55,12 @@ public class FinancialSalesBalanceController {
     private volatile int sumNoSku;
     //线程锁
     private Lock lock = new ReentrantLock();
+    //读写锁
+    private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    //读锁
+    Lock readLock = readWriteLock.readLock();
+    //写锁
+    Lock writeLock = readWriteLock.writeLock();
 
     @GetMapping("/downloadCommonFile")
     public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest request, HttpServletResponse response) {
@@ -67,6 +75,31 @@ public class FinancialSalesBalanceController {
         return null;
     }
 
+    /**
+     * count - (row - 1)
+     */
+//    public int delCreate(int row) {
+//        writeLock.lock();
+//        int sum;
+//        try {
+//            sum = ((count - row) - 1);
+//            return sum;
+//        } finally {
+//            writeLock.unlock();
+//        }
+//    }
+
+    /**
+     * count++
+     */
+    public void inCreate() {
+        writeLock.lock();
+        try {
+            count++;
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
     /**
      * @param file
@@ -103,9 +136,7 @@ public class FinancialSalesBalanceController {
 
     @PostMapping("/addInfo")
     @Transactional
-    public synchronized ResponseBase redFileInfo(@RequestBody UserUpload userUpload) {
-        count = 1;
-        sumNoSku = 0;
+    public ResponseBase redFileInfo(@RequestBody UserUpload userUpload) {
         int fileIndex = userUpload.getName().lastIndexOf(".");
         String typeFile = userUpload.getName().substring(fileIndex + 1);
 
@@ -151,7 +182,13 @@ public class FinancialSalesBalanceController {
      * @return
      */
     public ResponseBase switchCountry(String filePath, int row, Long sId, Long seId, Long uid, String fileName, List<String> head, Integer pId, Long id) {
-        ResponseBase responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue());
+        writeLock.lock();
+        ResponseBase responseCsv;
+        try {
+            responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue());
+        } finally {
+            writeLock.unlock();
+        }
         if (responseCsv.getCode() == 200) {
             if (skuNoIdList.size() != 0) {
                 //文件写入到服务器的地址
@@ -161,6 +198,7 @@ public class FinancialSalesBalanceController {
                 //上传成功 有些skuId 记录上传信息~
                 String msg = responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件";
                 recordInfo(2, msg, id);
+                sumNoSku = 0;
                 return BaseApiService.setResultSuccess(msg, false);
             }
             //上传成功 都有skuId~
@@ -170,6 +208,7 @@ public class FinancialSalesBalanceController {
             recordInfo(1, responseCsv.getMsg(), id);
             return BaseApiService.setResultError("error");
         }
+
     }
 
     /**
@@ -205,6 +244,7 @@ public class FinancialSalesBalanceController {
      * @return
      */
     public ResponseBase saveCsv(String filePath, int row, Long sId, Long seId, Long uid, List<String> head, Long pId) {
+        count = 1;
         // 开始时间
         Long begin = new Date().getTime();
         boolean isFlg;
@@ -220,7 +260,6 @@ public class FinancialSalesBalanceController {
             isr = new InputStreamReader(new FileInputStream(new File(filePath)), coding);
             csvReader = new CsvReader(isr);
             List<FinancialSalesBalance> fsbList = new ArrayList<>();
-            skuNoIdList = new ArrayList<>();
             List<String> headList = new ArrayList<>();
             //如果表里没有别的数据 第一行就是头
             fsb.setCreateDate(new Date().getTime());
@@ -235,6 +274,7 @@ public class FinancialSalesBalanceController {
                     return BaseApiService.setResultError("CSV文件表头信息不一致/请检查~");
                 }
             }
+            skuNoIdList = new ArrayList<>();
             while (csvReader.readRecord()) {
                 //count ++
                 count++;
@@ -320,13 +360,15 @@ public class FinancialSalesBalanceController {
                 if (number != 0) {
                     // 结束时间
                     Long end = new Date().getTime();
-                    return BaseApiService.setResultSuccess((count - row - 1) + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
+                    int sum = (count - row - 1);
+                    return BaseApiService.setResultSuccess(sum + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
                 }
             }
             return BaseApiService.setResultError("表里的skuID全部不一致 请修改~");
         } catch (Exception e) {
             return BaseApiService.setResultError("第" + count + "行信息错误,数据存入失败~");
         } finally {
+            count = 1;
             if (csvReader != null) {
                 csvReader.close();
             }
@@ -745,7 +787,7 @@ public class FinancialSalesBalanceController {
     public FinancialSalesBalance skuList(Long skuId, CsvReader csvReader, FinancialSalesBalance fsb) throws IOException {
         if (StringUtils.isNotEmpty(fsb.getSku())) {
             if (skuId == null) {
-                //count -- NoSku ++
+                //count -- NoSku ++sumNoSku
                 count--;
                 sumNoSku++;
                 List<String> skuListNo = new ArrayList<>();
@@ -791,7 +833,8 @@ public class FinancialSalesBalanceController {
      * @return
      */
     public String orderTypeName(String type, Long seId, CsvReader csvReader) throws IOException {
-        String typeName = bAmazonTypeMapper.getTypeName(seId, type);
+        String typeName = "订单";
+//                bAmazonTypeMapper.getTypeName(seId, type);
         //如果数据库查询出来为空
         if (StringUtils.isEmpty(typeName)) {
             //count --
