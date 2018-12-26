@@ -6,8 +6,9 @@ public interface BasicSalesAmazonCsvTxtXslHeaderService {
 
     /**
      * 通过seId获取 header信息
+     *
      * @param seId
      * @return
      */
-    List<String> headerList(Long seId);
+    List<String> headerList(Long seId, Integer tbId);
 }

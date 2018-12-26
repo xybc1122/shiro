@@ -4,21 +4,29 @@ import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvReader;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.dto.UserUploadDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
 import com.dt.user.model.FinancialSalesBalance;
+import com.dt.user.model.SalesAmazonAdCpr;
 import com.dt.user.model.UserInfo;
 import com.dt.user.model.UserUpload;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonCsvTxtXslHeaderService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonSkuService;
 import com.dt.user.service.FinancialSalesBalanceService;
+import com.dt.user.service.SalesAmazonAdCprService;
 import com.dt.user.service.UserUploadService;
 import com.dt.user.toos.Constants;
 import com.dt.user.utils.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +39,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 @RestController
 @RequestMapping("/upload")
-public class FinancialSalesBalanceController {
+public class UploadController {
 
     @Autowired
     private FinancialSalesBalanceService financialSalesBalanceService;
@@ -45,6 +53,8 @@ public class FinancialSalesBalanceController {
     @Autowired
     private UserUploadService userUploadService;
 
+    @Autowired
+    private SalesAmazonAdCprService cprService;
     @Autowired
     private BasicPublicAmazonTypeMapper bAmazonTypeMapper;
     //获取没有SKU的List集合
@@ -76,79 +86,89 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * count - (row - 1)
-     */
-//    public int delCreate(int row) {
-//        writeLock.lock();
-//        int sum;
-//        try {
-//            sum = ((count - row) - 1);
-//            return sum;
-//        } finally {
-//            writeLock.unlock();
-//        }
-//    }
-
-    /**
-     * count++
-     */
-    public void inCreate() {
-        writeLock.lock();
-        try {
-            count++;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * @param file
      * @param request
      * @return
      * @throws Exception
      */
     @PostMapping("/file")
-    public ResponseBase saveFileInfo(@RequestParam("file") MultipartFile file, HttpServletRequest request, @RequestParam("sId") String sId, @RequestParam("seId") String seId, @RequestParam("payId") String payId) {
+    public ResponseBase saveFileInfo(HttpServletRequest request, @RequestParam("sId") String sId, @RequestParam("seId") String seId, @RequestParam("payId") String payId) {
         String token = GetCookie.getToken(request);
         UserInfo user = JwtUtils.jwtUser(token);
         if (user == null) {
             return BaseApiService.setResultError("用户无效~");
         }
-        //指定文件存放路径
-        String saveFilePath = Constants.SAVE_FILE_PATH;
-        //String contentType = file.getContentType();//图片||文件类型
-        String fileName = file.getOriginalFilename();//图片||文件名字
-        try {
-            FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
-        } catch (Exception e) {
-            return BaseApiService.setResultError("上传失败" + e.getMessage());
-        }
-        //店铺ID
-        Integer shopId = Integer.parseInt(sId);
-        //站点ID
-        Integer siteId = Integer.parseInt(seId);
-        // pId
-        Integer pId = Integer.parseInt(payId);
+        MultipartFile file;
+        List<MultipartFile> files = ((MultipartHttpServletRequest) request)
+                .getFiles("files");
         //记录用户上传信息~
-        UserUpload upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, 0, "上传成功");
-        return BaseApiService.setResultSuccess("上传成功~", upload);
+        boolean isUpload = true;
+        UserUpload upload;
+        String msg = "上传成功~";
+        int fileCount = 0;
+        List<UserUpload> uploadList = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < files.size(); i++) {
+            file = files.get(i);
+            //指定文件存放路径
+            String saveFilePath = Constants.SAVE_FILE_PATH;
+            String contentType = file.getContentType();//图片||文件类型
+            String fileName = file.getOriginalFilename();//图片||文件名字
+            try {
+                FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
+            } catch (Exception e) {
+                isUpload = false;
+                msg = "上传失败~" + fileName;
+                fileCount++;
+                sb.append(fileName);
+            }
+            //店铺ID
+            Integer shopId = Integer.parseInt(sId);
+            //站点ID
+            Integer siteId = Integer.parseInt(seId);
+            // pId
+            Integer pId;
+            if (StringUtils.isBlank(payId)) {
+                pId = 0;
+            } else {
+                pId = Integer.parseInt(payId);
+            }
+            int status = isUpload ? 0 : 4;
+            //记录用户上传信息~
+            upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, status, msg);
+            if (isUpload) {
+                uploadList.add(upload);
+            }
+            isUpload = true;
+        }
+        String getMsg = "上传了" + files.size() + "个文件/" + "其中" + fileCount + "个文件失败~ 失败文件名字" + sb.toString() + "";
+        return BaseApiService.setResultSuccess(getMsg, uploadList);
     }
 
     @PostMapping("/addInfo")
     @Transactional
-    public ResponseBase redFileInfo(@RequestBody UserUpload userUpload) {
-        int fileIndex = userUpload.getName().lastIndexOf(".");
-        String typeFile = userUpload.getName().substring(fileIndex + 1);
-
-        switch (typeFile) {
-            case "csv":
-                return shopSelection(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getpId(), userUpload.getId());
+    public ResponseBase redFileInfo(@RequestBody UserUploadDto uploadDto) {
+        List<ResponseBase> responseBaseList = new ArrayList<>();
+        int baseNum = uploadDto.getUploadSuccessList().size();
+        ResponseBase responseBase;
+        if (baseNum > 0) {
+            for (int i = 0; i < baseNum; i++) {
+                UserUpload userUpload = uploadDto.getUploadSuccessList().get(i);
+                int fileIndex = userUpload.getName().lastIndexOf(".");
+                String typeFile = userUpload.getName().substring(fileIndex + 1);
+                if (typeFile.equals("csv")) {
+                    responseBase = shopSelection(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getpId(), userUpload.getId());
+                    responseBaseList.add(responseBase);
+                } else if (typeFile.equals("xlsx") || typeFile.equals("xls")) {
+                    responseBase = uploadCpr(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId());
+                    responseBaseList.add(responseBase);
+                }
+            }
         }
-        return null;
+        return BaseApiService.setResultSuccess(responseBaseList);
     }
 
     /**
-     * 封装店铺选择
+     * 封装csv店铺选择
      *
      * @param saveFilePath
      * @param fileName
@@ -172,7 +192,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 通用读取信息
+     * csv通用读取信息
      *
      * @param filePath 文件绝对路径
      * @param row      读取到真正的头行数
@@ -234,7 +254,41 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 数据解析
+     * 通过记录用户上传信息操作
+     *
+     * @param siteId
+     * @param shopId
+     * @param fileName
+     * @param saveFilePath
+     * @param user
+     * @return
+     */
+    public UserUpload uploadOperating(UserUpload upload, Integer siteId, Integer shopId, String fileName, String saveFilePath, UserInfo user, Integer pId, Integer status, String msg) {
+        //存入文件名字
+        upload.setName(fileName);
+        //存入上传时间
+        upload.setCreateDate(new Date().getTime());
+        //用户ID
+        upload.setUid(user.getUid());
+        //上传服务器路径
+        upload.setFilePath(saveFilePath);
+        //站点ID
+        upload.setSiteId(siteId.longValue());
+        //店铺ID
+        upload.setShopId(shopId.longValue());
+        //付款类型ID
+        upload.setpId(pId);
+        //上传状态
+        upload.setStatus(status);
+        //上传信息
+        upload.setRemark(msg);
+        userUploadService.addUserUploadInfo(upload);
+        return upload;
+    }
+
+
+    /**
+     * csv数据解析
      *
      * @param filePath
      * @param row
@@ -269,7 +323,7 @@ public class FinancialSalesBalanceController {
             if (row == 0) {
                 csvReader.readHeaders();
                 //比较头部
-                isFlg = compareHead(headList, head, seId);
+                isFlg = compareHeadCsv(headList, head, seId);
                 if (!isFlg) {
                     return BaseApiService.setResultError("CSV文件表头信息不一致/请检查~");
                 }
@@ -282,7 +336,7 @@ public class FinancialSalesBalanceController {
                 if (index == (row - 1)) {
                     csvReader.readHeaders();
                     //比较头部
-                    isFlg = compareHead(headList, head, seId);
+                    isFlg = compareHeadCsv(headList, head, seId);
                     if (!isFlg) {
                         return BaseApiService.setResultError("CSV文件表头信息不一致/请检查~");
                     }
@@ -383,7 +437,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 墨西哥存入对象
+     * csv墨西哥存入对象
      */
     public FinancialSalesBalance mexicoDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("fecha/hora"), Constants.MEXICO_TIME));
@@ -418,7 +472,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 日本存入对象
+     * csv 日本存入对象
      */
     public FinancialSalesBalance japanDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("日付/時間"), Constants.JAPAN_TIME));
@@ -454,7 +508,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 法国存入对象
+     * csv 法国存入对象
      */
     public FinancialSalesBalance franceDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getFranceTime(csvReader.get("date/heure"), Constants.FRANCE_TIME));
@@ -490,7 +544,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 西班牙存入对象
+     * csv 西班牙存入对象
      */
     public FinancialSalesBalance spainDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("fecha y hora"), Constants.SPAIN_TIME));
@@ -526,7 +580,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 意大利存入对象
+     * csv 意大利存入对象
      */
     public FinancialSalesBalance italyDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getItalyTime(csvReader.get("Data/Ora:"), Constants.ITALY_TIME));
@@ -562,7 +616,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 英国存入对象
+     * csv 英国存入对象
      */
     public FinancialSalesBalance unitedKingdomDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.UNITED_KINGDOM_TIME));
@@ -598,7 +652,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 澳洲存入对象
+     * csv 澳洲存入对象
      */
     public FinancialSalesBalance australiaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.AUSTRALIA_TIME));
@@ -635,7 +689,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 加拿大存入对象
+     * csv 加拿大存入对象
      */
     public FinancialSalesBalance canadaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.CANADA_TIME));
@@ -670,7 +724,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 美国存入对象
+     * csv 美国存入对象
      */
     public FinancialSalesBalance usaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.USA_TIME));
@@ -708,7 +762,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 德国存入对象
+     * csv 德国存入对象
      */
     public FinancialSalesBalance germanDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId, Long uid) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("Datum/Uhrzeit"), Constants.GERMAN_TIME));
@@ -744,40 +798,7 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 通过记录用户上传信息操作
-     *
-     * @param siteId
-     * @param shopId
-     * @param fileName
-     * @param saveFilePath
-     * @param user
-     * @return
-     */
-    public UserUpload uploadOperating(UserUpload upload, Integer siteId, Integer shopId, String fileName, String saveFilePath, UserInfo user, Integer pId, Integer status, String msg) {
-        //存入文件名字
-        upload.setName(fileName);
-        //存入上传时间
-        upload.setCreateDate(new Date().getTime());
-        //用户ID
-        upload.setUid(user.getUid());
-        //上传服务器路径
-        upload.setFilePath(saveFilePath);
-        //站点ID
-        upload.setSiteId(siteId.longValue());
-        //店铺ID
-        upload.setShopId(shopId.longValue());
-        //付款类型ID
-        upload.setpId(pId);
-        //上传状态
-        upload.setStatus(status);
-        //上传信息
-        upload.setRemark(msg);
-        userUploadService.addUserUploadInfo(upload);
-        return upload;
-    }
-
-    /**
-     * 获取没有SKU的文件List
+     * csv 获取没有SKU的文件List
      *
      * @param skuId
      * @param csvReader
@@ -803,14 +824,21 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 设置通用对象
+     * 财务设置通用对象
      */
     public FinancialSalesBalance setFsb(Long sId, Long seId, Long uid, Long pId) {
         return new FinancialSalesBalance(sId, seId, pId, new Date().getTime(), uid);
     }
 
     /**
-     * 设置TypeName
+     * Cpr设置通用对象
+     */
+    public SalesAmazonAdCpr setCpr(Long sId, Long seId, Long uid) {
+        return new SalesAmazonAdCpr(sId, seId, new Date().getTime(), uid);
+    }
+
+    /**
+     * csv 设置TypeName
      */
     public boolean setType(String type, Long seId, CsvReader csvReader, FinancialSalesBalance fsb) {
         String typeName;
@@ -827,14 +855,13 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 获取没有typeName的文件List
+     * csv 获取没有typeName的文件List
      *
      * @param csvReader
      * @return
      */
     public String orderTypeName(String type, Long seId, CsvReader csvReader) throws IOException {
-        String typeName = "订单";
-//                bAmazonTypeMapper.getTypeName(seId, type);
+        String typeName = bAmazonTypeMapper.getTypeName(seId, type);
         //如果数据库查询出来为空
         if (StringUtils.isEmpty(typeName)) {
             //count --
@@ -850,23 +877,169 @@ public class FinancialSalesBalanceController {
     }
 
     /**
-     * 对比表头返回
+     * csv 对比表头返回
      *
      * @param headList
      * @param seId
      * @return
      */
-    public boolean compareHead(List<String> headList, List<String> oldHeadList, Long seId) {
+    public boolean compareHeadCsv(List<String> headList, List<String> oldHeadList, Long seId) {
         //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
         for (int i = 0; i < oldHeadList.size(); i++) {
             String head = oldHeadList.get(i).replace("\"", "");
             headList.add(head);
-            System.out.println(head);
         }
         //拿到数据库里的表头信息
-        List<String> fBalanceHead = salesAmazonCsvTxtXslHeaderService.headerList(seId);
+        List<String> fBalanceHead = salesAmazonCsvTxtXslHeaderService.headerList(seId, 1);
         //如果不一致返回false
-        return ArrUtils.equalList(headList, fBalanceHead);
+        return ArrUtils.eqOrderList(headList, fBalanceHead);
     }
-    //###############################封装exe
+
+    /**
+     * 对比xls 表头信息是否一致
+     *
+     * @param totalNumber
+     * @param seId
+     * @param sheet
+     * @param row
+     * @param cell
+     * @return
+     */
+    public boolean compareHeadXls(int totalNumber, Long seId, Sheet sheet) {
+        Row row;
+        Cell cell;
+        List<String> twoList = new ArrayList<>();
+        for (int i = 0; i < 1; i++) {
+            for (int j = 0; j < totalNumber; j++) {
+                row = sheet.getRow(i);
+                cell = row.getCell(j);
+                twoList.add(cell.toString());
+            }
+        }
+        //拿到数据库里的表头信息
+        List<String> fBalanceHead = salesAmazonCsvTxtXslHeaderService.headerList(seId, 2);
+        return ArrUtils.eqOrderList(fBalanceHead, twoList);
+    }
+
+    //###############################封装xls
+
+    /**
+     * cpr 上传文件
+     *
+     * @param saveFilePath
+     * @param fileName
+     * @param siteId
+     * @param shopId
+     * @param uid
+     * @param id
+     * @return
+     */
+    public ResponseBase uploadCpr(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long id) {
+        String filePath = saveFilePath + fileName;
+        FileInputStream in;
+        File file = new File(filePath);
+        Workbook wb;
+        try {
+            in = new FileInputStream(filePath);
+            //判断文件是否是excel
+            XlsUtils.checkExcel(file);
+            //判断Excel的版本,获取Workbook
+            wb = XlsUtils.getWorkbook(in, file);
+        } catch (Exception e) {
+            return BaseApiService.setResultError("不是excel文件~");
+        }
+        Sheet sheet = wb.getSheetAt(0);
+        List<SalesAmazonAdCpr> cprList = new ArrayList<>();
+        SalesAmazonAdCpr saCpr;
+        Row row;
+        Cell cell;
+        int line = 1;
+        int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
+        if (!compareHeadXls(totalNumber, siteId, sheet)) {
+            return BaseApiService.setResultError("xlsx/xls文件表头信息不一致/请检查~");
+        }
+        count = 1;
+        try {
+            int lastRowNum = sheet.getLastRowNum(); // 获取总行数
+            // 开始时间
+            Long begin = new Date().getTime();
+            for (int i = line; i <= lastRowNum; i++) {
+                saCpr = setCpr(shopId, siteId, uid);
+                count++;
+                for (int j = 0; j < totalNumber; j++) {
+                    row = sheet.getRow(i);
+                    cell = row.getCell(j);
+                    switch (j) {
+                        case 0:
+                            saCpr.setDate(StrUtils.replaceLong(XlsUtils.getCellValue(cell).trim()));
+                            break;
+                        case 2:
+                            saCpr.setCampaignName(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 3:
+                            saCpr.setAdGroupName(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 4:
+                            saCpr.setAdvertisedSku(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 5:
+                            saCpr.setAdvertisedAsin(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 6:
+                            saCpr.setImpressions(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
+                            break;
+                        case 7:
+                            saCpr.setClicks(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
+                            break;
+                        case 10:
+                            saCpr.setTotalSpend(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 11:
+                            saCpr.setSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 13:
+                            saCpr.setRoas(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 14:
+                            saCpr.setOrdersPlaced(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 15:
+                            saCpr.setTotalUnits(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 17:
+                            saCpr.setSameskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 18:
+                            saCpr.setOtherskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 19:
+                            saCpr.setSameskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                        case 20:
+                            saCpr.setOtherskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                            break;
+                    }
+                    Long skuId = skuService.selSkuId(shopId, siteId, saCpr.getAdvertisedSku());
+                    if (skuId != null) {
+                        saCpr.setSkuId(skuId);
+                    }
+                }
+                cprList.add(saCpr);
+            }
+            if (cprList.size() > 0) {
+                int countCpr = cprService.AddSalesAmazonAdCprList(cprList);
+                if (countCpr > 0) {
+                    // 结束时间
+                    Long end = new Date().getTime();
+                    return BaseApiService.setResultSuccess(count + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
+                }
+            }
+        } catch (Exception e) {
+            return BaseApiService.setResultError("第" + count + "行信息错误,数据存入失败~");
+        } finally {
+            count = 1;
+            TryUtils.ioClose(null, null, wb, in);
+        }
+        return null;
+    }
 }

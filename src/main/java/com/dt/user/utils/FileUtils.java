@@ -1,13 +1,9 @@
 package com.dt.user.utils;
 
-import com.dt.user.model.UserInfo;
-import com.dt.user.model.UserUpload;
 import com.sun.deploy.net.URLEncoder;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Date;
 
 public class FileUtils {
     /**

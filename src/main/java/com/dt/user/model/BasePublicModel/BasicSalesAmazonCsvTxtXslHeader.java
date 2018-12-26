@@ -24,7 +24,18 @@ public class BasicSalesAmazonCsvTxtXslHeader {
      * 标识ID
      */
     private Long id;
+    /**
+     * 哪儿数据类型上传标识  1代表财务
+     */
+    private Integer tbId;
 
+    public Integer getTbId() {
+        return tbId;
+    }
+
+    public void setTbId(Integer tbId) {
+        this.tbId = tbId;
+    }
 
     public Long getSiteId() {
         return siteId;

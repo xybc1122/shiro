@@ -5,273 +5,285 @@ package com.dt.user.model;
  */
 public class SalesAmazonAdCpr {
 
-  private Long adCprId;
-  private Long date;
-  private Long shopId;
-  private Long siteId;
-  private Long skuId;
-  private String advertisedSku;
-  private String advertisedAsin;
-  private String campaignName;
-  private String adGroupName;
-  private String keyword;
-  private String matchType;
-  private Double impressions;
-  private Double clicks;
-  private Double totalSpend;
-  private Double ordersPlaced;
-  private Double sales;
-  private Double roas;
-  private Double totalUnits;
-  private Double sameskuUnitsOrdered;
-  private Double otherskuUnitsOrdered;
-  private Double sameskuUnitsSales;
-  private Double otherskuUnitsSales;
-  private String remark;
-  private Long status;
-  private Long createDate;
-  private Long createIdUser;
-  private Long modifyDate;
-  private Long modifyIdUser;
-  private Long auditDate;
-  private Long auditIdUser;
+    private Long adCprId;
+    private Long date;
+    private Long shopId;
+    private Long siteId;
+    private Long skuId;
+    private String advertisedSku;
+    private String advertisedAsin;
+    private String campaignName;
+    private String adGroupName;
+    private String keyword;
+    private String matchType;
+    private Double impressions;
+    private Double clicks;
+    private Double totalSpend;
+    private Double ordersPlaced;
+    private Double sales;
+    private Double roas;
+    private Double totalUnits;
+    private Double sameskuUnitsOrdered;
+    private Double otherskuUnitsOrdered;
+    private Double sameskuUnitsSales;
+    private Double otherskuUnitsSales;
+    private String remark;
+    private Long status;
+    private Long createDate;
+    private Long createIdUser;
+    private Long modifyDate;
+    private Long modifyIdUser;
+    private Long auditDate;
+    private Long auditIdUser;
 
-  public Long getAdCprId() {
-    return adCprId;
-  }
+    public SalesAmazonAdCpr() {
 
-  public void setAdCprId(Long adCprId) {
-    this.adCprId = adCprId;
-  }
+    }
 
-  public Long getDate() {
-    return date;
-  }
+    public SalesAmazonAdCpr(Long shopId, Long siteId, Long createDate, Long createIdUser) {
+        this.shopId = shopId;
+        this.siteId = siteId;
+        this.createDate = createDate;
+        this.createIdUser = createIdUser;
+    }
 
-  public void setDate(Long date) {
-    this.date = date;
-  }
+    public Long getAdCprId() {
+        return adCprId;
+    }
 
-  public Long getShopId() {
-    return shopId;
-  }
+    public void setAdCprId(Long adCprId) {
+        this.adCprId = adCprId;
+    }
 
-  public void setShopId(Long shopId) {
-    this.shopId = shopId;
-  }
+    public Long getDate() {
+        return date;
+    }
 
-  public Long getSiteId() {
-    return siteId;
-  }
+    public void setDate(Long date) {
+        this.date = date;
+    }
 
-  public void setSiteId(Long siteId) {
-    this.siteId = siteId;
-  }
-  public Long getSkuId() {
-    return skuId;
-  }
+    public Long getShopId() {
+        return shopId;
+    }
 
-  public void setSkuId(Long skuId) {
-    this.skuId = skuId;
-  }
+    public void setShopId(Long shopId) {
+        this.shopId = shopId;
+    }
 
-  public String getAdvertisedSku() {
-    return advertisedSku;
-  }
+    public Long getSiteId() {
+        return siteId;
+    }
 
-  public void setAdvertisedSku(String advertisedSku) {
-    this.advertisedSku = advertisedSku;
-  }
+    public void setSiteId(Long siteId) {
+        this.siteId = siteId;
+    }
 
-  public String getAdvertisedAsin() {
-    return advertisedAsin;
-  }
+    public Long getSkuId() {
+        return skuId;
+    }
 
-  public void setAdvertisedAsin(String advertisedAsin) {
-    this.advertisedAsin = advertisedAsin;
-  }
+    public void setSkuId(Long skuId) {
+        this.skuId = skuId;
+    }
 
-  public String getCampaignName() {
-    return campaignName;
-  }
+    public String getAdvertisedSku() {
+        return advertisedSku;
+    }
 
-  public void setCampaignName(String campaignName) {
-    this.campaignName = campaignName;
-  }
+    public void setAdvertisedSku(String advertisedSku) {
+        this.advertisedSku = advertisedSku;
+    }
 
-  public String getAdGroupName() {
-    return adGroupName;
-  }
+    public String getAdvertisedAsin() {
+        return advertisedAsin;
+    }
 
-  public void setAdGroupName(String adGroupName) {
-    this.adGroupName = adGroupName;
-  }
+    public void setAdvertisedAsin(String advertisedAsin) {
+        this.advertisedAsin = advertisedAsin;
+    }
 
-  public String getKeyword() {
-    return keyword;
-  }
+    public String getCampaignName() {
+        return campaignName;
+    }
 
-  public void setKeyword(String keyword) {
-    this.keyword = keyword;
-  }
+    public void setCampaignName(String campaignName) {
+        this.campaignName = campaignName;
+    }
 
-  public String getMatchType() {
-    return matchType;
-  }
+    public String getAdGroupName() {
+        return adGroupName;
+    }
 
-  public void setMatchType(String matchType) {
-    this.matchType = matchType;
-  }
+    public void setAdGroupName(String adGroupName) {
+        this.adGroupName = adGroupName;
+    }
 
-  public Double getImpressions() {
-    return impressions;
-  }
+    public String getKeyword() {
+        return keyword;
+    }
 
-  public void setImpressions(Double impressions) {
-    this.impressions = impressions;
-  }
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
-  public Double getClicks() {
-    return clicks;
-  }
+    public String getMatchType() {
+        return matchType;
+    }
 
-  public void setClicks(Double clicks) {
-    this.clicks = clicks;
-  }
+    public void setMatchType(String matchType) {
+        this.matchType = matchType;
+    }
 
-  public Double getTotalSpend() {
-    return totalSpend;
-  }
+    public Double getImpressions() {
+        return impressions;
+    }
 
-  public void setTotalSpend(Double totalSpend) {
-    this.totalSpend = totalSpend;
-  }
+    public void setImpressions(Double impressions) {
+        this.impressions = impressions;
+    }
 
-  public Double getOrdersPlaced() {
-    return ordersPlaced;
-  }
+    public Double getClicks() {
+        return clicks;
+    }
 
-  public void setOrdersPlaced(Double ordersPlaced) {
-    this.ordersPlaced = ordersPlaced;
-  }
+    public void setClicks(Double clicks) {
+        this.clicks = clicks;
+    }
 
-  public Double getSales() {
-    return sales;
-  }
+    public Double getTotalSpend() {
+        return totalSpend;
+    }
 
-  public void setSales(Double sales) {
-    this.sales = sales;
-  }
+    public void setTotalSpend(Double totalSpend) {
+        this.totalSpend = totalSpend;
+    }
 
-  public Double getRoas() {
-    return roas;
-  }
+    public Double getOrdersPlaced() {
+        return ordersPlaced;
+    }
 
-  public void setRoas(Double roas) {
-    this.roas = roas;
-  }
+    public void setOrdersPlaced(Double ordersPlaced) {
+        this.ordersPlaced = ordersPlaced;
+    }
 
-  public Double getTotalUnits() {
-    return totalUnits;
-  }
+    public Double getSales() {
+        return sales;
+    }
 
-  public void setTotalUnits(Double totalUnits) {
-    this.totalUnits = totalUnits;
-  }
+    public void setSales(Double sales) {
+        this.sales = sales;
+    }
 
-  public Double getSameskuUnitsOrdered() {
-    return sameskuUnitsOrdered;
-  }
+    public Double getRoas() {
+        return roas;
+    }
 
-  public void setSameskuUnitsOrdered(Double sameskuUnitsOrdered) {
-    this.sameskuUnitsOrdered = sameskuUnitsOrdered;
-  }
+    public void setRoas(Double roas) {
+        this.roas = roas;
+    }
 
-  public Double getOtherskuUnitsOrdered() {
-    return otherskuUnitsOrdered;
-  }
+    public Double getTotalUnits() {
+        return totalUnits;
+    }
 
-  public void setOtherskuUnitsOrdered(Double otherskuUnitsOrdered) {
-    this.otherskuUnitsOrdered = otherskuUnitsOrdered;
-  }
+    public void setTotalUnits(Double totalUnits) {
+        this.totalUnits = totalUnits;
+    }
 
-  public Double getSameskuUnitsSales() {
-    return sameskuUnitsSales;
-  }
+    public Double getSameskuUnitsOrdered() {
+        return sameskuUnitsOrdered;
+    }
 
-  public void setSameskuUnitsSales(Double sameskuUnitsSales) {
-    this.sameskuUnitsSales = sameskuUnitsSales;
-  }
+    public void setSameskuUnitsOrdered(Double sameskuUnitsOrdered) {
+        this.sameskuUnitsOrdered = sameskuUnitsOrdered;
+    }
 
-  public Double getOtherskuUnitsSales() {
-    return otherskuUnitsSales;
-  }
+    public Double getOtherskuUnitsOrdered() {
+        return otherskuUnitsOrdered;
+    }
 
-  public void setOtherskuUnitsSales(Double otherskuUnitsSales) {
-    this.otherskuUnitsSales = otherskuUnitsSales;
-  }
+    public void setOtherskuUnitsOrdered(Double otherskuUnitsOrdered) {
+        this.otherskuUnitsOrdered = otherskuUnitsOrdered;
+    }
 
-  public String getRemark() {
-    return remark;
-  }
+    public Double getSameskuUnitsSales() {
+        return sameskuUnitsSales;
+    }
 
-  public void setRemark(String remark) {
-    this.remark = remark;
-  }
+    public void setSameskuUnitsSales(Double sameskuUnitsSales) {
+        this.sameskuUnitsSales = sameskuUnitsSales;
+    }
 
-  public Long getStatus() {
-    return status;
-  }
+    public Double getOtherskuUnitsSales() {
+        return otherskuUnitsSales;
+    }
 
-  public void setStatus(Long status) {
-    this.status = status;
-  }
+    public void setOtherskuUnitsSales(Double otherskuUnitsSales) {
+        this.otherskuUnitsSales = otherskuUnitsSales;
+    }
 
-  public Long getCreateDate() {
-    return createDate;
-  }
+    public String getRemark() {
+        return remark;
+    }
 
-  public void setCreateDate(Long createDate) {
-    this.createDate = createDate;
-  }
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
 
-  public Long getCreateIdUser() {
-    return createIdUser;
-  }
+    public Long getStatus() {
+        return status;
+    }
 
-  public void setCreateIdUser(Long createIdUser) {
-    this.createIdUser = createIdUser;
-  }
+    public void setStatus(Long status) {
+        this.status = status;
+    }
 
-  public Long getModifyDate() {
-    return modifyDate;
-  }
+    public Long getCreateDate() {
+        return createDate;
+    }
 
-  public void setModifyDate(Long modifyDate) {
-    this.modifyDate = modifyDate;
-  }
+    public void setCreateDate(Long createDate) {
+        this.createDate = createDate;
+    }
 
-  public Long getModifyIdUser() {
-    return modifyIdUser;
-  }
+    public Long getCreateIdUser() {
+        return createIdUser;
+    }
 
-  public void setModifyIdUser(Long modifyIdUser) {
-    this.modifyIdUser = modifyIdUser;
-  }
+    public void setCreateIdUser(Long createIdUser) {
+        this.createIdUser = createIdUser;
+    }
 
-  public Long getAuditDate() {
-    return auditDate;
-  }
+    public Long getModifyDate() {
+        return modifyDate;
+    }
 
-  public void setAuditDate(Long auditDate) {
-    this.auditDate = auditDate;
-  }
+    public void setModifyDate(Long modifyDate) {
+        this.modifyDate = modifyDate;
+    }
 
-  public Long getAuditIdUser() {
-    return auditIdUser;
-  }
+    public Long getModifyIdUser() {
+        return modifyIdUser;
+    }
 
-  public void setAuditIdUser(Long auditIdUser) {
-    this.auditIdUser = auditIdUser;
-  }
+    public void setModifyIdUser(Long modifyIdUser) {
+        this.modifyIdUser = modifyIdUser;
+    }
+
+    public Long getAuditDate() {
+        return auditDate;
+    }
+
+    public void setAuditDate(Long auditDate) {
+        this.auditDate = auditDate;
+    }
+
+    public Long getAuditIdUser() {
+        return auditIdUser;
+    }
+
+    public void setAuditIdUser(Long auditIdUser) {
+        this.auditIdUser = auditIdUser;
+    }
 }

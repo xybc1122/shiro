@@ -16,8 +16,8 @@ public class CSVUtil {
      */
     public static String startReadLine(String filePath, Long site) {
         JSONObject readJson = new JSONObject();
-        BufferedReader reader = null;
         InputStreamReader isr = null;
+        BufferedReader reader = null;
         try {
             //设置编码格式 ,日文解码shift_jis
             String coding = site == 9L ? "shift_jis" : "GBK";
@@ -66,16 +66,7 @@ public class CSVUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-                if (isr != null) {
-                    isr.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            TryUtils.ioClose(reader, isr, null, null);
         }
         return readJson.toJSONString();
     }

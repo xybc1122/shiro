@@ -8,12 +8,12 @@ public interface Constants {
     /**
      * 文件上传存放地址
      */
-    String SAVE_FILE_PATH = "E:/csv/";
+    String SAVE_FILE_PATH = "E:/filePath/";
 
     /**
      * 文件写入存放地址
      */
-    String WRITE_SAVE_FILE_PATH = "D:/skuNo/";
+    String WRITE_SAVE_FILE_PATH = "E:/filePathSkuNo/";
     /**
      * 响应请求成功
      */
@@ -47,16 +47,16 @@ public interface Constants {
     /**
      * 德国日期转换
      */
-    String GERMAN_TIME ="dd.MM.yyyy HH:mm:ss";
+    String GERMAN_TIME = "dd.MM.yyyy HH:mm:ss";
     /**
      * 法国日期转换
      */
-    String FRANCE_TIME="dd MM. yyyy HH:mm:ss";
+    String FRANCE_TIME = "dd MM. yyyy HH:mm:ss";
 
     /**
      * 意大利日期转换
      */
-    String ITALY_TIME ="d/MM/yyyy HH.mm.ss";
+    String ITALY_TIME = "d/MM/yyyy HH.mm.ss";
 
     /**
      * 西班牙转换日期
@@ -66,10 +66,10 @@ public interface Constants {
     /**
      * 日本日期转换
      */
-    String JAPAN_TIME ="yyyy/MM/dd HH:mm:ss";
+    String JAPAN_TIME = "yyyy/MM/dd HH:mm:ss";
 
     /**
      * 墨西哥日期转换
      */
-    String MEXICO_TIME= "dd/MM/yyyy HH:mm:ss";
+    String MEXICO_TIME = "dd/MM/yyyy HH:mm:ss";
 }

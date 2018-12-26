@@ -17,6 +17,6 @@ public interface BasicSalesAmazonCsvTxtXslHeaderMapper {
     @Select("SELECT\n" +
             "  `import_templet`\n" +
             "FROM `basic_sales_amazon_csv_txt_xsl_header`\n" +
-            "WHERE site_id=#{seId} and tb_id = 1\n")
-    List<String> headerList(@Param("seId") Long seId);
+            "WHERE site_id=#{seId} and tb_id = #{tbId}\n")
+    List<String> headerList(@Param("seId") Long seId, @Param("tbId") Integer tbId);
 }
