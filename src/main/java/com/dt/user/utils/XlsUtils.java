@@ -1,20 +1,14 @@
 package com.dt.user.utils;
 
-import com.dt.user.model.SalesAmazonAdCpr;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.*;
 import java.util.List;
-import java.util.Map;
 
 public class XlsUtils {
+
 
     private static final String EXCEL_XLS = "xls";
     private static final String EXCEL_XLSX = "xlsx";
@@ -50,96 +44,12 @@ public class XlsUtils {
         }
     }
 
-
-
-//    public static void s(String filePath) {
-//        Workbook wb = null;
-//        FileInputStream in = null;
-//        in = new FileInputStream(filePath);
-//        File files = new File(filePath);
-//        wb = XlsUtils.getWorkbook(in, files);
-//    }
-//    public static void main(String[] args) throws Exception {
-//        String filePath = "E:\\DT-US-CPR-201811.xlsx";
-//        FileInputStream in = new FileInputStream(filePath);
-//        File file = new File(filePath);
-//        checkExcel(file);
-//        Workbook wb = getWorkbook(in, file);
-//        Sheet sheet = wb.getSheetAt(0);
-//        List<SalesAmazonAdCpr> b = new ArrayList<>();
-//        SalesAmazonAdCpr saCpr;
-//        Row row;
-//        Cell cell;
-//        int line = 1;
-//        int lastRowNum = sheet.getLastRowNum(); // 获取总行数
-//        int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
-//        int sId = 1;
-//        for (int i = line; i <= lastRowNum; i++) {
-//            saCpr = new SalesAmazonAdCpr();
-//            for (int j = 0; j < totalNumber; j++) {
-//                row = sheet.getRow(i);
-//                cell = row.getCell(j);
-//                switch (sId) {
-//                    case 1:
-//                        switch (j) {
-//                            case 0:
-//                                saCpr.setDate(StrUtils.replaceLong(getCellValue(cell).trim()));
-//                                break;
-//                            case 2:
-//                                saCpr.setCampaignName(StrUtils.repString(getCellValue(cell)));
-//                                break;
-//                            case 3:
-//                                saCpr.setAdGroupName(StrUtils.repString(getCellValue(cell)));
-//                                break;
-//                            case 4:
-//                                saCpr.setAdvertisedSku(StrUtils.repString(getCellValue(cell)));
-//                                break;
-//                            case 5:
-//                                saCpr.setAdvertisedAsin(StrUtils.repString(getCellValue(cell)));
-//                                break;
-//                            case 6:
-//                                saCpr.setImpressions(StrUtils.repDouble(getCellValue(cell).trim()));
-//                                break;
-//                            case 7:
-//                                saCpr.setClicks(StrUtils.repDouble(getCellValue(cell).trim()));
-//                                break;
-//                            case 10:
-//                                saCpr.setTotalSpend(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 11:
-//                                saCpr.setSales(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 13:
-//                                saCpr.setRoas(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 14:
-//                                saCpr.setOrdersPlaced(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 15:
-//                                saCpr.setTotalUnits(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 17:
-//                                saCpr.setSameskuUnitsOrdered(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 18:
-//                                saCpr.setSameskuUnitsOrdered(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 19:
-//                                saCpr.setSameskuUnitsSales(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                            case 20:
-//                                saCpr.setOtherskuUnitsSales(StrUtils.repDouble(getCellValue(cell)));
-//                                break;
-//                        }
-//                        System.out.println(saCpr);
-//                        break;
-//                }
-//            }
-//            b.add(saCpr);
-//        }
-//        System.out.println(b);
-//    }
-
+    /**
+     * 类型判断
+     *
+     * @param cell
+     * @return
+     */
     public static String getCellValue(Cell cell) {
         String str = null;
         if (cell == null) {
@@ -169,6 +79,51 @@ public class XlsUtils {
                 System.out.println();
         }
         return str;
+    }
+
+    /**
+     * 简单导入Excel
+     *
+     * @param xssList
+     * @param filePath
+     */
+    public static void outPutXssFile(List<List<String>> xssList, String filePath, String fileName) {
+        File targetFile = new File(filePath);
+        if (!targetFile.exists()) {
+            targetFile.mkdirs();
+        }
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet();
+        for (int i = 0; i < xssList.size(); i++) {
+            List<String> d = xssList.get(i);
+            Row row = sheet.createRow(i);
+            for (int j = 0; j < d.size(); j++) {
+                String p = d.get(j);
+                row.createCell(j).setCellValue(p);
+            }
+        }
+        OutputStream fileOut = null;
+        try {
+            fileOut = new FileOutputStream(filePath + "NO" + fileName);
+            wb.write(fileOut);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileOut != null) {
+                try {
+                    fileOut.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+    }
+
+
+    public static void main(String[] args) {
     }
 
 }
