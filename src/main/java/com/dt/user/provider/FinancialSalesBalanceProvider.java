@@ -27,7 +27,7 @@ public class FinancialSalesBalanceProvider {
                 "`std_product_sales`,`std_sales_original`,`std_sales_add`,`std_sales_minus`," +
                 "`std_fba`,`std_fbas`,`std_fba_original`,`lightning_deal_fee`," +
                 " `fba_inventory_fee`,`status`,`create_date`,`create_id_user`," +
-                "`modify_date`,`modify_id_user`, `audit_date`, `audit_id_user`)" +
+                "`modify_date`,`modify_id_user`, `audit_date`, `audit_id_user`,`recording_id`)" +
                 " values";
         // 保存sql后缀
         StringBuilder sb = new StringBuilder();
@@ -80,7 +80,7 @@ public class FinancialSalesBalanceProvider {
                     "" + fsb.getStdProductSales() + "," + fsb.getStdSalesOriginal() + "," + fsb.getStdSalesAdd() + "," + fsb.getStdSalesMinus() + "," +
                     fsb.getStdFba() + "," + fsb.getStdFbas() + "," + fsb.getStdFbaOriginal() + "," + fsb.getLightningDealFee() + "," +
                     "" + fsb.getFbaInventoryFee() + "," + fsb.getStatus() + "," + fsb.getCreateDate() + "," + fsb.getCreateIdUser() + "," +
-                    "" + fsb.getModifyDate() + "," + fsb.getModifyIdUser() + "," + fsb.getAuditDate() + "," + fsb.getAuditIdUser() + "),")
+                    "" + fsb.getModifyDate() + "," + fsb.getModifyIdUser() + "," + fsb.getAuditDate() + "," + fsb.getAuditIdUser() +","+ fsb.getRecordingId() + "),")
             ;
         }
         String sql = sb.toString().substring(0, sb.length() - 1);

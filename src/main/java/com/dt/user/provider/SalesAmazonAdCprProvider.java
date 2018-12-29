@@ -17,7 +17,7 @@ public class SalesAmazonAdCprProvider {
                 "ad_group_name,keyword,match_type,impressions,clicks,total_spend,orders_placed,sales,roas," +
                 "total_units,samesku_units_ordered,othersku_units_ordered,samesku_units_sales,othersku_units_sales," +
                 "remark,`status`,create_date," +
-                "create_id_user,modify_date,modify_id_user,audit_date,audit_id_user) values");
+                "create_id_user,modify_date,modify_id_user,audit_date,audit_id_user,`recording_id`) values");
         for (SalesAmazonAdCpr cpr : cprList) {
             sb.append("(" + cpr.getDate() + "," + cpr.getShopId() + "," + cpr.getSiteId() + "");
             sb.append(",");
@@ -46,7 +46,7 @@ public class SalesAmazonAdCprProvider {
             sb.append(cpr.getStatus() + "," + cpr.getCreateDate() + ","
                     + cpr.getCreateIdUser() + "," + cpr.getModifyDate() + ","
                     + cpr.getModifyIdUser() + "," + cpr.getAuditDate() + ","
-                    + cpr.getAuditIdUser() + "),");
+                    + cpr.getAuditIdUser() + "," + cpr.getRecordingId() + "),");
         }
         String sql = sb.toString().substring(0, sb.length() - 1);
         return sql;

@@ -63,8 +63,6 @@ public class UploadController {
     private volatile int count;
     //没有sku有几行存入
     private volatile int sumNoSku;
-    //线程锁
-    private Lock lock = new ReentrantLock();
     //读写锁
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     //读锁
@@ -144,6 +142,12 @@ public class UploadController {
         return BaseApiService.setResultSuccess(getMsg, uploadList);
     }
 
+    /**
+     * 数据处理接口
+     *
+     * @param uploadDto
+     * @return
+     */
     @PostMapping("/addInfo")
     @Transactional
     public ResponseBase redFileInfo(@RequestBody UserUploadDto uploadDto) {
@@ -159,11 +163,9 @@ public class UploadController {
                     responseBase = shopSelection(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getpId(), userUpload.getId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("xlsx") || typeFile.equals("xls")) {
-                    //读锁
-                    writeLock.lock();
                     try {
-                        responseBase = uploadCpr(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId());
-                        responseBaseList.add(xlsxSaveUserUploadInfo(responseBase, userUpload.getId(),userUpload.getName()));
+                        responseBase = uploadAd(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), 2);
+                        responseBaseList.add(xlsxSaveUserUploadInfo(responseBase, userUpload.getId(), userUpload.getName()));
                     } finally {
                         writeLock.unlock();
                     }
@@ -229,18 +231,18 @@ public class UploadController {
     /**
      * csv通用读取信息
      *
-     * @param filePath 文件绝对路径
-     * @param row      读取到真正的头行数
-     * @param sId      店铺ID
-     * @param seId     站点ID
-     * @param head     表头信息
+     * @param filePath    文件绝对路径
+     * @param row         读取到真正的头行数
+     * @param sId         店铺ID
+     * @param seId        站点ID
+     * @param head        表头信息
+     * @param recordingId 记录表里面的ID
      * @return
      */
-    public ResponseBase switchCountry(String filePath, int row, Long sId, Long seId, Long uid, String fileName, List<String> head, Integer pId, Long id) {
-        writeLock.lock();
+    public ResponseBase switchCountry(String filePath, int row, Long sId, Long seId, Long uid, String fileName, List<String> head, Integer pId, Long recordingId) {
         ResponseBase responseCsv;
         try {
-            responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue());
+            responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue(), recordingId);
         } finally {
             writeLock.unlock();
         }
@@ -252,7 +254,7 @@ public class UploadController {
                 CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
                 //上传成功 有些skuId 记录上传信息~
                 String msg = responseCsv.getMsg() + "----有" + sumNoSku + "个没有sku文件/数据库没有typeName";
-                recordInfo(2, msg, id);
+                recordInfo(2, msg, recordingId);
                 sumNoSku = 0;
                 return BaseApiService.setResultSuccess(msg, false);
             }
@@ -260,7 +262,7 @@ public class UploadController {
             return BaseApiService.setResultSuccess(responseCsv.getMsg());
         } else {
             //存入信息报错
-            recordInfo(1, responseCsv.getMsg(), id);
+            recordInfo(1, responseCsv.getMsg(), recordingId);
             return BaseApiService.setResultError("error");
         }
 
@@ -332,7 +334,7 @@ public class UploadController {
      * @param uid
      * @return
      */
-    public ResponseBase saveCsv(String filePath, int row, Long sId, Long seId, Long uid, List<String> headArr, Long pId) {
+    public ResponseBase saveCsv(String filePath, int row, Long sId, Long seId, Long uid, List<String> headArr, Long pId, Long recordingId) {
         count = 1;
         // 开始时间
         Long begin = new Date().getTime();
@@ -356,6 +358,8 @@ public class UploadController {
                     return comparisonBase;
                 }
             }
+            //读锁
+            writeLock.lock();
             skuNoIdList = new ArrayList<>();
             while (csvReader.readRecord()) {
                 //count ++
@@ -370,65 +374,65 @@ public class UploadController {
                 //如果正确 通过站点ID 判断 存入 哪个站点数据
                 //美国站
                 if (index >= row && seId == 1L) {
-                    fb = usaDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = usaDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //加拿大站
                 else if (index >= row && seId == 2L) {
-                    fb = canadaDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = canadaDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }   //澳大利亚站
                 else if (index >= row && seId == 3L) {
-                    fb = australiaDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = australiaDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //英国站
                 else if (index >= row && seId == 4L) {
-                    fb = unitedKingdomDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = unitedKingdomDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //德国站
                 else if (index >= row && seId == 5L) {
-                    fb = germanDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = germanDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //法国
                 else if (index >= row && seId == 6L) {
-                    fb = franceDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = franceDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 } //意大利
                 else if (index >= row && seId == 7L) {
-                    fb = italyDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = italyDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }  //西班牙
                 else if (index >= row && seId == 8L) {
-                    fb = spainDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = spainDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 } //日本
                 else if (index >= row && seId == 9L) {
-                    fb = japanDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = japanDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 } //墨西哥
                 else if (index >= row && seId == 10L) {
-                    fb = mexicoDepositObject(setFsb(sId, seId, uid, pId), csvReader, sId, seId, uid);
+                    fb = mexicoDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId, uid);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
@@ -900,15 +904,15 @@ public class UploadController {
     /**
      * 财务设置通用对象
      */
-    public FinancialSalesBalance setFsb(Long sId, Long seId, Long uid, Long pId) {
-        return new FinancialSalesBalance(sId, seId, pId, new Date().getTime(), uid);
+    public FinancialSalesBalance setFsb(Long sId, Long seId, Long uid, Long pId, Long recordingId) {
+        return new FinancialSalesBalance(sId, seId, pId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * Cpr设置通用对象
      */
-    public SalesAmazonAdCpr setCpr(Long sId, Long seId, Long uid) {
-        return new SalesAmazonAdCpr(sId, seId, new Date().getTime(), uid);
+    public SalesAmazonAdCpr setCpr(Long sId, Long seId, Long uid, Long recordingId) {
+        return new SalesAmazonAdCpr(sId, seId, new Date().getTime(), uid, recordingId);
     }
 
     /**
@@ -954,13 +958,12 @@ public class UploadController {
      * csv 对比表头返回
      *
      * @param headList
-     * @param seId
      * @return
      */
     public boolean compareHeadCsv(List<String> headList, List<String> oldHeadList, List<String> fBalanceHead) {
         //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
         for (int i = 0; i < oldHeadList.size(); i++) {
-            String head = oldHeadList.get(i).replace("\"", "");
+            String head = oldHeadList.get(i).replace("\"", "").trim();
             headList.add(head);
         }
         //如果不一致返回false
@@ -986,7 +989,8 @@ public class UploadController {
             for (int j = 0; j < totalNumber; j++) {
                 row = sheet.getRow(i);
                 cell = row.getCell(j);
-                twoList.add(cell.toString());
+                twoList.add(cell.toString().trim());
+                System.out.println(cell.toString().trim());
             }
         }
         return ArrUtils.eqOrderList(fBalanceHead, twoList);
@@ -995,128 +999,198 @@ public class UploadController {
     //###############################封装xls
 
     /**
-     * cpr 上传文件
+     * 广告上传
      *
      * @param saveFilePath
      * @param fileName
      * @param siteId
      * @param shopId
      * @param uid
-     * @param id
+     * @param recordingId
+     * @param tbId
      * @return
      */
-    public ResponseBase uploadCpr(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long id) {
+    public ResponseBase uploadAd(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long recordingId, Integer tbId) {
         count = 1;
         String filePath = saveFilePath + fileName;
         FileInputStream in;
-        File file = new File(filePath);
-        Workbook wb;
         try {
             in = new FileInputStream(filePath);
-            //判断文件是否是excel
-            XlsUtils.checkExcel(file);
-            //判断Excel的版本,获取Workbook
-            wb = XlsUtils.getWorkbook(in, file);
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
+            return BaseApiService.setResultError("FileInputStream 异常~");
+        }
+        File file = new File(filePath);
+        Workbook wb;
+        //判断文件类型
+        wb = fileType(in, file);
+        if (wb == null) {
             return BaseApiService.setResultError("不是excel文件~");
         }
         Sheet sheet = wb.getSheetAt(0);
-        List<SalesAmazonAdCpr> cprList = new ArrayList<>();
-        SalesAmazonAdCpr saCpr;
-        SalesAmazonAdCpr saCprNoSku;
-        Row row = null;
-        Cell cell;
         int line = 1;
         int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
         //拿到数据库的表头 进行校验
         List<String> head = getHeadInfo(siteId, 2);
-        if (!compareHeadXls(totalNumber, sheet, head)) {
-            //更新
-            String msg = "xlsx/xls文件表头信息不一致/请检查~";
-            return BaseApiService.setResultError(msg);
+        //对比表头
+        if (contrastHeadMethod(totalNumber, sheet, head) != null) {
+            return contrastHeadMethod(totalNumber, sheet, head);
         }
-        skuNoIdList = new ArrayList<>();
+        int lastRowNum = sheet.getLastRowNum(); // 获取总行数
         try {
-            int lastRowNum = sheet.getLastRowNum(); // 获取总行数
-            // 开始时间
-            Long begin = new Date().getTime();
-            for (int i = line; i <= lastRowNum; i++) {
-                saCpr = setCpr(shopId, siteId, uid);
-                count++;
-                for (int j = 0; j < totalNumber; j++) {
-                    row = sheet.getRow(i);
-                    cell = row.getCell(j);
-                    switch (j) {
-                        case 0:
-                            saCpr.setDate(StrUtils.replaceLong(XlsUtils.getCellValue(cell).trim()));
-                            break;
-                        case 2:
-                            saCpr.setCampaignName(StrUtils.repString(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 3:
-                            saCpr.setAdGroupName(StrUtils.repString(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 4:
-                            saCpr.setAdvertisedSku(StrUtils.repString(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 5:
-                            saCpr.setAdvertisedAsin(StrUtils.repString(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 6:
-                            saCpr.setImpressions(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
-                            break;
-                        case 7:
-                            saCpr.setClicks(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
-                            break;
-                        case 10:
-                            saCpr.setTotalSpend(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 11:
-                            saCpr.setSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 13:
-                            saCpr.setRoas(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 14:
-                            saCpr.setOrdersPlaced(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 15:
-                            saCpr.setTotalUnits(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 17:
-                            saCpr.setSameskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 18:
-                            saCpr.setOtherskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 19:
-                            saCpr.setSameskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                        case 20:
-                            saCpr.setOtherskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
-                            break;
-                    }
-                }
-                Long skuId = skuService.selSkuId(shopId, siteId, saCpr.getAdvertisedSku());
-                //设置没有SKU的信息导入
-                saCprNoSku = cprSkuList(skuId, saCpr, row, totalNumber, head);
-                if (saCprNoSku != null) {
-                    cprList.add(saCprNoSku);
-                }
-            }
-            if (cprList.size() > 0) {
-                int countCpr = cprService.AddSalesAmazonAdCprList(cprList);
-                if (countCpr > 0) {
-                    // 结束时间
-                    Long end = new Date().getTime();
-                    return BaseApiService.setResultSuccess(count - 1 + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
-                }
+            switch (tbId) {
+                //Cpr
+                case 2:
+                    return readTableCpr(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet, tbId, head);
+                // STR
+                    case 3:
             }
         } catch (Exception e) {
             return BaseApiService.setResultError("第" + count + "行信息错误,数据存入失败~");
         } finally {
             count = 1;
             TryUtils.ioClose(null, null, wb, in);
+        }
+        return null;
+    }
+
+    /**
+     * 通用读取xls 信息
+     *
+     * @param line
+     * @param lastRowNum
+     * @param shopId
+     * @param siteId
+     * @param uid
+     * @param recordingId
+     * @param totalNumber
+     * @param sheet
+     * @return
+     */
+    public ResponseBase readTableCpr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
+                                     int totalNumber, Sheet sheet, int tbId, List<String> head) {
+        List<SalesAmazonAdCpr> cprList = null;
+        SalesAmazonAdCpr saCpr;
+        Row row = null;
+        Cell cell;
+        // 开始时间
+        Long begin = new Date().getTime();
+        //写锁
+        writeLock.lock();
+        skuNoIdList = new ArrayList<>();
+        if (tbId == 2) {
+            cprList = new ArrayList<>();
+        }
+        for (int i = line; i <= lastRowNum; i++) {
+            count++;
+            saCpr = setCpr(shopId, siteId, uid, recordingId);
+            for (int j = 0; j < totalNumber; j++) {
+                row = sheet.getRow(i);
+                cell = row.getCell(j);
+                saCpr = setCprPojo(j, saCpr, cell);
+            }
+            Long skuId = skuService.selSkuId(shopId, siteId, saCpr.getAdvertisedSku());
+            //设置没有SKU的信息导入
+            if (cprSkuList(skuId, saCpr, row, totalNumber, head) != null) {
+                cprList.add(cprSkuList(skuId, saCpr, row, totalNumber, head));
+            }
+        }
+        if (cprList.size() > 0) {
+            int countCpr = cprService.AddSalesAmazonAdCprList(cprList);
+            if (countCpr > 0) {
+                // 结束时间
+                Long end = new Date().getTime();
+                return BaseApiService.setResultSuccess(count - 1 + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
+            }
+        }
+        return null;
+    }
+
+    /**
+     * set pojo cpr
+     */
+    public SalesAmazonAdCpr setCprPojo(int j, SalesAmazonAdCpr saCpr, Cell cell) {
+        switch (j) {
+            case 0:
+                saCpr.setDate(StrUtils.replaceLong(XlsUtils.getCellValue(cell).trim()));
+                break;
+            case 2:
+                saCpr.setCampaignName(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                break;
+            case 3:
+                saCpr.setAdGroupName(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                break;
+            case 4:
+                saCpr.setAdvertisedSku(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                break;
+            case 5:
+                saCpr.setAdvertisedAsin(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                break;
+            case 6:
+                saCpr.setImpressions(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
+                break;
+            case 7:
+                saCpr.setClicks(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
+                break;
+            case 10:
+                saCpr.setTotalSpend(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 11:
+                saCpr.setSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 13:
+                saCpr.setRoas(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 14:
+                saCpr.setOrdersPlaced(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 15:
+                saCpr.setTotalUnits(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 17:
+                saCpr.setSameskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 18:
+                saCpr.setOtherskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 19:
+                saCpr.setSameskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+            case 20:
+                saCpr.setOtherskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                break;
+        }
+        return saCpr;
+    }
+
+
+    /**
+     * 判断文件类型
+     */
+    public Workbook fileType(FileInputStream in, File file) {
+        try {
+            //判断文件是否是excel
+            XlsUtils.checkExcel(file);
+            //判断Excel的版本,获取Workbook
+            return XlsUtils.getWorkbook(in, file);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * 比较头部 xls
+     *
+     * @param totalNumber
+     * @param sheet
+     * @param head
+     * @return
+     */
+    public ResponseBase contrastHeadMethod(int totalNumber, Sheet sheet, List<String> head) {
+        //如果对比正常 返回 Null
+        if (!compareHeadXls(totalNumber, sheet, head)) {
+            //更新
+            String msg = "xlsx/xls文件表头信息不一致/请检查~";
+            return BaseApiService.setResultError(msg);
         }
         return null;
     }

@@ -43,6 +43,13 @@ public class UserUpload {
      */
     private Integer pId;
 
+    /**
+     * 记录表ID
+     *
+     * @return
+     */
+    private Long recordingId;
+
     public Integer getpId() {
         return pId;
     }
