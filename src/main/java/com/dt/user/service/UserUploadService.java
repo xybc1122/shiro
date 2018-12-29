@@ -5,7 +5,6 @@ import com.dt.user.model.UserUpload;
 import java.util.List;
 
 public interface UserUploadService {
-
     /**
      * 用户上传记录表
      *

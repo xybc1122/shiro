@@ -1,7 +1,27 @@
 package com.dt.user.model;
 
+import java.util.List;
+
 public class UserUpload {
 
+    public UserUpload() {
+
+    }
+
+//    public static UserUpload getInstance() {
+//        //判断实例是否为空，为空则实例化
+//        if (null == userUpload) {
+//            synchronized (UserUpload.class) {
+//                if (null == userUpload) {
+//                    userUpload = new UserUpload();
+//                }
+//            }
+//        }
+//        //否则直接返回
+//        return userUpload;
+//    }
+
+    private List<UserUpload> uploadSuccessList;
     private Long id;
     private Long uid;
     /**
@@ -42,6 +62,26 @@ public class UserUpload {
      * payId
      */
     private Integer pId;
+
+    /**
+     * tbId 通过这ID获取是哪一个菜单的上传
+     */
+    private Integer tbId;
+
+    /**
+     * 记录表ID
+     *
+     * @return
+     */
+    private Long recordingId;
+
+    public List<UserUpload> getUploadSuccessList() {
+        return uploadSuccessList;
+    }
+
+    public void setUploadSuccessList(List<UserUpload> uploadSuccessList) {
+        this.uploadSuccessList = uploadSuccessList;
+    }
 
     public Integer getpId() {
         return pId;
@@ -145,5 +185,43 @@ public class UserUpload {
 
     public void setSiteId(Long siteId) {
         this.siteId = siteId;
+    }
+
+    public Integer getTbId() {
+        return tbId;
+    }
+
+    public void setTbId(Integer tbId) {
+        this.tbId = tbId;
+    }
+
+    public Long getRecordingId() {
+        return recordingId;
+    }
+
+    public void setRecordingId(Long recordingId) {
+        this.recordingId = recordingId;
+    }
+
+    @Override
+    public String toString() {
+        return "UserUpload{" +
+                "uploadSuccessList=" + uploadSuccessList +
+                ", id=" + id +
+                ", uid=" + uid +
+                ", name='" + name + '\'' +
+                ", createDate=" + createDate +
+                ", delDate=" + delDate +
+                ", delDateId=" + delDateId +
+                ", filePath='" + filePath + '\'' +
+                ", writeFilePath='" + writeFilePath + '\'' +
+                ", remark='" + remark + '\'' +
+                ", status=" + status +
+                ", shopId=" + shopId +
+                ", siteId=" + siteId +
+                ", pId=" + pId +
+                ", tbId=" + tbId +
+                ", recordingId=" + recordingId +
+                '}';
     }
 }

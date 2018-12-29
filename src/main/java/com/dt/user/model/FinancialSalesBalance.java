@@ -1,7 +1,7 @@
 package com.dt.user.model;
 
 /**
- * 德国数据表
+ * 德国存入数据表
  */
 public class FinancialSalesBalance {
 
@@ -62,17 +62,27 @@ public class FinancialSalesBalance {
     private Long modifyIdUser;
     private Long auditDate;
     private Long auditIdUser;
+    private Long recordingId;
 
     public FinancialSalesBalance() {
 
     }
 
-    public FinancialSalesBalance(Long shopId, Long siteId, Long paymentTypeId, Long createDate, Long createIdUser) {
+    public FinancialSalesBalance(Long shopId, Long siteId, Long paymentTypeId, Long createDate, Long createIdUser, Long recordingId) {
         this.shopId = shopId;
         this.siteId = siteId;
         this.paymentTypeId = paymentTypeId;
         this.createDate = createDate;
         this.createIdUser = createIdUser;
+        this.recordingId = recordingId;
+    }
+
+    public Long getRecordingId() {
+        return recordingId;
+    }
+
+    public void setRecordingId(Long recordingId) {
+        this.recordingId = recordingId;
     }
 
     public Long getBalanceId() {
