@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -55,8 +56,8 @@ public class UploadController {
     private SalesAmazonAdCprService cprService;
     @Autowired
     private BasicPublicAmazonTypeMapper bAmazonTypeMapper;
-    //获取没有SKU的List集合
-    private volatile List<List<String>> skuNoIdList;
+    //获取没有SKU的List集合 并发List 容器
+    private CopyOnWriteArrayList skuNoIdList;
     //行数 /报错行数
     ThreadLocal<Integer> count = ThreadLocal.withInitial(() -> 1);
     //没有sku有几行存入
@@ -153,7 +154,7 @@ public class UploadController {
         int baseNum = upload.getUploadSuccessList().size();
         ResponseBase responseBase;
         if (baseNum > 0) {
-            for (int i = 0; i < baseNum; i++) {
+            for (int i = 0; i < a.size(); i++) {
                 UserUpload userUpload = upload.getUploadSuccessList().get(i);
                 int fileIndex = userUpload.getName().lastIndexOf(".");
                 String typeFile = userUpload.getName().substring(fileIndex + 1);
@@ -313,9 +314,7 @@ public class UploadController {
                 upload.setStatus(status);
             }
             upload.setRemark(msg);
-            System.out.println(upload);
-            int count = userUploadService.upUploadInfo(upload);
-            System.out.println(count);
+            userUploadService.upUploadInfo(upload);
         }
         return upload;
 
@@ -390,7 +389,7 @@ public class UploadController {
                 }
             }
             writeLock.lock();
-            skuNoIdList = Collections.synchronizedList(new ArrayList<>());
+            skuNoIdList = new CopyOnWriteArrayList();
             while (csvReader.readRecord()) {
                 //count ++
                 inCreateCount();
@@ -1067,7 +1066,7 @@ public class UploadController {
         }
         int lastRowNum = sheet.getLastRowNum(); // 获取总行数
         writeLock.lock();
-        skuNoIdList = Collections.synchronizedList(new ArrayList<>());
+        skuNoIdList = new CopyOnWriteArrayList();
         try {
             switch (tbId) {
                 //Cpr
