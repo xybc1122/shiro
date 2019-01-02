@@ -5,14 +5,12 @@ import com.csvreader.CsvReader;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
-import com.dt.user.model.FinancialSalesBalance;
-import com.dt.user.model.SalesAmazonAdCpr;
-import com.dt.user.model.UserInfo;
-import com.dt.user.model.UserUpload;
+import com.dt.user.model.*;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonCsvTxtXslHeaderService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonSkuService;
 import com.dt.user.service.FinancialSalesBalanceService;
 import com.dt.user.service.SalesAmazonAdCprService;
+import com.dt.user.service.SalesAmazonAdStrService;
 import com.dt.user.service.UserUploadService;
 import com.dt.user.toos.Constants;
 import com.dt.user.utils.*;
@@ -31,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -54,9 +53,11 @@ public class UploadController {
     @Autowired
     private SalesAmazonAdCprService cprService;
     @Autowired
-    private BasicPublicAmazonTypeMapper bAmazonTypeMapper;
-    //获取没有SKU的List集合
-    private volatile List<List<String>> skuNoIdList;
+    private SalesAmazonAdStrService strService;
+    @Autowired
+    private BasicPublicAmazonTypeMapper typeMapper;
+    //获取没有SKU的List集合 并发List 容器
+    private CopyOnWriteArrayList skuNoIdList;
     //行数 /报错行数
     ThreadLocal<Integer> count = ThreadLocal.withInitial(() -> 1);
     //没有sku有几行存入
@@ -161,24 +162,23 @@ public class UploadController {
                     responseBase = shopSelection(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getpId(), userUpload.getId(), userUpload.getTbId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("xlsx") || typeFile.equals("xls")) {
-                    try {
-                        responseBase = uploadAd(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
-                        responseBaseList.add(xlsxSaveUserUploadInfo(responseBase, userUpload.getId(), userUpload.getName()));
-                    } finally {
-                        writeLock.unlock();
-                    }
+                    responseBase = uploadAd(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
+                    responseBaseList.add(responseBase);
                 }
             }
         }
         return BaseApiService.setResultSuccess(responseBaseList);
     }
 
+
+    //并发++
     public void inCreateSumNoSku() {
         Integer sumSku = sumNoSku.get();
         sumSku++;
         sumNoSku.set(sumSku);
     }
 
+    //并发--
     public void delSumNoSku() {
         Integer delSumSku = sumNoSku.get();
         delSumSku--;
@@ -198,6 +198,37 @@ public class UploadController {
     }
 
     /**
+     * 记录csv文件 的上传信息
+     *
+     * @param responseCsv
+     * @param recordingId
+     * @return
+     */
+    public ResponseBase csvSaveUserUploadInfo(ResponseBase responseCsv, Long recordingId, String fileName, List<String> head) {
+        UserUpload reUpload;
+        if (responseCsv.getCode() == 200) {
+            if (skuNoIdList.size() != 0) {
+                //文件写入到服务器的地址
+                String skuNoPath = Constants.WRITE_SAVE_FILE_PATH;
+                //写入CSV文件到本地
+                CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
+                //上传成功 有些skuId 记录上传信息~
+                String msg = responseCsv.getMsg() + "----有" + sumNoSku.get() + "个没有sku文件/数据库没有typeName";
+                reUpload = recordInfo(2, msg, recordingId, fileName);
+                sumNoSku.set(0);
+                return BaseApiService.setResultSuccess(msg, reUpload);
+            }
+            //上传成功 都有skuId~
+            reUpload = recordInfo(0, responseCsv.getMsg(), recordingId, fileName);
+            return BaseApiService.setResultSuccess(responseCsv.getMsg(), reUpload);
+        } else {
+            //存入信息报错
+            reUpload = recordInfo(1, responseCsv.getMsg(), recordingId, fileName);
+            return BaseApiService.setResultError("error", reUpload);
+        }
+    }
+
+    /**
      * 记录xlsx文件 的上传信息
      *
      * @param responseBase
@@ -205,6 +236,7 @@ public class UploadController {
      * @return
      */
     public ResponseBase xlsxSaveUserUploadInfo(ResponseBase responseBase, Long id, String fileName) {
+        UserUpload upload;
         if (responseBase.getCode() == 200) {
             if (skuNoIdList.size() != 0) {
                 //文件写入到服务器的地址
@@ -213,16 +245,16 @@ public class UploadController {
                 XlsUtils.outPutXssFile(skuNoIdList, skuNoPath, fileName);
                 //上传成功 有些skuId 记录上传信息~
                 String msg = responseBase.getMsg() + "----有" + sumNoSku.get() + "个没有sku文件/数据库没有typeName";
-                recordInfo(2, msg, id, fileName);
+                upload = recordInfo(2, msg, id, fileName);
                 sumNoSku.set(0);
-                return BaseApiService.setResultSuccess(msg, false);
+                return BaseApiService.setResultSuccess(msg, upload);
             }
             //上传成功 都有skuId~
             return BaseApiService.setResultSuccess(responseBase.getMsg());
         } else {
             //存入信息报错
-            recordInfo(1, responseBase.getMsg(), id, fileName);
-            return BaseApiService.setResultError("error");
+            upload = recordInfo(1, responseBase.getMsg(), id, fileName);
+            return BaseApiService.setResultError("error", upload);
         }
     }
 
@@ -247,49 +279,28 @@ public class UploadController {
             return BaseApiService.setResultError(msg, recordInfo(3, msg, id, fileName));
         }
         List<String> oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
-        return switchCountry(filePath, row, shopId, siteId, uid, fileName, oldHeadList, pId, id, tbId);
-    }
-
-    /**
-     * csv通用读取信息
-     *
-     * @param filePath    文件绝对路径
-     * @param row         读取到真正的头行数
-     * @param sId         店铺ID
-     * @param seId        站点ID
-     * @param head        表头信息
-     * @param recordingId 记录表里面的ID
-     * @return
-     */
-    public ResponseBase switchCountry(String filePath, int row, Long sId, Long seId, Long uid, String fileName, List<String> head, Integer pId, Long recordingId, Integer tbId) {
-        ResponseBase responseCsv;
+        ResponseBase responseCsv = null;
+        writeLock.lock();
+        skuNoIdList = new CopyOnWriteArrayList();
         try {
-            responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue(), recordingId, tbId);
-            UserUpload reUpload;
-            if (responseCsv.getCode() == 200) {
-                if (skuNoIdList.size() != 0) {
-                    //文件写入到服务器的地址
-                    String skuNoPath = Constants.WRITE_SAVE_FILE_PATH;
-                    //写入CSV文件到本地
-                    CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
-                    //上传成功 有些skuId 记录上传信息~
-                    String msg = responseCsv.getMsg() + "----有" + sumNoSku.get() + "个没有sku文件/数据库没有typeName";
-                    reUpload = recordInfo(2, msg, recordingId, fileName);
-                    sumNoSku.set(0);
-                    return BaseApiService.setResultSuccess(msg, reUpload);
-                }
-                //上传成功 都有skuId~
-                reUpload = recordInfo(0, responseCsv.getMsg(), recordingId, fileName);
-                return BaseApiService.setResultSuccess(responseCsv.getMsg(), reUpload);
-            } else {
-                //存入信息报错
-                reUpload = recordInfo(1, responseCsv.getMsg(), recordingId, fileName);
-                return BaseApiService.setResultError("error", reUpload);
+            switch (tbId) {
+                //财务CSV
+                case 85:
+                    responseCsv = saveCsvFsb(filePath, row, shopId, siteId, uid, oldHeadList, pId.longValue(), id, tbId);
+                    break;
+                case 100:
+                    break;
+
             }
+            return csvSaveUserUploadInfo(responseCsv, id, fileName, oldHeadList);
+        } catch (Exception e) {
+            responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
+            responseCsv = csvSaveUserUploadInfo(responseCsv, id, fileName, null);
+            return responseCsv;
         } finally {
+            count.set(1);
             writeLock.unlock();
         }
-
     }
 
     /**
@@ -301,6 +312,7 @@ public class UploadController {
     public UserUpload recordInfo(Integer status, String msg, Long id, String fileName) {
         UserUpload upload = new UserUpload();
         upload.setId(id);
+        upload.setUid(new Date().getTime());
         upload.setName(fileName);
         if (status != 0) {
             if (status == 3) {
@@ -313,9 +325,7 @@ public class UploadController {
                 upload.setStatus(status);
             }
             upload.setRemark(msg);
-            System.out.println(upload);
-            int count = userUploadService.upUploadInfo(upload);
-            System.out.println(count);
+            userUploadService.upUploadInfo(upload);
         }
         return upload;
 
@@ -366,22 +376,22 @@ public class UploadController {
      * @param uid
      * @return
      */
-    public ResponseBase saveCsv(String filePath, int row, Long sId, Long seId, Long uid, List<String> headArr, Long pId, Long recordingId, Integer tbId) {
+    public ResponseBase saveCsvFsb(String filePath, int row, Long sId, Long seId, Long uid, List<String> headArr, Long pId, Long recordingId, Integer tbId) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
-        InputStreamReader isr = null;
+        InputStreamReader isr;
         // 创建CSV读对象
-        CsvReader csvReader = null;
+        CsvReader csvReader;
         int index = 0;
         FinancialSalesBalance fb;
+        //设置编码格式 ,日文解码shift_jis
+        String coding = seId == 9 ? "shift_jis" : "GBK";
+        isr = new InputStreamReader(new FileInputStream(new File(filePath)), coding);
+        csvReader = new CsvReader(isr);
+        List<FinancialSalesBalance> fsbList = new ArrayList<>();
+        List<String> headList = new ArrayList<>();
+        ResponseBase comparisonBase;
         try {
-            //设置编码格式 ,日文解码shift_jis
-            String coding = seId == 9 ? "shift_jis" : "GBK";
-            isr = new InputStreamReader(new FileInputStream(new File(filePath)), coding);
-            csvReader = new CsvReader(isr);
-            List<FinancialSalesBalance> fsbList = new ArrayList<>();
-            List<String> headList = new ArrayList<>();
-            ResponseBase comparisonBase;
             //row==0 第一行就是头
             if (row == 0) {
                 comparisonBase = comparison(csvReader, headList, headArr, seId, tbId);
@@ -389,8 +399,6 @@ public class UploadController {
                     return comparisonBase;
                 }
             }
-            writeLock.lock();
-            skuNoIdList = Collections.synchronizedList(new ArrayList<>());
             while (csvReader.readRecord()) {
                 //count ++
                 inCreateCount();
@@ -479,10 +487,7 @@ public class UploadController {
                 }
             }
             return BaseApiService.setResultError("表里的skuID全部不一致 请修改~");
-        } catch (Exception e) {
-            return BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
         } finally {
-            count.set(1);
             if (csvReader != null) {
                 csvReader.close();
             }
@@ -521,23 +526,23 @@ public class UploadController {
      */
     public FinancialSalesBalance mexicoDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("fecha/hora"), Constants.MEXICO_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("Id. de liquidación")));
-        String type = StrUtils.replaceString(csvReader.get("tipo "));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("Id. de liquidación")));
+        String type = StrUtils.repString(csvReader.get("tipo "));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("Id. del pedido")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("Id. del pedido")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("descripción")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("descripción")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("cantidad")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("cumplimiento")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("ciudad del pedido")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("estado del pedido")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("código postal del pedido")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("cumplimiento")));
+        fsb.setCity(StrUtils.repString(csvReader.get("ciudad del pedido")));
+        fsb.setState(StrUtils.repString(csvReader.get("estado del pedido")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("código postal del pedido")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("ventas de productos")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("créditos de envío")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("descuentos promocionales")));
@@ -556,22 +561,22 @@ public class UploadController {
      */
     public FinancialSalesBalance japanDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("日付/時間"), Constants.JAPAN_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("決済番号")));
-        String type = StrUtils.replaceString(csvReader.get("トランザクションの種類"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("決済番号")));
+        String type = StrUtils.repString(csvReader.get("トランザクションの種類"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("注文番号")));
-        String skuName = StrUtils.replaceString(csvReader.get("SKU"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("注文番号")));
+        String skuName = StrUtils.repString(csvReader.get("SKU"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("説明")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("Amazon 出品サービス")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("フルフィルメント")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("市町村")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("都道府県")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("郵便番号")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("説明")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("Amazon 出品サービス")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("フルフィルメント")));
+        fsb.setCity(StrUtils.repString(csvReader.get("市町村")));
+        fsb.setState(StrUtils.repString(csvReader.get("都道府県")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("郵便番号")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("商品売上")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("配送料")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("ギフト包装手数料")));
@@ -592,23 +597,23 @@ public class UploadController {
      */
     public FinancialSalesBalance franceDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getFranceTime(csvReader.get("date/heure"), Constants.FRANCE_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("numéro de versement")));
-        String type = StrUtils.replaceString(csvReader.get("type"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("numéro de versement")));
+        String type = StrUtils.repString(csvReader.get("type"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("numéro de la commande")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("numéro de la commande")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("description")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("description")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantité")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("Marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("traitement")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("ville d'où provient la commande")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("Région d'où provient la commande")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("code postal de la commande")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("Marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("traitement")));
+        fsb.setCity(StrUtils.repString(csvReader.get("ville d'où provient la commande")));
+        fsb.setState(StrUtils.repString(csvReader.get("Région d'où provient la commande")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("code postal de la commande")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("ventes de produits")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("crédits d'expédition")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("crédits sur l'emballage cadeau")));
@@ -628,23 +633,23 @@ public class UploadController {
      */
     public FinancialSalesBalance spainDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("fecha y hora"), Constants.SPAIN_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("identificador de pago")));
-        String type = StrUtils.replaceString(csvReader.get("tipo"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("identificador de pago")));
+        String type = StrUtils.repString(csvReader.get("tipo"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("número de pedido")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("número de pedido")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("descripción")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("descripción")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("cantidad")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("web de Amazon")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("gestión logística")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("ciudad de procedencia del pedido")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("comunidad autónoma de procedencia del pedido")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("código postal de procedencia del pedido")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("web de Amazon")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("gestión logística")));
+        fsb.setCity(StrUtils.repString(csvReader.get("ciudad de procedencia del pedido")));
+        fsb.setState(StrUtils.repString(csvReader.get("comunidad autónoma de procedencia del pedido")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("código postal de procedencia del pedido")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("ventas de productos")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("abonos de envío")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("abonos de envoltorio para regalo")));
@@ -664,23 +669,23 @@ public class UploadController {
      */
     public FinancialSalesBalance italyDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getItalyTime(csvReader.get("Data/Ora:"), Constants.ITALY_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("Numero pagamento")));
-        String type = StrUtils.replaceString(csvReader.get("Tipo"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("Numero pagamento")));
+        String type = StrUtils.repString(csvReader.get("Tipo"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("Numero ordine")));
-        String skuName = StrUtils.replaceString(csvReader.get("SKU"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("Numero ordine")));
+        String skuName = StrUtils.repString(csvReader.get("SKU"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("Descrizione")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("Descrizione")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("Quantità")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("Marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("Gestione")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("Città di provenienza dell'ordine")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("Provincia di provenienza dell'ordine")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("CAP dell'ordine")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("Marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("Gestione")));
+        fsb.setCity(StrUtils.repString(csvReader.get("Città di provenienza dell'ordine")));
+        fsb.setState(StrUtils.repString(csvReader.get("Provincia di provenienza dell'ordine")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("CAP dell'ordine")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("Vendite")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("Accrediti per le spedizioni")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("Accrediti per confezioni regalo")));
@@ -700,23 +705,23 @@ public class UploadController {
      */
     public FinancialSalesBalance unitedKingdomDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.UNITED_KINGDOM_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        String type = StrUtils.replaceString(csvReader.get("type"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("settlement id")));
+        String type = StrUtils.repString(csvReader.get("type"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("order id")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("description")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("description")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantity")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("fulfillment")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("order city")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("order state")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("order postal")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("fulfillment")));
+        fsb.setCity(StrUtils.repString(csvReader.get("order city")));
+        fsb.setState(StrUtils.repString(csvReader.get("order state")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("order postal")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("product sales")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("postage credits")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("gift wrap credits")));
@@ -736,23 +741,23 @@ public class UploadController {
      */
     public FinancialSalesBalance australiaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.AUSTRALIA_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        String type = StrUtils.replaceString(csvReader.get("type"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("settlement id")));
+        String type = StrUtils.repString(csvReader.get("type"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("order id")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("description")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("description")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantity")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("fulfillment")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("order city")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("order state")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("order postal")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("fulfillment")));
+        fsb.setCity(StrUtils.repString(csvReader.get("order city")));
+        fsb.setState(StrUtils.repString(csvReader.get("order state")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("order postal")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("product sales")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("shipping credits")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("gift wrap credits")));
@@ -773,22 +778,22 @@ public class UploadController {
      */
     public FinancialSalesBalance canadaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.CANADA_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        String type = StrUtils.replaceString(csvReader.get("type"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("settlement id")));
+        String type = StrUtils.repString(csvReader.get("type"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("order id")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("description")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("fulfillment")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("order city")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("order state")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("order postal")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("description")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("fulfillment")));
+        fsb.setCity(StrUtils.repString(csvReader.get("order city")));
+        fsb.setState(StrUtils.repString(csvReader.get("order state")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("order postal")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("product sales")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("shipping credits")));
         fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get("promotional rebates")));
@@ -808,23 +813,23 @@ public class UploadController {
      */
     public FinancialSalesBalance usaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.USA_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("settlement id")));
-        String type = StrUtils.replaceString(csvReader.get("type"));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get("settlement id")));
+        String type = StrUtils.repString(csvReader.get("type"));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("order id")));
-        String skuName = StrUtils.replaceString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("order id")));
+        String skuName = StrUtils.repString(csvReader.get("sku"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("description")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("description")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantity")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("fulfillment")));
-        fsb.setCity(StrUtils.replaceString(csvReader.get("order city")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("order state")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("order postal")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("fulfillment")));
+        fsb.setCity(StrUtils.repString(csvReader.get("order city")));
+        fsb.setState(StrUtils.repString(csvReader.get("order state")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("order postal")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("product sales")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("shipping credits")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("gift wrap credits")));
@@ -846,23 +851,23 @@ public class UploadController {
      */
     public FinancialSalesBalance germanDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
         fsb.setDate(DateUtils.getTime(csvReader.get("Datum/Uhrzeit"), Constants.GERMAN_TIME));
-        fsb.setSettlemenId(StrUtils.replaceString(csvReader.get("Abrechnungsnummer")));
-        String type = StrUtils.replaceString(csvReader.get("Typ"));
+        fsb.setSettlemenId(str(csvReader.get("Abrechnungsnummer")));
+        String type = StrUtils.repString(csvReader.get("Typ"));
         //Type类型转换
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.replaceString(csvReader.get("Bestellnummer")));
-        String skuName = StrUtils.replaceString(csvReader.get("SKU"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get("Bestellnummer")));
+        String skuName = StrUtils.repString(csvReader.get("SKU"));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.replaceString(csvReader.get("Beschreibung")));
+        fsb.setDescription(StrUtils.repString(csvReader.get("Beschreibung")));
         fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("Menge")));
-        fsb.setMarketplace(StrUtils.replaceString(csvReader.get("Marketplace")));
-        fsb.setFulfillment(StrUtils.replaceString(csvReader.get("Versand")));
-        fsb.setState(StrUtils.replaceString(csvReader.get("Bundesland")));
-        fsb.setPostal(StrUtils.replaceString(csvReader.get("Postleitzahl")));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get("Marketplace")));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get("Versand")));
+        fsb.setState(StrUtils.repString(csvReader.get("Bundesland")));
+        fsb.setPostal(StrUtils.repString(csvReader.get("Postleitzahl")));
         fsb.setSales(StrUtils.replaceDouble(csvReader.get("Ums?tze")));
         fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("Gutschrift für Versandkosten")));
         fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("Gutschrift für Geschenkverpackung")));
@@ -946,6 +951,20 @@ public class UploadController {
     }
 
     /**
+     * Oar设置通用对象
+     */
+    public SalesAmazonAdOar setOar(Long sId, Long seId, Long uid, Long recordingId) {
+        return new SalesAmazonAdOar(sId, seId, new Date().getTime(), uid, recordingId);
+    }
+
+    /**
+     * Str设置通用对象
+     */
+    public SalesAmazonAdStr setStr(Long sId, Long seId, Long uid, Long recordingId) {
+        return new SalesAmazonAdStr(sId, seId, new Date().getTime(), uid, recordingId);
+    }
+
+    /**
      * csv 设置TypeName
      */
     public boolean setType(String type, Long seId, CsvReader csvReader, FinancialSalesBalance fsb) {
@@ -969,7 +988,7 @@ public class UploadController {
      * @return
      */
     public String orderTypeName(String type, Long seId, CsvReader csvReader) throws IOException {
-        String typeName = bAmazonTypeMapper.getTypeName(seId, type);
+        String typeName = typeMapper.getTypeName(seId, type);
         //如果数据库查询出来为空
         if (StringUtils.isEmpty(typeName)) {
             //count --
@@ -1066,29 +1085,117 @@ public class UploadController {
             return headResponse;
         }
         int lastRowNum = sheet.getLastRowNum(); // 获取总行数
+        ResponseBase responseBase = null;
         writeLock.lock();
-        skuNoIdList = Collections.synchronizedList(new ArrayList<>());
+        skuNoIdList = new CopyOnWriteArrayList();
         try {
-            switch (tbId) {
-                //Cpr
-                case 105:
-                    return readTableCpr(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet, head);
-                // STR
-                case 107:
-                    System.out.println("Str");
-                    break;
+            try {
+                switch (tbId) {
+                    //Cpr
+                    case 105:
+                        responseBase = readTableCpr(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet, head);
+                        break;
+                    // STR
+                    case 107:
+                        responseBase = readTableStr(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet);
+                        break;
+                    //OAR
+                    case 106:
+                        // responseBase = readTableOar(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet);
+                        System.out.println("OAR");
+                        break;
+                }
+                return xlsxSaveUserUploadInfo(responseBase, recordingId, fileName);
+            } finally {
+                writeLock.unlock();
             }
         } catch (Exception e) {
-            return BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
+            responseBase = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
+            //如果报错更新状态
+            responseBase = xlsxSaveUserUploadInfo(responseBase, recordingId, fileName);
+            System.out.println(e.getMessage());
+            return responseBase;
         } finally {
             count.set(1);
             TryUtils.ioClose(null, null, wb, in);
         }
-        return BaseApiService.setResultError("TbId 为NULL");
+    }
+
+
+    /**
+     * 读取Oar信息
+     *
+     * @return
+     */
+//    public ResponseBase readTableOar(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
+//                                     int totalNumber, Sheet sheet) {
+//        List<SalesAmazonAdOar> strList;
+//        SalesAmazonAdOar adOar;
+//        // 开始时间
+//        Long begin = new Date().getTime();
+//        Row row;
+//        Cell cell;
+//        strList = new ArrayList<>();
+//        for (int i = line; i <= lastRowNum; i++) {
+//            //count ++
+//            inCreateCount();
+//            adStr = setStr(shopId, siteId, uid, recordingId);
+//            for (int j = 0; j < totalNumber; j++) {
+//                row = sheet.getRow(i);
+//                cell = row.getCell(j);
+//                adStr = setStrPojo(j, adStr, cell);
+//            }
+//            strList.add(adStr);
+//        }
+//        if (strList.size() > 0) {
+//            int countStr = strService.AddSalesAmazonAdStrList(strList);
+//            if (countStr > 0) {
+//                // 结束时间
+//                Long end = new Date().getTime();
+//                return BaseApiService.setResultSuccess(count.get() - 1 + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
+//            }
+//        }
+//        return null;
+//    }
+
+    /**
+     * 读取Str信息
+     *
+     * @return
+     */
+    public ResponseBase readTableStr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
+                                     int totalNumber, Sheet sheet) {
+        List<SalesAmazonAdStr> strList;
+        SalesAmazonAdStr adStr;
+        // 开始时间
+        Long begin = new Date().getTime();
+        Row row;
+        Cell cell;
+        strList = new ArrayList<>();
+        for (int i = line; i <= lastRowNum; i++) {
+            //count ++
+            inCreateCount();
+            adStr = setStr(shopId, siteId, uid, recordingId);
+            for (int j = 0; j < totalNumber; j++) {
+                row = sheet.getRow(i);
+                cell = row.getCell(j);
+                adStr = setStrPojo(j, adStr, cell);
+            }
+            strList.add(adStr);
+        }
+        if (strList.size() > 0) {
+            int countStr = strService.AddSalesAmazonAdStrList(strList);
+            if (countStr > 0) {
+                // 结束时间
+                Long end = new Date().getTime();
+                return BaseApiService.setResultSuccess(count.get() - 1 + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
+            }
+        }
+        return null;
     }
 
     /**
-     * 通用读取xls 信息
+     * 读取Cprxls 信息
      *
      * @param line
      * @param lastRowNum
@@ -1136,57 +1243,167 @@ public class UploadController {
     }
 
     /**
+     * set pojo str
+     */
+    public SalesAmazonAdStr setStrPojo(int j, SalesAmazonAdStr adStr, Cell cell) {
+        String strAdStr;
+        switch (j) {
+            case 0:
+                adStr.setDate(lon(cell));
+                break;
+            case 2:
+                strAdStr = str(cell);
+                adStr.setCampaignName(strAdStr);
+                break;
+            case 3:
+                strAdStr = str(cell);
+                adStr.setAdGroupName(strAdStr);
+                break;
+            case 4:
+                strAdStr = str(cell);
+                adStr.setTargeting(strAdStr);
+                break;
+            case 5:
+                strAdStr = str(cell);
+                adStr.setMatchType(strAdStr);
+                break;
+            case 6:
+                strAdStr = str(cell);
+                adStr.setCustomerSearchTerm(strAdStr);
+                break;
+            case 7:
+                adStr.setImpressions(dou(cell));
+                break;
+            case 8:
+                adStr.setClicks(dou(cell));
+                break;
+            case 11:
+                adStr.setTotalSpend(dou(cell));
+                break;
+            case 12:
+                adStr.setSales(dou(cell));
+                break;
+            case 14:
+                adStr.setRoas(dou(cell));
+                break;
+            case 15:
+                adStr.setOrdersPlaced(dou(cell));
+                break;
+            case 16:
+                adStr.setTotalUnits(dou(cell));
+                break;
+            case 18:
+                adStr.setAdvertisedSkuUnitsOrdered(dou(cell));
+                break;
+            case 19:
+                adStr.setOtherSkuUnitsOrdered(dou(cell));
+                break;
+            case 20:
+                adStr.setAdvertisedSkuUnitsSales(dou(cell));
+                break;
+            case 21:
+                adStr.setOtherSkuUnitsSales(dou(cell));
+                break;
+        }
+        return adStr;
+    }
+
+
+    /**
+     * 封装 String  类型转换
+     *
+     * @return
+     */
+    public String str(Object obj) {
+        String strObj;
+        if (obj instanceof Cell) {
+            Cell cell = (Cell) obj;
+            strObj = StrUtils.repString(XlsUtils.getCellValue(cell).trim());
+            if (strObj.equals("no")) {
+                return null;
+            }
+            return strObj;
+        }
+        return null;
+
+    }
+
+    /**
+     * 封装 Long  类型转换
+     *
+     * @param cell
+     * @return
+     */
+    public Long lon(Cell cell) {
+        Long lonCell;
+        lonCell = StrUtils.replaceLong(XlsUtils.getCellValue(cell).trim());
+        return lonCell;
+    }
+
+    /**
+     * 封装 Doublie  类型转换
+     *
+     * @param cell
+     * @return
+     */
+    public Double dou(Cell cell) {
+        Double DouCell;
+        DouCell = StrUtils.repDouble(XlsUtils.getCellValue(cell).trim());
+        return DouCell;
+    }
+
+    /**
      * set pojo cpr
      */
     public SalesAmazonAdCpr setCprPojo(int j, SalesAmazonAdCpr saCpr, Cell cell) {
         switch (j) {
             case 0:
-                saCpr.setDate(StrUtils.replaceLong(XlsUtils.getCellValue(cell).trim()));
+                saCpr.setDate(lon(cell));
                 break;
             case 2:
-                saCpr.setCampaignName(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                saCpr.setCampaignName(str(cell));
                 break;
             case 3:
-                saCpr.setAdGroupName(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                saCpr.setAdGroupName(str(cell));
                 break;
             case 4:
-                saCpr.setAdvertisedSku(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                saCpr.setAdvertisedSku(str(cell));
                 break;
             case 5:
-                saCpr.setAdvertisedAsin(StrUtils.repString(XlsUtils.getCellValue(cell)));
+                saCpr.setAdvertisedAsin(str(cell));
                 break;
             case 6:
-                saCpr.setImpressions(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
+                saCpr.setImpressions(dou(cell));
                 break;
             case 7:
-                saCpr.setClicks(StrUtils.repDouble(XlsUtils.getCellValue(cell).trim()));
+                saCpr.setClicks(dou(cell));
                 break;
             case 10:
-                saCpr.setTotalSpend(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setTotalSpend(dou(cell));
                 break;
             case 11:
-                saCpr.setSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setSales(dou(cell));
                 break;
             case 13:
-                saCpr.setRoas(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setRoas(dou(cell));
                 break;
             case 14:
-                saCpr.setOrdersPlaced(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setOrdersPlaced(dou(cell));
                 break;
             case 15:
-                saCpr.setTotalUnits(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setTotalUnits(dou(cell));
                 break;
             case 17:
-                saCpr.setSameskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setSameskuUnitsOrdered(dou(cell));
                 break;
             case 18:
-                saCpr.setOtherskuUnitsOrdered(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setOtherskuUnitsOrdered(dou(cell));
                 break;
             case 19:
-                saCpr.setSameskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setSameskuUnitsSales(dou(cell));
                 break;
             case 20:
-                saCpr.setOtherskuUnitsSales(StrUtils.repDouble(XlsUtils.getCellValue(cell)));
+                saCpr.setOtherskuUnitsSales(dou(cell));
                 break;
         }
         return saCpr;

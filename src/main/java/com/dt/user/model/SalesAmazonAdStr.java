@@ -5,24 +5,24 @@ public class SalesAmazonAdStr {
 
     private Long id;
     private Long date;
-    private String shopId;
-    private String siteId;
+    private Long shopId;
+    private Long siteId;
     private String campaignName;
     private String adGroupName;
-    private String customerSearchTerm;
-    private String keyword;
+    private String targeting;
     private String matchType;
-    private Long impressions;
-    private Long clicks;
+    private String customerSearchTerm;
+    private Double impressions;
+    private Double clicks;
     private Double totalSpend;
-    private Long ordersPlaced;
     private Double sales;
-    private Double roAs;
-    private Long totalUnits;
-    private Long sameSkuUnitsOrdered;
-    private Long otherSkuUnitsOrdered;
-    private Double sameSkuUnitsProductSales;
-    private Double otherSkuUnitsProductSales;
+    private Double roas;
+    private Double ordersPlaced;
+    private Double totalUnits;
+    private Double advertisedSkuUnitsOrdered;
+    private Double otherSkuUnitsOrdered;
+    private Double advertisedSkuUnitsSales;
+    private Double otherSkuUnitsSales;
     private String remark;
     private Long status;
     private Long createDate;
@@ -32,6 +32,19 @@ public class SalesAmazonAdStr {
     private Long auditDate;
     private Long auditIdUser;
     private Long recordingId;
+
+    public SalesAmazonAdStr() {
+
+    }
+
+    public SalesAmazonAdStr(Long shopId, Long siteId, Long createDate, Long createIdUser, Long recordingId) {
+        this.shopId = shopId;
+        this.siteId = siteId;
+        this.createDate = createDate;
+        this.createIdUser = createIdUser;
+        this.recordingId = recordingId;
+
+    }
 
     public Long getId() {
         return id;
@@ -49,19 +62,19 @@ public class SalesAmazonAdStr {
         this.date = date;
     }
 
-    public String getShopId() {
+    public Long getShopId() {
         return shopId;
     }
 
-    public void setShopId(String shopId) {
+    public void setShopId(Long shopId) {
         this.shopId = shopId;
     }
 
-    public String getSiteId() {
+    public Long getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(String siteId) {
+    public void setSiteId(Long siteId) {
         this.siteId = siteId;
     }
 
@@ -81,20 +94,12 @@ public class SalesAmazonAdStr {
         this.adGroupName = adGroupName;
     }
 
-    public String getCustomerSearchTerm() {
-        return customerSearchTerm;
+    public String getTargeting() {
+        return targeting;
     }
 
-    public void setCustomerSearchTerm(String customerSearchTerm) {
-        this.customerSearchTerm = customerSearchTerm;
-    }
-
-    public String getKeyword() {
-        return keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
+    public void setTargeting(String targeting) {
+        this.targeting = targeting;
     }
 
     public String getMatchType() {
@@ -105,19 +110,27 @@ public class SalesAmazonAdStr {
         this.matchType = matchType;
     }
 
-    public Long getImpressions() {
+    public String getCustomerSearchTerm() {
+        return customerSearchTerm;
+    }
+
+    public void setCustomerSearchTerm(String customerSearchTerm) {
+        this.customerSearchTerm = customerSearchTerm;
+    }
+
+    public Double getImpressions() {
         return impressions;
     }
 
-    public void setImpressions(Long impressions) {
+    public void setImpressions(Double impressions) {
         this.impressions = impressions;
     }
 
-    public Long getClicks() {
+    public Double getClicks() {
         return clicks;
     }
 
-    public void setClicks(Long clicks) {
+    public void setClicks(Double clicks) {
         this.clicks = clicks;
     }
 
@@ -129,14 +142,6 @@ public class SalesAmazonAdStr {
         this.totalSpend = totalSpend;
     }
 
-    public Long getOrdersPlaced() {
-        return ordersPlaced;
-    }
-
-    public void setOrdersPlaced(Long ordersPlaced) {
-        this.ordersPlaced = ordersPlaced;
-    }
-
     public Double getSales() {
         return sales;
     }
@@ -145,52 +150,60 @@ public class SalesAmazonAdStr {
         this.sales = sales;
     }
 
-    public Double getRoAs() {
-        return roAs;
+    public Double getRoas() {
+        return roas;
     }
 
-    public void setRoAs(Double roAs) {
-        this.roAs = roAs;
+    public void setRoas(Double roas) {
+        this.roas = roas;
     }
 
-    public Long getTotalUnits() {
+    public Double getOrdersPlaced() {
+        return ordersPlaced;
+    }
+
+    public void setOrdersPlaced(Double ordersPlaced) {
+        this.ordersPlaced = ordersPlaced;
+    }
+
+    public Double getTotalUnits() {
         return totalUnits;
     }
 
-    public void setTotalUnits(Long totalUnits) {
+    public void setTotalUnits(Double totalUnits) {
         this.totalUnits = totalUnits;
     }
 
-    public Long getSameSkuUnitsOrdered() {
-        return sameSkuUnitsOrdered;
+    public Double getAdvertisedSkuUnitsOrdered() {
+        return advertisedSkuUnitsOrdered;
     }
 
-    public void setSameSkuUnitsOrdered(Long sameSkuUnitsOrdered) {
-        this.sameSkuUnitsOrdered = sameSkuUnitsOrdered;
+    public void setAdvertisedSkuUnitsOrdered(Double advertisedSkuUnitsOrdered) {
+        this.advertisedSkuUnitsOrdered = advertisedSkuUnitsOrdered;
     }
 
-    public Long getOtherSkuUnitsOrdered() {
+    public Double getOtherSkuUnitsOrdered() {
         return otherSkuUnitsOrdered;
     }
 
-    public void setOtherSkuUnitsOrdered(Long otherSkuUnitsOrdered) {
+    public void setOtherSkuUnitsOrdered(Double otherSkuUnitsOrdered) {
         this.otherSkuUnitsOrdered = otherSkuUnitsOrdered;
     }
 
-    public Double getSameSkuUnitsProductSales() {
-        return sameSkuUnitsProductSales;
+    public Double getAdvertisedSkuUnitsSales() {
+        return advertisedSkuUnitsSales;
     }
 
-    public void setSameSkuUnitsProductSales(Double sameSkuUnitsProductSales) {
-        this.sameSkuUnitsProductSales = sameSkuUnitsProductSales;
+    public void setAdvertisedSkuUnitsSales(Double advertisedSkuUnitsSales) {
+        this.advertisedSkuUnitsSales = advertisedSkuUnitsSales;
     }
 
-    public Double getOtherSkuUnitsProductSales() {
-        return otherSkuUnitsProductSales;
+    public Double getOtherSkuUnitsSales() {
+        return otherSkuUnitsSales;
     }
 
-    public void setOtherSkuUnitsProductSales(Double otherSkuUnitsProductSales) {
-        this.otherSkuUnitsProductSales = otherSkuUnitsProductSales;
+    public void setOtherSkuUnitsSales(Double otherSkuUnitsSales) {
+        this.otherSkuUnitsSales = otherSkuUnitsSales;
     }
 
     public String getRemark() {
