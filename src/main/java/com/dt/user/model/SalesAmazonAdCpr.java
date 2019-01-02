@@ -28,7 +28,7 @@ public class SalesAmazonAdCpr {
     private Double sameskuUnitsSales;
     private Double otherskuUnitsSales;
     private String remark;
-    private Long status;
+    private Integer status;
     private Long createDate;
     private Long createIdUser;
     private Long modifyDate;
@@ -243,11 +243,11 @@ public class SalesAmazonAdCpr {
         this.remark = remark;
     }
 
-    public Long getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Long status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 

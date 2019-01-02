@@ -1,7 +1,5 @@
 package com.dt.user.config;
 
-import java.io.Serializable;
-
 public class ResponseBase{
 
     private Integer code;

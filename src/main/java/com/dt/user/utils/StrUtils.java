@@ -13,15 +13,22 @@ public class StrUtils {
         }
         return Double.parseDouble(number);
     }
+
     /**
      * 通用替换字符串判断
      */
-    public static String repString(String number) {
-        if (StringUtils.isBlank(number)) {
+    public static String repString(String str) {
+        if (StringUtils.isBlank(str)) {
             return null;
         }
-        return number;
+        int l = str.indexOf("\\");
+        int k = str.indexOf("'");
+        if (k == -1 && l == -1) {
+            return str;
+        }
+        return str.replace("'", "").replace("\\", "");
     }
+
     /**
      * 字符串替换Double
      *
@@ -39,35 +46,31 @@ public class StrUtils {
         if (i != -1 && j != -1 && j > i) {
             String newNumber = number.replace(".", "").replace(',', '.');
             return Double.parseDouble(newNumber);
-        } else
-            //如果都有 并且 j > i 等于加拿大的
-            if (i != -1 && j != -1 && j < i) {
-                String newNumber = number.replace(",", "");
-                return Double.parseDouble(newNumber);
-            } else
-                //法国会出现,号
-                if (k != -1 && j != -1) {
-                    String newNumber = number.replace("?", "").replace(',', '.');
-                    return Double.parseDouble(newNumber);
-                }
+        }
+        //如果都有 并且 j > i 等于加拿大的
+        else if (i != -1 && j != -1 && j < i) {
+            String newNumber = number.replace(",", "");
+            return Double.parseDouble(newNumber);
+        }
+        //法国会出现,号
+        else if (k != -1 && j != -1) {
+            String newNumber = number.replace("?", "").replace(',', '.');
+            return Double.parseDouble(newNumber);
+        }
         return Double.parseDouble(number.replace(',', '.'));
     }
 
     /**
-     * 返回字符串
+     * 返回Integer 类型
      *
      * @param number
      * @return
      */
-    public static String replaceString(String number) {
+    public static Integer replaceInteger(String number) {
         if (StringUtils.isBlank(number)) {
             return null;
         }
-        int i = number.indexOf("'");
-        if (i == -1) {
-            return number;
-        }
-        return number.replace("'", "");
+        return Integer.parseInt(number);
     }
 
     /**
@@ -94,6 +97,7 @@ public class StrUtils {
         }
         return sb;
     }
+
     /**
      * 判断TypeName是否== xxxxx  计算一些数据
      */
