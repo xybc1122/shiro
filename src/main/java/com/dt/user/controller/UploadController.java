@@ -266,10 +266,10 @@ public class UploadController {
         ResponseBase responseCsv;
         try {
             responseCsv = saveCsv(filePath, row, sId, seId, uid, head, pId.longValue(), recordingId, tbId);
-            UserUpload reUpload;
-            if (responseCsv.getCode() == 200) {
+            UserUpload reUpload;onseCsv.getCode() == 200) {
                 if (skuNoIdList.size() != 0) {
                     //文件写入到服务器的地址
+            if (resp
                     String skuNoPath = Constants.WRITE_SAVE_FILE_PATH;
                     //写入CSV文件到本地
                     CSVUtil.write(head, skuNoIdList, skuNoPath, fileName);
