@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface SalesAmazonAdStrMapper {
     /**
-     * 存入广告数据
+     * 存入广告Str数据
      * @return
      */
     @InsertProvider(type = SalesAmazonAdStrProvider.class, method = "addAmazonAdStr")

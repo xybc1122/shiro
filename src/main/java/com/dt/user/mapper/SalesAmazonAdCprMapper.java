@@ -11,7 +11,7 @@ import java.util.List;
 @Mapper
 public interface SalesAmazonAdCprMapper {
     /**
-     * 存入广告数据
+     * 存入广告Cpr数据
      * @param cprList
      * @return
      */

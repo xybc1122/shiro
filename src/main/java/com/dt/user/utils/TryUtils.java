@@ -1,5 +1,6 @@
 package com.dt.user.utils;
 
+import com.csvreader.CsvReader;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.BufferedReader;
@@ -8,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class TryUtils {
-
-
     /**
      * 封装关闭IO Close
      *
@@ -18,23 +17,26 @@ public class TryUtils {
      * @param in
      * @param wb
      */
-    public static void ioClose(BufferedReader reader, InputStreamReader isr, Workbook wb, FileInputStream in) {
+    public static void ioClose(BufferedReader reader, InputStreamReader isr, Workbook wb, CsvReader csvReader, FileInputStream in) {
         try {
             //csv
             if (reader != null) {
                 reader.close();
             }
+            if (csvReader != null) {
+                csvReader.close();
+            }
             if (isr != null) {
                 isr.close();
             }
+            //xls
             if (wb != null) {
                 wb.close();
             }
-            //xls
             if (in != null) {
                 in.close();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -23,4 +23,16 @@ public class BasicSalesAmazonSkuServiceImpl implements BasicSalesAmazonSkuServic
         }
         return null;
     }
+
+    @Override
+    public Long getAsinSkuId(Long sId, Long siteId, String sAsin) {
+        if (StringUtils.isEmpty(sAsin)) {
+            return 0L;
+        }
+        BasicSalesAmazonSku basicSalesAmazonSku = basicSalesAmazonSkuMapper.getAsinSkuId(sId, siteId, sAsin);
+        if (basicSalesAmazonSku != null) {
+            return basicSalesAmazonSku.getSkuId();
+        }
+        return null;
+    }
 }

@@ -66,7 +66,7 @@ public class CSVUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            TryUtils.ioClose(reader, isr, null, null);
+            TryUtils.ioClose(reader, isr, null, null, null);
         }
         return readJson.toJSONString();
     }

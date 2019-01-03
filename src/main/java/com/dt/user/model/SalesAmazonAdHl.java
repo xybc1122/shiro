@@ -1,23 +1,26 @@
 package com.dt.user.model;
 
-
-public class SalesAmazonAdOar {
+/**
+ * HL数据导入
+ */
+public class SalesAmazonAdHl {
 
   private Long id;
   private Long date;
   private Long shopId;
   private Long siteId;
   private String campaignName;
-  private String adGroupName;
-  private String advertisedSku;
-  private String advertisedAsin;
-  private String targeting;
-  private String matchType;
-  private String otherAsin;
-  private Long skuId;
-  private Double otherAsinUnits;
-  private Double otherAsinUnitsOrdered;
-  private Double otherAsinUnitsOrderedSales;
+  private Double impressions;
+  private Double clicks;
+  private Double ctr;
+  private Double cpc;
+  private Double spend;
+  private Double acos;
+  private Double roas;
+  private Double totalSales;
+  private Double totalOrders;
+  private Double totalUnits;
+  private Double conversionRate;
   private String remark;
   private Integer status;
   private Long createDate;
@@ -28,17 +31,18 @@ public class SalesAmazonAdOar {
   private Long auditIdUser;
   private Long recordingId;
 
-  public SalesAmazonAdOar() {
+  public SalesAmazonAdHl() {
 
   }
-  public SalesAmazonAdOar(Long shopId, Long siteId, Long createDate, Long createIdUser, Long recordingId) {
+
+  public SalesAmazonAdHl(Long shopId, Long siteId, Long createDate, Long createIdUser, Long recordingId) {
     this.shopId = shopId;
     this.siteId = siteId;
     this.createDate = createDate;
     this.createIdUser = createIdUser;
     this.recordingId = recordingId;
-  }
 
+  }
   public Long getId() {
     return id;
   }
@@ -79,84 +83,92 @@ public class SalesAmazonAdOar {
     this.campaignName = campaignName;
   }
 
-  public String getAdGroupName() {
-    return adGroupName;
+  public Double getImpressions() {
+    return impressions;
   }
 
-  public void setAdGroupName(String adGroupName) {
-    this.adGroupName = adGroupName;
+  public void setImpressions(Double impressions) {
+    this.impressions = impressions;
   }
 
-  public String getAdvertisedSku() {
-    return advertisedSku;
+  public Double getClicks() {
+    return clicks;
   }
 
-  public void setAdvertisedSku(String advertisedSku) {
-    this.advertisedSku = advertisedSku;
+  public void setClicks(Double clicks) {
+    this.clicks = clicks;
   }
 
-  public String getAdvertisedAsin() {
-    return advertisedAsin;
+  public Double getCtr() {
+    return ctr;
   }
 
-  public void setAdvertisedAsin(String advertisedAsin) {
-    this.advertisedAsin = advertisedAsin;
+  public void setCtr(Double ctr) {
+    this.ctr = ctr;
   }
 
-  public String getTargeting() {
-    return targeting;
+  public Double getCpc() {
+    return cpc;
   }
 
-  public void setTargeting(String targeting) {
-    this.targeting = targeting;
+  public void setCpc(Double cpc) {
+    this.cpc = cpc;
   }
 
-  public String getMatchType() {
-    return matchType;
+  public Double getSpend() {
+    return spend;
   }
 
-  public void setMatchType(String matchType) {
-    this.matchType = matchType;
+  public void setSpend(Double spend) {
+    this.spend = spend;
   }
 
-  public String getOtherAsin() {
-    return otherAsin;
+  public Double getAcos() {
+    return acos;
   }
 
-  public void setOtherAsin(String otherAsin) {
-    this.otherAsin = otherAsin;
+  public void setAcos(Double acos) {
+    this.acos = acos;
   }
 
-  public Long getSkuId() {
-    return skuId;
+  public Double getRoas() {
+    return roas;
   }
 
-  public void setSkuId(Long skuId) {
-    this.skuId = skuId;
+  public void setRoas(Double roas) {
+    this.roas = roas;
   }
 
-  public Double getOtherAsinUnits() {
-    return otherAsinUnits;
+  public Double getTotalSales() {
+    return totalSales;
   }
 
-  public void setOtherAsinUnits(Double otherAsinUnits) {
-    this.otherAsinUnits = otherAsinUnits;
+  public void setTotalSales(Double totalSales) {
+    this.totalSales = totalSales;
   }
 
-  public Double getOtherAsinUnitsOrdered() {
-    return otherAsinUnitsOrdered;
+  public Double getTotalOrders() {
+    return totalOrders;
   }
 
-  public void setOtherAsinUnitsOrdered(Double otherAsinUnitsOrdered) {
-    this.otherAsinUnitsOrdered = otherAsinUnitsOrdered;
+  public void setTotalOrders(Double totalOrders) {
+    this.totalOrders = totalOrders;
   }
 
-  public Double getOtherAsinUnitsOrderedSales() {
-    return otherAsinUnitsOrderedSales;
+  public Double getTotalUnits() {
+    return totalUnits;
   }
 
-  public void setOtherAsinUnitsOrderedSales(Double otherAsinUnitsOrderedSales) {
-    this.otherAsinUnitsOrderedSales = otherAsinUnitsOrderedSales;
+  public void setTotalUnits(Double totalUnits) {
+    this.totalUnits = totalUnits;
+  }
+
+  public Double getConversionRate() {
+    return conversionRate;
+  }
+
+  public void setConversionRate(Double conversionRate) {
+    this.conversionRate = conversionRate;
   }
 
   public String getRemark() {

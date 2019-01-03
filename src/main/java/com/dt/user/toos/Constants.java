@@ -72,4 +72,10 @@ public interface Constants {
      * 墨西哥日期转换
      */
     String MEXICO_TIME = "dd/MM/yyyy HH:mm:ss";
+
+    /**
+     * 打印消息 xls
+     */
+    String MSG_XLS="xlsx/xls文件表头信息不一致/请检查~";
+
 }

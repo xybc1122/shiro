@@ -20,6 +20,8 @@ public class StrUtils {
     public static String repString(String str) {
         if (StringUtils.isBlank(str)) {
             return null;
+        } else if (str.equals("NO")) {
+            return "NO";
         }
         int l = str.indexOf("\\");
         int k = str.indexOf("'");
