@@ -77,5 +77,9 @@ public interface Constants {
      * 打印消息 xls
      */
     String MSG_XLS="xlsx/xls文件表头信息不一致/请检查~";
+    /**
+     * 数据存入失败
+     */
+    String MSG_ERROR="存入数据失败,请检查表头第一行是否正确/请检查上传的站点~";
 
 }

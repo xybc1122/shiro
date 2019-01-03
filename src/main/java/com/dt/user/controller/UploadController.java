@@ -185,26 +185,24 @@ public class UploadController {
      */
     public ResponseBase shopSelection(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId, Long id, Integer tbId) {
         ResponseBase responseCsv = null;
-        List<String> oldHeadList = null;
+        List<String> oldHeadList;
         String filePath = saveFilePath + fileName;
-        //如果是财务导入数据 拿到头信息 对比
-        if (tbId == 85) {
-            //获得头信息长度
-            String csvJson = CSVUtil.startReadLine(filePath, siteId);
-            JSONObject rowJson = JSONObject.parseObject(csvJson);
-            int row = (Integer) rowJson.get("index");
-            if (row == -1) {
-                String msg = "存入数据失败,请检查表头第一行是否正确/请检查上传的站点~";
-                return upUserUpload(3, id, fileName, msg);
-            }
-            oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
-        }else{
-
+        ResponseBase comparisonBase;
+        String csvJson;
+        JSONObject rowJson;
+        int row;
+        //获得头信息长度
+        csvJson = CSVUtil.startReadLine(filePath, siteId, tbId);
+        rowJson = JSONObject.parseObject(csvJson);
+        row = (Integer) rowJson.get("index");
+        if (row == -1) {
+            return upUserUpload(3, id, fileName, Constants.MSG_ERROR);
         }
-//           comparisonBase = comparison(csvReader, headList, oldHeadList, seId, tbId);
-//            if (comparisonBase != null) {
-//                return comparisonBase;
-//
+        oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
+        //对比表头是否一致
+        comparisonBase = comparison(oldHeadList, siteId, tbId);
+        if (comparisonBase != null) {
+            return comparisonBase;
         }
         writeLock.lock();
         skuNoIdList = new CopyOnWriteArrayList();
@@ -215,7 +213,7 @@ public class UploadController {
                     responseCsv = saveCsvFsb(filePath, row, shopId, siteId, uid, oldHeadList, pId.longValue(), id, tbId);
                     break;
                 case 108:
-                    saveCsvBusiness(filePath, row, shopId, siteId, uid, pId.longValue(), id, tbId);
+                    //saveCsvBusiness(filePath, row, shopId, siteId, uid, pId.longValue(), id, tbId);
                     break;
 
             }
@@ -246,9 +244,9 @@ public class UploadController {
      * @return
      * @throws IOException
      */
-    public ResponseBase saveCsvBusiness(String filePath, int row, Long sId, Long seId, Long uid, Long pId, Long recordingId, Integer tbId) throws IOException {
-
-    }
+//    public ResponseBase saveCsvBusiness(String filePath, int row, Long sId, Long seId, Long uid, Long pId, Long recordingId, Integer tbId) throws IOException {
+//
+//    }
 
     /**
      * csv财务数据解析
@@ -273,27 +271,10 @@ public class UploadController {
         isr = new InputStreamReader(new FileInputStream(new File(filePath)), coding);
         csvReader = new CsvReader(isr);
         List<FinancialSalesBalance> fsbList = new ArrayList<>();
-        List<String> headList = new ArrayList<>();
-        ResponseBase comparisonBase;
         try {
-            //row==0 第一行就是头
-            if (row == 0) {
-                comparisonBase = comparison(csvReader, headList, headArr, seId, tbId);
-                if (comparisonBase != null) {
-                    return comparisonBase;
-                }
-            }
             while (csvReader.readRecord()) {
                 //count ++
                 inCreateCount();
-                //如果是多行的
-                if (index == (row - 1)) {
-                    comparisonBase = comparison(csvReader, headList, headArr, seId, tbId);
-                    if (comparisonBase != null) {
-                        return comparisonBase;
-                    }
-                }
-                //如果正确 通过站点ID 判断 存入 哪个站点数据
                 //美国站
                 if (index >= row && seId == 1L) {
                     fb = usaDepositObject(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId);
@@ -366,7 +347,7 @@ public class UploadController {
                 if (number != 0) {
                     // 结束时间
                     Long end = new Date().getTime();
-                    int sum = (count.get() - row - 1);
+                    int sum = (count.get() - row);
                     return BaseApiService.setResultSuccess(sum + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
                 }
             }
@@ -496,16 +477,14 @@ public class UploadController {
     /**
      * CSV头部比较返回
      *
-     * @param csvReader
-     * @param headList
      * @param headArr
      * @param seId
      * @param id
      * @return
      * @throws IOException
      */
-    public ResponseBase comparison(CsvReader csvReader, List<String> headList, List<String> headArr, Long seId, int id) throws IOException {
-        csvReader.readHeaders();
+    public ResponseBase comparison(List<String> headArr, Long seId, int id) {
+        List<String> headList = new ArrayList<>();
         //比较头部
         if (!compareHeadCsv(headList, headArr, getHeadInfo(seId, id))) {
             return BaseApiService.setResultError("CSV文件表头信息不一致/请检查~");
@@ -804,35 +783,35 @@ public class UploadController {
      * csv 美国存入对象
      */
     public FinancialSalesBalance usaDepositObject(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
-        fsb.setDate(DateUtils.getTime(csvReader.get("date/time"), Constants.USA_TIME));
-        fsb.setSettlemenId(StrUtils.repString(csvReader.get("settlement id")));
-        String type = StrUtils.repString(csvReader.get("type"));
+        fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.USA_TIME));
+        fsb.setSettlemenId(StrUtils.repString(csvReader.get(1)));
+        String type = StrUtils.repString(csvReader.get(2));
         if (StringUtils.isEmpty(type)) {
             fsb.setType(type);
         } else if (!setType(type, seId, csvReader, fsb)) {
             return null;
         }
-        fsb.setOrderId(StrUtils.repString(csvReader.get("order id")));
-        String skuName = StrUtils.repString(csvReader.get("sku"));
+        fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
+        String skuName = StrUtils.repString(csvReader.get(4));
         fsb.setSku(skuName);
-        fsb.setDescription(StrUtils.repString(csvReader.get("description")));
-        fsb.setoQuantity(StrUtils.replaceLong(csvReader.get("quantity")));
-        fsb.setMarketplace(StrUtils.repString(csvReader.get("marketplace")));
-        fsb.setFulfillment(StrUtils.repString(csvReader.get("fulfillment")));
-        fsb.setCity(StrUtils.repString(csvReader.get("order city")));
-        fsb.setState(StrUtils.repString(csvReader.get("order state")));
-        fsb.setPostal(StrUtils.repString(csvReader.get("order postal")));
-        fsb.setSales(StrUtils.replaceDouble(csvReader.get("product sales")));
-        fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get("shipping credits")));
-        fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get("gift wrap credits")));
-        fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get("promotional rebates")));
-        fsb.setSalesTax(StrUtils.replaceDouble(csvReader.get("sales tax collected")));
-        fsb.setMarketplaceFacilitatorTax(StrUtils.replaceDouble(csvReader.get("Marketplace Facilitator Tax")));
-        fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get("selling fees")));
-        fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get("fba fees")));
-        fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get("other transaction fees")));
-        fsb.setOther(StrUtils.replaceDouble(csvReader.get("other")));
-        fsb.setTotal(StrUtils.replaceDouble(csvReader.get("total")));
+        fsb.setDescription(StrUtils.repString(csvReader.get(5)));
+        fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
+        fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
+        fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
+        fsb.setCity(StrUtils.repString(csvReader.get(9)));
+        fsb.setState(StrUtils.repString(csvReader.get(10)));
+        fsb.setPostal(StrUtils.repString(csvReader.get(11)));
+        fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
+        fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
+        fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
+        fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
+        fsb.setSalesTax(StrUtils.replaceDouble(csvReader.get(16)));
+        fsb.setMarketplaceFacilitatorTax(StrUtils.replaceDouble(csvReader.get(17)));
+        fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(18)));
+        fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(19)));
+        fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(20)));
+        fsb.setOther(StrUtils.replaceDouble(csvReader.get(21)));
+        fsb.setTotal(StrUtils.replaceDouble(csvReader.get(22)));
         StrUtils.isService(fsb.getType(), fsb);
         Long skuId = skuService.selSkuId(sId, seId, skuName);
         return skuList(skuId, csvReader, fsb);
@@ -964,6 +943,8 @@ public class UploadController {
         if (StringUtils.isEmpty(typeName)) {
             //count --
             delCreateCount();
+            //
+            inCreateSumNoSku();
             List<String> typeListNo = new ArrayList<>();
             for (int i = 0; i < csvReader.getColumnCount(); i++) {
                 typeListNo.add(csvReader.get(i).replace(",", "."));
@@ -983,8 +964,9 @@ public class UploadController {
     public boolean compareHeadCsv(List<String> headList, List<String> oldHeadList, List<String> fBalanceHead) {
         //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
         for (int i = 0; i < oldHeadList.size(); i++) {
-            String head = oldHeadList.get(i).replace("\"", "").trim();
+            String head = oldHeadList.get(i).replace("\"", "").replace("﻿", "").trim();
             headList.add(head);
+            System.out.println(head);
         }
         //如果不一致返回false
         return ArrUtils.eqOrderList(headList, fBalanceHead);
