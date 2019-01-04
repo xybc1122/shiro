@@ -53,7 +53,7 @@ public class XlsUtils {
     public static String getCellValue(Cell cell) {
         String str = null;
         if (cell == null) {
-            return "no";
+            return "-1";
         }
         switch (cell.getCellType()) {
             case STRING:
@@ -73,9 +73,9 @@ public class XlsUtils {
                 str = String.valueOf(cell.getCellFormula());
                 break;
             case BLANK:
-                return "no";
+                return "-1";
             default:
-                System.out.println();
+                System.out.println("default");
         }
         return str;
     }
@@ -120,9 +120,4 @@ public class XlsUtils {
 
         }
     }
-
-
-    public static void main(String[] args) {
-    }
-
 }

@@ -7,7 +7,7 @@ eureka:
     instance-id: ${spring.cloud.client.ip-address}:${server.port}
     prefer-ip-address: true
 server:
-  port: 9001
+  port: 9002
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource

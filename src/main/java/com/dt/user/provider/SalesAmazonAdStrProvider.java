@@ -36,7 +36,7 @@ public class SalesAmazonAdStrProvider {
                     + str.getSales() + "," + str.getRoas() + ","
                     + str.getOrdersPlaced() + "," + str.getTotalUnits() + ","
                     + str.getAdvertisedSkuUnitsOrdered() + ","
-                    + str.getOtherSkuUnitsOrdered() + "," + str.getAdvertisedSkuUnitsOrdered() + ","
+                    + str.getOtherSkuUnitsOrdered() + "," + str.getAdvertisedSkuUnitsSales() + ","
                     + str.getOtherSkuUnitsSales() + ",");
             StrUtils.appBuider(sb, str.getRemark());
             sb.append(",");

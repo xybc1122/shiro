@@ -14,18 +14,26 @@ public class CSVUtil {
      *
      * @param filePath 文件路径
      */
-    public static String startReadLine(String filePath, Long site) {
+    public static String startReadLine(String filePath, Long site, int tbId) {
         JSONObject readJson = new JSONObject();
         InputStreamReader isr = null;
         BufferedReader reader = null;
+        String coding;
         try {
             //设置编码格式 ,日文解码shift_jis
-            String coding = site == 9L ? "shift_jis" : "GBK";
+            if (tbId == 108) {
+                coding = "utf-8";
+            } else {
+                coding = site == 9L ? "shift_jis" : "GBK";
+            }
             isr = new InputStreamReader(new FileInputStream(filePath), coding);
             reader = new BufferedReader(isr);
             String line;
-            int index = 0;
+            int index = 1;
             while ((line = reader.readLine()) != null) {
+                if (tbId != 85) {
+                    return headJson(readJson, line, index);
+                }
                 //CSV格式文件为逗号分隔符文件，这里根据逗号切分
                 String item[] = line.split(",");
                 String itemHead = item[0].replace("\"", "");
@@ -66,7 +74,7 @@ public class CSVUtil {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            TryUtils.ioClose(reader, isr, null, null);
+            TryUtils.ioClose(reader, isr, null, null, null);
         }
         return readJson.toJSONString();
     }
