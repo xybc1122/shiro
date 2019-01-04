@@ -7,11 +7,18 @@ public class StrUtils {
     /**
      * 通用替换字符串转Double
      */
-    public static Double repDouble(String number) {
-        if (StringUtils.isBlank(number)) {
+    public static Double repDouble(String str) {
+        if (StringUtils.isBlank(str)) {
             return null;
         }
-        return Double.parseDouble(number);
+        int l = str.indexOf("%");
+        int j = str.indexOf("$");
+        int k = str.indexOf(",");
+        if (l == -1 && j == -1 && k == -1) {
+            return Double.parseDouble(str);
+        }
+        str.replace("%", "").replace("$", "").replace(",", "");
+        return Double.parseDouble(str);
     }
 
     /**
@@ -32,7 +39,7 @@ public class StrUtils {
     }
 
     /**
-     * 字符串替换Double
+     * 财务字符串替换Double
      *
      * @param number
      * @return
@@ -72,7 +79,13 @@ public class StrUtils {
         if (StringUtils.isBlank(number)) {
             return null;
         }
-        return Integer.parseInt(number);
+        int j = number.indexOf(",");
+        int k = number.indexOf("%");
+        if (j == -1 && k == -1) {
+            return Integer.parseInt(number);
+        }
+        String newNumber = number.replace(",", "").replace("%", "");
+        return Integer.parseInt(newNumber);
     }
 
     /**
