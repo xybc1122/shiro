@@ -63,6 +63,14 @@ public class FinancialSalesBalance {
     private Long auditDate;
     private Long auditIdUser;
     private Long recordingId;
+    /**
+     * 积分费用(日本ポイントの費用)
+     */
+    private Double pointFee;
+    /**
+     * 低价值商品(澳洲)
+     */
+    private Double lowValueGoods;
 
     public FinancialSalesBalance() {
 
@@ -75,6 +83,22 @@ public class FinancialSalesBalance {
         this.createDate = createDate;
         this.createIdUser = createIdUser;
         this.recordingId = recordingId;
+    }
+
+    public Double getLowValueGoods() {
+        return lowValueGoods;
+    }
+
+    public void setLowValueGoods(Double lowValueGoods) {
+        this.lowValueGoods = lowValueGoods;
+    }
+
+    public Double getPointFee() {
+        return pointFee;
+    }
+
+    public void setPointFee(Double pointFee) {
+        this.pointFee = pointFee;
     }
 
     public Long getRecordingId() {

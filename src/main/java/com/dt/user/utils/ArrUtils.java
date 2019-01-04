@@ -5,6 +5,7 @@ import java.util.List;
 public class ArrUtils {
     /**
      * 两个List比较 顺序不一样也没事
+     *
      * @param oneList
      * @param twoList
      * @return
@@ -32,5 +33,15 @@ public class ArrUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * 泛型List
+     *
+     * @param <T>
+     * @return
+     */
+    public static <T> T listT(List<?> tList) {
+        return (T) tList;
     }
 }
