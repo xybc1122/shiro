@@ -261,6 +261,7 @@ public class UploadController {
                 break;
         }
         while (csvReader.readRecord()) {
+            inCreateCount();
             if (index >= row) {
                 switch (tbId) {
                     //85 == 财务上传ID
@@ -281,7 +282,7 @@ public class UploadController {
             }
             index++;
         }
-        count.set(index);
+        System.out.println("count" + count.get());
         int number = 0;
         if (fsbList != null) {
             if (fsbList.size() > 0) {
@@ -294,10 +295,11 @@ public class UploadController {
                 number = busService.AddSalesAmazonAdBusList(sfbList);
             }
         }
+        System.out.println("count" + count.get());
         if (number != 0) {
             // 结束时间
             Long end = new Date().getTime();
-//            System.out.println("count" + count.get());
+
 //            System.out.println("row" + row);
 //            System.out.println("sum" + sum);
 //            System.out.println(sumNoSku.get());
