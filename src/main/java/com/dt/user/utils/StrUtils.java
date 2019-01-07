@@ -11,14 +11,31 @@ public class StrUtils {
         if (StringUtils.isBlank(str)) {
             return null;
         }
+        int h = str.indexOf("£");
         int l = str.indexOf("%");
         int j = str.indexOf("$");
         int k = str.indexOf(",");
-        if (l == -1 && j == -1 && k == -1) {
+        int g = str.indexOf("￥");
+        int f = str.indexOf("€");
+        int c = str.indexOf("Can");
+        int v = str.indexOf("MXN");
+        if (v == -1 && c == -1 && h == -1 && l == -1 && j == -1 && k == -1 && g == -1 && f == -1) {
             return Double.parseDouble(str);
         }
-        str.replace("%", "").replace("$", "").replace(",", "");
-        return Double.parseDouble(str);
+        String strNew = str.
+                replace("￥", "").
+                replace("%", "").
+                replace("$", "").
+                replace(",", "").
+                replace("£", "").
+                replace("€", "").
+                replace("Can", "").
+                replace("MXN", "")
+                .trim();
+        if (l != -1) {
+            return Double.parseDouble(strNew) / 100;
+        }
+        return Double.parseDouble(strNew);
     }
 
     /**
@@ -35,7 +52,11 @@ public class StrUtils {
         if (k == -1 && l == -1) {
             return str;
         }
-        return str.replace("'", "").replace("\\", "");
+        return str.
+                replace("'", "").
+                replace("\\", "").
+                replace('"', ' ')
+                .trim();
     }
 
     /**
@@ -53,17 +74,22 @@ public class StrUtils {
         int k = number.indexOf("?");
         //如果都有 并且 j > i 等于德国的
         if (i != -1 && j != -1 && j > i) {
-            String newNumber = number.replace(".", "").replace(',', '.');
+            String newNumber = number.
+                    replace(".", "").
+                    replace(',', '.');
             return Double.parseDouble(newNumber);
         }
         //如果都有 并且 j > i 等于加拿大的
         else if (i != -1 && j != -1 && j < i) {
-            String newNumber = number.replace(",", "");
+            String newNumber = number.
+                    replace(",", "");
             return Double.parseDouble(newNumber);
         }
         //法国会出现,号
         else if (k != -1 && j != -1) {
-            String newNumber = number.replace("?", "").replace(',', '.');
+            String newNumber = number.
+                    replace("?", "").
+                    replace(',', '.');
             return Double.parseDouble(newNumber);
         }
         return Double.parseDouble(number.replace(',', '.'));
@@ -80,11 +106,11 @@ public class StrUtils {
             return null;
         }
         int j = number.indexOf(",");
-        int k = number.indexOf("%");
-        if (j == -1 && k == -1) {
+        if (j == -1) {
             return Integer.parseInt(number);
         }
-        String newNumber = number.replace(",", "").replace("%", "");
+        String newNumber = number.
+                replace(",", "");
         return Integer.parseInt(newNumber);
     }
 
@@ -164,10 +190,4 @@ public class StrUtils {
 
 
     }
-
-//    public static void main(String[] args) {
-//        String b = "-12.8624,00";
-//        String a = "-22,224.88";
-//        System.out.println(StrUtils.replaceDouble(a));
-//    }
 }

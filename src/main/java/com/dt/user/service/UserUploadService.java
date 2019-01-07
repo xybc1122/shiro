@@ -14,17 +14,15 @@ public interface UserUploadService {
     int addUserUploadInfo(UserUpload userUpload);
 
     /**
-     * @param uid    用户ID
-     * @param sId    店铺ID
-     * @param siteId 站点ID
+     * @param upload
      * @return
      */
-    List<UserUpload> getUserUploadInfo(Long uid, Long sId, Long siteId);
+    List<UserUpload> getUserUploadInfo(UserUpload upload);
 
     /**
      * 删除 上传记录 更新标示符
      */
-    int delUploadInfo( Long id);
+    int delUploadInfo(Long id);
 
     /**
      * 更新用户信息

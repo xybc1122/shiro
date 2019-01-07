@@ -19,7 +19,6 @@ public class SalesAmazonFbaBusinessreporProvider {
                 "`modify_date`,`modify_id_user`,`audit_date`,`audit_id_user`,`recording_id`)values");
         for (SalesAmazonFbaBusinessreport bus : busList) {
             sb.append("(" + bus.getDate() + "," + bus.getShopId() + "," + bus.getSiteId() + ",");
-            sb.append(",");
             StrUtils.appBuider(sb, bus.getSku());
             sb.append("," + bus.getSkuId() + ",");
             StrUtils.appBuider(sb, bus.getfAsin());

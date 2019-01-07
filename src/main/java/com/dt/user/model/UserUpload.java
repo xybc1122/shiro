@@ -74,6 +74,10 @@ public class UserUpload {
      * @return
      */
     private Long recordingId;
+    /**
+     * 洲ID
+     */
+    private Integer areaId;
 
     public List<UserUpload> getUploadSuccessList() {
         return uploadSuccessList;
@@ -81,6 +85,14 @@ public class UserUpload {
 
     public void setUploadSuccessList(List<UserUpload> uploadSuccessList) {
         this.uploadSuccessList = uploadSuccessList;
+    }
+
+    public Integer getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(Integer areaId) {
+        this.areaId = areaId;
     }
 
     public Integer getpId() {

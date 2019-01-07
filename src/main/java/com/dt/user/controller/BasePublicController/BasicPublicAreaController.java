@@ -26,11 +26,16 @@ public class BasicPublicAreaController {
      */
     @PostMapping("/findByListRegion")
     public ResponseBase findByListCompany(@RequestBody UserDto userDto) {
-        PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
-        List<BasicPublicArea> basicPublicAreaList = basicPublicAreaService.findByListArea();
-        PageInfo<BasicPublicArea> pageInfo = new PageInfo<>(basicPublicAreaList);
-        Integer currentPage = userDto.getCurrentPage();
-        return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
+        List<BasicPublicArea> basicPublicAreaList;
+        if (userDto.getCurrentPage() != null && userDto.getPageSize() != null) {
+            PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
+            basicPublicAreaList = basicPublicAreaService.findByListArea();
+            PageInfo<BasicPublicArea> pageInfo = new PageInfo<>(basicPublicAreaList);
+            Integer currentPage = userDto.getCurrentPage();
+            return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
+        }
+        basicPublicAreaList = basicPublicAreaService.findByListArea();
+        return BaseApiService.setResultSuccess(basicPublicAreaList);
     }
 
 }

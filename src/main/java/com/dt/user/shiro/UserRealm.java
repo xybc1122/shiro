@@ -34,7 +34,7 @@ public class UserRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        System.out.println("```````````````````````````````````````++++++++++++++++++");
+       // System.out.println("```````````````````````````````````````++++++++++++++++++");
         Long userId = ShiroUtils.getUserId();
         RoleService roleService = ApplicationContextRegister.getBean(RoleService.class);
         PermsMapperService permsService = ApplicationContextRegister.getBean(PermsMapperService.class);
@@ -82,11 +82,11 @@ public class UserRealm extends AuthorizingRealm {
         return info;
     }
 
-    public static void main(String[] args) {
-        //盐值加密
-        ByteSource salt = ByteSource.Util.bytes("bb");
-        Object result = new SimpleHash("MD5", "8", salt, 1024);
-        //d6f1c053e0a3faca08830aabca5f9885
-        System.out.println(result);
-    }
+//    public static void main(String[] args) {
+//        //盐值加密
+//        ByteSource salt = ByteSource.Util.bytes("bb");
+//        Object result = new SimpleHash("MD5", "8", salt, 1024);
+//        //d6f1c053e0a3faca08830aabca5f9885
+//        System.out.println(result);
+//    }
 }
