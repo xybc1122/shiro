@@ -28,7 +28,7 @@ public class ArrUtils {
             return false;
         }
         for (int i = 0; i < oneList.size(); i++) {
-            if (!(oneList.get(i)).equals(twoList.get(i))) {
+            if (!(oneList.get(i)).equals(twoList.get(i).trim())) {
                 return false;
             }
         }

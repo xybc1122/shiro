@@ -214,26 +214,4 @@ public class UserUpload {
     public void setRecordingId(Long recordingId) {
         this.recordingId = recordingId;
     }
-
-    @Override
-    public String toString() {
-        return "UserUpload{" +
-                "uploadSuccessList=" + uploadSuccessList +
-                ", id=" + id +
-                ", uid=" + uid +
-                ", name='" + name + '\'' +
-                ", createDate=" + createDate +
-                ", delDate=" + delDate +
-                ", delDateId=" + delDateId +
-                ", filePath='" + filePath + '\'' +
-                ", writeFilePath='" + writeFilePath + '\'' +
-                ", remark='" + remark + '\'' +
-                ", status=" + status +
-                ", shopId=" + shopId +
-                ", siteId=" + siteId +
-                ", pId=" + pId +
-                ", tbId=" + tbId +
-                ", recordingId=" + recordingId +
-                '}';
-    }
 }
