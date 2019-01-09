@@ -107,6 +107,7 @@ public class UploadController {
 
     /**
      * 定时请求的状态
+     *
      * @return
      */
     @GetMapping("/timing")
@@ -226,7 +227,7 @@ public class UploadController {
                 } else if (typeFile.equals("txt")) {
                     responseBase = importTxt(userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
                     responseBaseList.add(responseBase);
-                    System.out.println("txt");
+                    // System.out.println("txt");
                 }
             }
         }
@@ -253,12 +254,8 @@ public class UploadController {
             writeLock.lock();
             try {
                 skuNoIdList = new CopyOnWriteArrayList();
-                //首先获得行数
-                Long sumCount = TxtUtils.readFile(filePath);
-                if (sumCount != 0L) {
-                    //获得总行数
-                    Timing.getInstance().setTotalNumber(sumCount);
-                }
+                //设置文件总数
+                Timing.setFileCount(filePath);
                 //第一行List头
                 List<String> strLineHead = new ArrayList<>();
                 strLineHead.add(lineHead);
@@ -268,7 +265,8 @@ public class UploadController {
                 writeLock.unlock();
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage() + "-------------------------");
+            //System.out.println(e.getMessage() + "-------------------------");
+            Timing.getInstance().setStatus("error");
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
         } finally {
@@ -304,6 +302,7 @@ public class UploadController {
             if (sftPort != null) {
                 sfbTradList.add(sftPort);
             }
+            //获得count
             Timing.getInstance().setDataLength(count.get());
         }
         int countTrad;
@@ -355,13 +354,16 @@ public class UploadController {
             writeLock.lock();
             try {
                 skuNoIdList = new CopyOnWriteArrayList();
+                //设置文件总数
+                Timing.setFileCount(filePath);
                 responseCsv = saveCsv(csvReader, row, shopId, siteId, uid, pId.longValue(), id, tbId, 1L);
                 return saveUserUploadInfo(responseCsv, id, fileName, oldHeadList, 2);
             } finally {
                 writeLock.unlock();
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage() + "-------------------------");
+            //System.out.println(e.getMessage() + "-------------------------");
+            Timing.getInstance().setStatus("error");
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
             return saveUserUploadInfo(responseCsv, id, fileName, null, 0);
         } finally {
@@ -392,7 +394,6 @@ public class UploadController {
         if (tbId == null) {
             return BaseApiService.setResultError("没有tbId------");
         }
-
         List<?> tList = new ArrayList<>();
         if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
             fsbList = ArrUtils.listT(tList);
@@ -418,6 +419,8 @@ public class UploadController {
                 }
             }
             index++;
+            //获得count
+            Timing.getInstance().setDataLength(count.get());
         }
         int number = 0;
         //财务
@@ -1403,6 +1406,7 @@ public class UploadController {
         }
         if (cprList.size() > 0) {
             int countCpr = cprService.AddSalesAmazonAdCprList(cprList);
+            Timing.getInstance().setStatus("success");
             return printCount(countCpr, begin);
         }
         return null;

@@ -1,11 +1,13 @@
 package com.dt.user.model;
 
+import com.dt.user.utils.TxtUtils;
+
 /**
  * 定时请求的对象
  */
 public class Timing {
 
-    private static Timing timing = null;
+    private static volatile Timing timing = null;
     /**
      * 总数
      */
@@ -34,6 +36,24 @@ public class Timing {
         }
         //否则直接返回
         return timing;
+    }
+    /**
+     * 设置上传当前数
+     */
+
+
+    /**
+     * 设置文件总数
+     *
+     * @param filePath
+     */
+    public static void setFileCount(String filePath) {
+        //首先获得行数
+        Long sumCount = TxtUtils.readFile(filePath);
+        if (sumCount != 0L) {
+            //获得总行数
+            Timing.getInstance().setTotalNumber(sumCount);
+        }
     }
 
     public Long getTotalNumber() {
