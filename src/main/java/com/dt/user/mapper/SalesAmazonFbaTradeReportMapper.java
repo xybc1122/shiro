@@ -1,7 +1,9 @@
 package com.dt.user.mapper;
 
+import com.dt.user.model.SalesAmazonFbaTradeReport;
 import com.dt.user.provider.SalesAmazonFbaTradeReportProvider;
 import org.apache.ibatis.annotations.InsertProvider;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.List;
 /**
  * 订单报告表
  */
+@Mapper
 public interface SalesAmazonFbaTradeReportMapper {
 
 
@@ -17,7 +20,7 @@ public interface SalesAmazonFbaTradeReportMapper {
      *
      * @return
      */
-    @InsertProvider(type = SalesAmazonFbaTradeReportProvider.class, method = "addAmazonAdBus")
-    int AddSalesAmazonAdTrdList(@Param("trdList") List<SalesAmazonFbaTradeReportProvider> trdList);
+    @InsertProvider(type = SalesAmazonFbaTradeReportProvider.class, method = "addInfo")
+    int AddSalesAmazonAdTrdList(@Param("trdList") List<SalesAmazonFbaTradeReport> trdList);
 
 }

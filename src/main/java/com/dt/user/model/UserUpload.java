@@ -7,20 +7,6 @@ public class UserUpload {
     public UserUpload() {
 
     }
-
-//    public static UserUpload getInstance() {
-//        //判断实例是否为空，为空则实例化
-//        if (null == userUpload) {
-//            synchronized (UserUpload.class) {
-//                if (null == userUpload) {
-//                    userUpload = new UserUpload();
-//                }
-//            }
-//        }
-//        //否则直接返回
-//        return userUpload;
-//    }
-
     private List<UserUpload> uploadSuccessList;
     private Long id;
     private Long uid;

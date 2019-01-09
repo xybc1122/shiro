@@ -7,6 +7,7 @@ import com.dt.user.config.ResponseBase;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
 import com.dt.user.model.*;
 import com.dt.user.service.*;
+import com.dt.user.service.BasePublicService.BasicPublicSiteService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonCsvTxtXslHeaderService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonSkuService;
 import com.dt.user.toos.Constants;
@@ -56,6 +57,7 @@ public class UploadController {
 
     @Autowired
     private SalesAmazonAdOarService oarService;
+
     @Autowired
     private SalesAmazonAHlService hlService;
 
@@ -63,11 +65,17 @@ public class UploadController {
     private SalesAmazonFbaBusinessreportService busService;
 
     @Autowired
+    private BasicPublicSiteService siteService;
+
+    @Autowired
+    private SalesAmazonFbaTradeReportService tradeReportService;
+
+    @Autowired
     private BasicPublicAmazonTypeMapper typeMapper;
     //获取没有SKU的List集合 并发List 容器
     private CopyOnWriteArrayList skuNoIdList;
     //行数 /报错行数
-    ThreadLocal<Integer> count = ThreadLocal.withInitial(() -> 0);
+    ThreadLocal<Long> count = ThreadLocal.withInitial(() -> 0L);
     //没有sku有几行存入
     ThreadLocal<Integer> sumErrorSku = ThreadLocal.withInitial(() -> 0);
     //读写锁
@@ -76,6 +84,35 @@ public class UploadController {
     Lock readLock = readWriteLock.readLock();
     //写锁
     Lock writeLock = readWriteLock.writeLock();
+
+
+    //并发++
+    public void inCreateSumNoSku() {
+        Integer sumSku = sumErrorSku.get();
+        sumSku++;
+        sumErrorSku.set(sumSku);
+    }
+
+    public void inCreateCount() {
+        Long myCount = count.get();
+        myCount++;
+        count.set(myCount);
+    }
+
+    public void delCreateCount() {
+        Long typeCount = count.get();
+        typeCount--;
+        count.set(typeCount);
+    }
+
+    /**
+     * 定时请求的状态
+     * @return
+     */
+    @GetMapping("/timing")
+    public ResponseBase s() {
+        return BaseApiService.setResultSuccess(Timing.getInstance());
+    }
 
     @GetMapping("/downloadCommonFile")
     public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest request, HttpServletResponse response) {
@@ -196,9 +233,10 @@ public class UploadController {
         return BaseApiService.setResultSuccess(responseBaseList);
     }
 
-    //###############################封装Csv
+
+    //###############################封装Txt
     public ResponseBase importTxt(String saveFilePath, String fileName, Long shopId, Long uid, Long recordingId, Integer tbId, Integer aId) {
-        List<SalesAmazonFbaBusinessreport> safList = new ArrayList<>();
+        ResponseBase responseCsv;
         String filePath = saveFilePath + fileName;
         try (InputStreamReader read = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8);
              BufferedReader br = new BufferedReader(read)
@@ -206,31 +244,77 @@ public class UploadController {
             //拿到数据库的表头 进行校验
             List<String> head = getHeadInfo(null, tbId, aId);
             //对比头部
-            List<String> txtHead = Arrays.asList(br.readLine().split("\t"));
+            String lineHead = br.readLine();
+            List<String> txtHead = Arrays.asList(lineHead.split("\t"));
             boolean isFlg = ArrUtils.eqOrderList(head, txtHead);
             if (!isFlg) {
-                return saveUserUploadInfo(BaseApiService.setResultError("表头信息不一致"), recordingId, fileName, null);
+                return saveUserUploadInfo(BaseApiService.setResultError("表头信息不一致"), recordingId, fileName, null, 3);
             }
-            List<SalesAmazonFbaTradeReport> sfbList = new ArrayList<>();
-            SalesAmazonFbaTradeReport sftPort;
-            String line;
-            while ((line = br.readLine()) != null) {
-                //count ++
-                inCreateCount();
-                sftPort = setTraPort(shopId, uid, recordingId);
-                // 一次读入一行数据
-                String[] newLine = line.split("\t", -1);
-                for (int i = 0; i < newLine.length; i++) {
-                    saveTradeReport(sftPort, newLine);
-                    System.out.println(newLine[i]);
-                    //safList.add(newLine[i]);
+            writeLock.lock();
+            try {
+                skuNoIdList = new CopyOnWriteArrayList();
+                //首先获得行数
+                Long sumCount = TxtUtils.readFile(filePath);
+                if (sumCount != 0L) {
+                    //获得总行数
+                    Timing.getInstance().setTotalNumber(sumCount);
                 }
-                sfbList.add();
+                //第一行List头
+                List<String> strLineHead = new ArrayList<>();
+                strLineHead.add(lineHead);
+                responseCsv = saveTxt(br, shopId, uid, recordingId, strLineHead);
+                return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
+            } finally {
+                writeLock.unlock();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage() + "-------------------------");
+            responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
+        } finally {
+            count.set(0L);
         }
-        return null;
+    }
+
+    /**
+     * 封装Txt
+     */
+    public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> lineHead) throws IOException {
+        // 开始时间
+        Long begin = new Date().getTime();
+        List<SalesAmazonFbaTradeReport> sfbTradList = new ArrayList<>();
+        SalesAmazonFbaTradeReport sftPort;
+        SalesAmazonFbaTradeReport tradeReport;
+        String line;
+        v1:
+        while ((line = br.readLine()) != null) {
+            //count ++
+            inCreateCount();
+            sftPort = setTraPort(shopId, uid, recordingId);
+            // 一次读入一行数据
+            String[] newLine = line.split("\t", -1);
+            for (int i = 0; i < newLine.length; i++) {
+                tradeReport = saveTradeReport(i, sftPort, newLine, shopId);
+                if (tradeReport == null) {
+                    //先拿到这一行信息 newLine
+                    exportTxtType(lineHead, line);
+                    continue v1;
+                }
+            }
+            if (sftPort != null) {
+                sfbTradList.add(sftPort);
+            }
+            Timing.getInstance().setDataLength(count.get());
+        }
+        int countTrad;
+        if (sfbTradList.size() > 0) {
+            //插入数据
+            countTrad = tradeReportService.AddSalesAmazonAdTrdList(sfbTradList);
+            if (countTrad > 0) {
+                return printCount(countTrad, begin);
+            }
+        }
+        return BaseApiService.setResultError("Txt存入异常~");
     }
 
     /**
@@ -263,25 +347,28 @@ public class UploadController {
         //对比表头是否一致
         comparisonBase = comparison(oldHeadList, siteId, tbId);
         if (comparisonBase != null) {
-            return saveUserUploadInfo(comparisonBase, id, fileName, null);
+            return saveUserUploadInfo(comparisonBase, id, fileName, null, 2);
         }
 
         try (InputStreamReader isr = new InputStreamReader(new FileInputStream(new File(filePath)), StandardCharsets.UTF_8)) {
             csvReader = new CsvReader(isr);
             writeLock.lock();
-            skuNoIdList = new CopyOnWriteArrayList();
-            responseCsv = saveCsv(csvReader, row, shopId, siteId, uid, pId.longValue(), id, tbId, 1L);
-            return saveUserUploadInfo(responseCsv, id, fileName, oldHeadList);
+            try {
+                skuNoIdList = new CopyOnWriteArrayList();
+                responseCsv = saveCsv(csvReader, row, shopId, siteId, uid, pId.longValue(), id, tbId, 1L);
+                return saveUserUploadInfo(responseCsv, id, fileName, oldHeadList, 2);
+            } finally {
+                writeLock.unlock();
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage() + "-------------------------");
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
-            return saveUserUploadInfo(responseCsv, id, fileName, null);
+            return saveUserUploadInfo(responseCsv, id, fileName, null, 0);
         } finally {
             if (csvReader != null) {
                 csvReader.close();
             }
-            count.set(0);
-            writeLock.unlock();
+            count.set(0L);
         }
     }
 
@@ -333,51 +420,26 @@ public class UploadController {
             index++;
         }
         int number = 0;
+        //财务
         if (fsbList != null) {
             if (fsbList.size() > 0) {
                 number = fsbService.addInfo(fsbList, tbId);
             }
         }
+        //业务
         if (sfbList != null) {
             if (sfbList.size() > 0) {
-                //存入数据~
                 number = busService.AddSalesAmazonAdBusList(sfbList);
             }
         }
         if (number != 0) {
             // 结束时间
             Long end = new Date().getTime();
-            int successSum = count.get() - row;
-            int sum = successSum + sumErrorSku.get();
+            Long successSum = count.get() - row;
+            Long sum = successSum + sumErrorSku.get();
             return BaseApiService.setResultSuccess("总共" + sum + "条数据/" + successSum + "条数据插入成功/失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
         }
         return BaseApiService.setResultError("表里的skuID全部不一致 请修改~");
-    }
-
-    //并发++
-    public void inCreateSumNoSku() {
-        Integer sumSku = sumErrorSku.get();
-        sumSku++;
-        sumErrorSku.set(sumSku);
-    }
-
-    //并发--
-    public void delSumNoSku() {
-        Integer delSumSku = sumErrorSku.get();
-        delSumSku--;
-        sumErrorSku.set(delSumSku);
-    }
-
-    public void inCreateCount() {
-        Integer myCount = count.get();
-        myCount++;
-        count.set(myCount);
-    }
-
-    public void delCreateCount() {
-        Integer typeCount = count.get();
-        typeCount--;
-        count.set(typeCount);
     }
 
     /**
@@ -520,44 +582,139 @@ public class UploadController {
      * @return
      * @throws IOException
      */
-    public SalesAmazonFbaTradeReport saveTradeReport(SalesAmazonFbaTradeReport sft, String[] j) throws IOException {
-        sft.setAmazonOrderId(j[0]);
-        sft.setMerchantOrderId(j[1]);
-        sft.setDate(DateUtils.getTime(j[2], Constants.NORTH_AMERICA));
-        sft.setLastUpdatedDate(DateUtils.getTime(j[3], Constants.NORTH_AMERICA));
-        sft.setOrderStatus(j[4]);
-        sft.setFulfillmentChannel(j[5]);
-        sft.setSalesChannel(j[6]);
-        sft.setOrderChannel(j[7]);
-        String url = j[8];
-        //查询 获得site Id
-        sft.setUrl(url);
-        sft.setSiteId(1L);
-        sft.setShipServiceLevel(j[9]);
-        sft.setProductName(j[10]);
-        sft.setSku(j[11]);
-        sft.setAsin(j[12]);
-        sft.setItemStatus(j[13]);
-        sft.setQuantity(j[14]);
-        sft.setCurrency(j[15]);
-        sft.setItemPrice(j[16]);
-        sft.setItemTax(j[17]);
-        sft.setShippingPrice(j[18]);
-        sft.setShippingPrice(j[19]);
-        sft.setGiftWrapPrice(j[20]);
-        sft.setGiftWrapTax(j[21]);
-        sft.setItemPromotionDiscount(j[22]);
-        sft.setShipPromotionDiscount(j[23]);
-        sft.setShipCity(j[24]);
-        sft.setShipState(j[25]);
-        sft.setShipPostalCode(j[26]);
-        sft.setShipCountry(j[27]);
-        sft.setPromotionIds(j[28]);
-        sft.setIsBusinessOrder(j[29]);
-        sft.setPurchaseOrderNumber(j[30]);
-        sft.setPriceDesignation(j[31]);
-
+    public SalesAmazonFbaTradeReport saveTradeReport(int i, SalesAmazonFbaTradeReport sft, String[] j, Long sId) {
+        switch (i) {
+            case 0:
+                sft.setAmazonOrderId(StrUtils.repString(j[i]));
+                break;
+            case 1:
+                sft.setMerchantOrderId(StrUtils.repString(j[i]));
+                break;
+            case 2:
+                sft.setDate(DateUtils.getTime(j[i], Constants.NORTH_AMERICA));
+                break;
+            case 3:
+                sft.setLastUpdatedDate(DateUtils.getTime(j[i], Constants.NORTH_AMERICA));
+                break;
+            case 4:
+                sft.setOrderStatus(StrUtils.repString(j[i]));
+                break;
+            case 5:
+                sft.setFulfillmentChannel(StrUtils.repString(j[i]));
+                break;
+            case 6:
+                String siteUrl = StrUtils.repString(j[i]);
+                sft.setSalesChannel(siteUrl);
+                //查询 获得site Id
+                Long siteId = siteService.getSiteId(siteUrl);
+                if (siteId == null) {
+                    return null;
+                }
+                sft.setSiteId(siteId);
+                break;
+            case 7:
+                sft.setOrderChannel(StrUtils.repString(j[i]));
+                break;
+            case 8:
+                sft.setUrl(StrUtils.repString(j[i]));
+                break;
+            case 9:
+                sft.setShipServiceLevel(StrUtils.repString(j[i]));
+                break;
+            case 10:
+                sft.setProductName(StrUtils.repString(j[i]));
+                break;
+            case 11:
+                sft.setSku(StrUtils.repString(j[i]));
+                break;
+            case 12:
+                sft.setAsin(StrUtils.repString(j[i]));
+                boolean isFlgId = skuEqAsin(sft.getSku(), sft.getAsin(), sId, sft.getSiteId(), sft);
+                if (!isFlgId) {
+                    return null;
+                }
+                break;
+            case 13:
+                sft.setItemStatus(StrUtils.repString(j[i]));
+                break;
+            case 14:
+                sft.setQuantity(StrUtils.replaceInteger(j[i]));
+                break;
+            case 15:
+                sft.setCurrency(StrUtils.repString(j[i]));
+                break;
+            case 16:
+                sft.setItemPrice(StrUtils.repDouble(j[i]));
+                break;
+            case 17:
+                sft.setItemTax(StrUtils.repDouble(j[i]));
+                break;
+            case 18:
+                sft.setShippingPrice(StrUtils.repDouble(j[i]));
+                break;
+            case 19:
+                sft.setShippingPrice(StrUtils.repDouble(j[i]));
+                break;
+            case 20:
+                sft.setGiftWrapPrice(StrUtils.repDouble(j[i]));
+                break;
+            case 21:
+                sft.setGiftWrapTax(StrUtils.repDouble(j[i]));
+                break;
+            case 22:
+                sft.setItemPromotionDiscount(StrUtils.repDouble(j[i]));
+                break;
+            case 23:
+                sft.setShipPromotionDiscount(StrUtils.repDouble(j[i]));
+                break;
+            case 24:
+                sft.setShipCity(StrUtils.repString(j[i]));
+                break;
+            case 25:
+                sft.setShipState(StrUtils.repString(j[i]));
+                break;
+            case 26:
+                sft.setShipPostalCode(StrUtils.repString(j[i]));
+                break;
+            case 27:
+                sft.setShipCountry(StrUtils.repString(j[i]));
+                break;
+            case 28:
+                sft.setPromotionIds(StrUtils.repString(j[i]));
+                break;
+            case 29:
+                sft.setIsBusinessOrder(StrUtils.repString(j[i]));
+                break;
+            case 30:
+                sft.setPurchaseOrderNumber(StrUtils.repString(j[i]));
+                break;
+            case 31:
+                sft.setPriceDesignation(StrUtils.repString(j[i]));
+                break;
+        }
         return sft;
+    }
+
+    /**
+     * 洲业务 sku asin  业务对比获得sku
+     *
+     * @param sku
+     * @param asin
+     */
+    public boolean skuEqAsin(String sku, String asin, Long sId, Long seId, SalesAmazonFbaTradeReport sft) {
+        if (StringUtils.isNotEmpty(sku) && StringUtils.isNotEmpty(asin)) {
+            //查询skuId
+            Long skuId = skuService.selSkuId(sId, seId, sku);
+            Long asinId = skuService.getAsinSkuId(sId, seId, asin);
+            if (skuId == null || asinId == null) {
+                return false;
+            }
+            if (skuId.equals(asinId)) {
+                sft.setSkuId(skuId);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -842,6 +999,27 @@ public class UploadController {
         return sfb;
     }
 
+    //10月
+    //11月
+
+
+    /**
+     * 通用设置Txt 没有sku/导出文件
+     *
+     * @return
+     */
+    public void exportTxtType(List<String> head, String line) {
+        //count --
+        delCreateCount();
+        //sumNoSku ++
+        inCreateSumNoSku();
+        if (skuNoIdList.size() == 0) {
+            skuNoIdList.add(head);
+        }
+        List<String> skuListNo = new ArrayList<>();
+        skuListNo.add(line);
+        skuNoIdList.add(skuListNo);
+    }
 
     /**
      * 通用设置CSV 没有sku/typeName导出文件
@@ -1041,8 +1219,8 @@ public class UploadController {
             }
             int lastRowNum = sheet.getLastRowNum(); // 获取总行数
             writeLock.lock();
-            skuNoIdList = new CopyOnWriteArrayList();
             try {
+                skuNoIdList = new CopyOnWriteArrayList();
                 switch (tbId) {
                     //Cpr
                     case 105:
@@ -1061,7 +1239,7 @@ public class UploadController {
                         responseBase = readTableHl(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet);
                         break;
                 }
-                return saveUserUploadInfo(responseBase, recordingId, fileName, null);
+                return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1);
             } finally {
                 writeLock.unlock();
             }
@@ -1071,10 +1249,10 @@ public class UploadController {
 //            System.out.println(e.getMessage());
             responseBase = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
             //如果报错更新状态
-            responseBase = saveUserUploadInfo(responseBase, recordingId, fileName, null);
+            responseBase = saveUserUploadInfo(responseBase, recordingId, fileName, null, 0);
             return responseBase;
         } finally {
-            count.set(0);
+            count.set(0L);
         }
     }
 
@@ -1666,26 +1844,29 @@ public class UploadController {
      * @param id
      * @return
      */
-    public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long id, String fileName, List<String> head) {
+    public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String fileName, List<String> head, int type) {
         if (responseBase.getCode() == 200) {
             if (skuNoIdList.size() != 0) {
-                if (head == null) {
+                if (type == 1) {
                     //写入xlsx 文件写入到服务器的地址   Constants.WRITE_SAVE_FILE_PATH
                     XlsUtils.outPutXssFile(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
-                } else {
+                } else if (type == 2) {
                     //写入CSV文件到本地
                     CSVUtil.write(head, skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                } else if (type == 3) {
+                    TxtUtils.writeFileTxt(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                    //写入Txt
                 }
                 //上传成功 有些skuId 记录上传信息~
                 String msg = responseBase.getMsg() + "----有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
                 sumErrorSku.set(0);
-                return upUserUpload(2, id, fileName, msg);
+                return upUserUpload(2, recordingId, fileName, msg);
             }
             //上传成功 都有skuId~
-            return upUserUpload(0, id, fileName, responseBase.getMsg());
+            return upUserUpload(0, recordingId, fileName, responseBase.getMsg());
         } else {
             //存入信息报错
-            return upUserUpload(1, id, fileName, responseBase.getMsg());
+            return upUserUpload(1, recordingId, fileName, responseBase.getMsg());
         }
     }
 

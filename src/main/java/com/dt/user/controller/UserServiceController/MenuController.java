@@ -29,6 +29,7 @@ public class MenuController {
 
     /**
      * 测试是否登陆了的接口
+     *
      * @return
      */
     @GetMapping("/index")
@@ -39,6 +40,7 @@ public class MenuController {
 
     /**
      * 通过角色id获取菜单树列表
+     *
      * @param rid
      * @return
      */
@@ -63,8 +65,10 @@ public class MenuController {
         }
         return BaseApiService.setResultSuccess(menuList);
     }
+
     /**
      * 获取菜单列表
+     *
      * @return
      */
     @GetMapping("show")
@@ -79,10 +83,12 @@ public class MenuController {
             //先找到所有一级菜单
             for (int i = 0; i < rootMenu.size(); i++) {
                 //如果==0代表父菜单
-                if (rootMenu.get(i).getParentId() == 0) {
-                    menuList.add(rootMenu.get(i));
-                } else {
-                    childMenuList.add(rootMenu.get(i));
+                if (rootMenu.get(i).getParentId() != null) {
+                    if (rootMenu.get(i).getParentId() == 0) {
+                        menuList.add(rootMenu.get(i));
+                    } else {
+                        childMenuList.add(rootMenu.get(i));
+                    }
                 }
             }
             // 为一级菜单设置子菜单 getChild是递归调用的
@@ -120,6 +126,7 @@ public class MenuController {
 
     /**
      * 查询所有的菜单列表
+     *
      * @return
      */
     @GetMapping("/findMenuList")

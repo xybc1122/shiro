@@ -404,4 +404,53 @@ public class SalesAmazonFbaTradeReport {
     public void setAuditIdUser(Long auditIdUser) {
         this.auditIdUser = auditIdUser;
     }
+
+    @Override
+    public String toString() {
+        return "SalesAmazonFbaTradeReport{" +
+                "id=" + id +
+                ", amazonOrderId='" + amazonOrderId + '\'' +
+                ", merchantOrderId='" + merchantOrderId + '\'' +
+                ", date=" + date +
+                ", lastUpdatedDate=" + lastUpdatedDate +
+                ", shopId=" + shopId +
+                ", siteId=" + siteId +
+                ", orderStatus='" + orderStatus + '\'' +
+                ", fulfillmentChannel='" + fulfillmentChannel + '\'' +
+                ", salesChannel='" + salesChannel + '\'' +
+                ", orderChannel='" + orderChannel + '\'' +
+                ", url='" + url + '\'' +
+                ", shipServiceLevel='" + shipServiceLevel + '\'' +
+                ", productName='" + productName + '\'' +
+                ", sku='" + sku + '\'' +
+                ", skuId=" + skuId +
+                ", asin='" + asin + '\'' +
+                ", itemStatus='" + itemStatus + '\'' +
+                ", quantity=" + quantity +
+                ", currency='" + currency + '\'' +
+                ", itemPrice=" + itemPrice +
+                ", itemTax=" + itemTax +
+                ", shippingPrice=" + shippingPrice +
+                ", shippingTax=" + shippingTax +
+                ", giftWrapPrice=" + giftWrapPrice +
+                ", giftWrapTax=" + giftWrapTax +
+                ", itemPromotionDiscount=" + itemPromotionDiscount +
+                ", shipPromotionDiscount=" + shipPromotionDiscount +
+                ", shipCity='" + shipCity + '\'' +
+                ", shipState='" + shipState + '\'' +
+                ", shipPostalCode='" + shipPostalCode + '\'' +
+                ", shipCountry='" + shipCountry + '\'' +
+                ", promotionIds='" + promotionIds + '\'' +
+                ", isBusinessOrder='" + isBusinessOrder + '\'' +
+                ", purchaseOrderNumber='" + purchaseOrderNumber + '\'' +
+                ", priceDesignation='" + priceDesignation + '\'' +
+                ", createDate=" + createDate +
+                ", createIdUser=" + createIdUser +
+                ", modifyDate=" + modifyDate +
+                ", modifyIdUser=" + modifyIdUser +
+                ", auditDate=" + auditDate +
+                ", auditIdUser=" + auditIdUser +
+                ", recordingId=" + recordingId +
+                '}';
+    }
 }
