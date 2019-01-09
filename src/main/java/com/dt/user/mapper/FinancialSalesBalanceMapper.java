@@ -17,5 +17,5 @@ public interface FinancialSalesBalanceMapper {
      * @return
      */
     @InsertProvider(type = FinancialSalesBalanceProvider.class, method = "addInfo")
-    int addInfo(@Param("fsbList") List<FinancialSalesBalance> fsbList);
+    int addInfo(@Param("fsbList") List<FinancialSalesBalance> fsbList, @Param("tbId") Integer tbId);
 }

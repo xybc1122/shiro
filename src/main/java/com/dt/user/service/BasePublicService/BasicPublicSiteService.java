@@ -19,4 +19,12 @@ public interface BasicPublicSiteService {
      * 通过店铺id查询站点信息
      */
     List<BasicPublicSite> getShopIdTakeSiteList(Long sId);
+
+
+
+    /**
+     * 洲 业务
+     * 通过url 去查询site ID
+     */
+    Long getSiteId(String url);
 }

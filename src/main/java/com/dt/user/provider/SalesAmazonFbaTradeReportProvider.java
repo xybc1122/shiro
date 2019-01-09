@@ -1,4 +1,5 @@
 package com.dt.user.provider;
+
 import com.dt.user.model.SalesAmazonFbaTradeReport;
 import com.dt.user.utils.StrUtils;
 
@@ -17,14 +18,19 @@ public class SalesAmazonFbaTradeReportProvider {
                 "`asin`,`item_status`,`quantity`,`currency`,`item_price`,`item_tax`,`shipping_price`,`shipping_tax`,`gift_wrap_price`,\n" +
                 "`gift_wrap_tax`,`item_promotion_discount`,`ship_promotion_discount`,`ship_city`,`ship_state`,`ship_postal_code`,\n" +
                 "`ship_country`,`promotion_ids`,`is_business_order`,`purchase_order_number`,`price_designation`,\n" +
-                "`create_date`,`create_id_user`,`modify_date`,`modify_id_user`,`audit_date`,`audit_id_user`)values";
+                "`create_date`,`create_id_user`,`modify_date`,`modify_id_user`,`audit_date`,`audit_id_user`,`recording_id`)values";
         // 保存sql后缀
         StringBuilder sb = new StringBuilder();
         sb.append(prefix);
         for (SalesAmazonFbaTradeReport trade : trdList) {
+            sb.append("(");
+            StrUtils.appBuider(sb, trade.getAmazonOrderId());
+            sb.append(",");
+            StrUtils.appBuider(sb, trade.getMerchantOrderId());
+            sb.append(",");
             // 构建sql后缀
-            sb.append("(" + trade.getAmazonOrderId() + "," + trade.getMerchantOrderId() + ","
-                    + trade.getDate() + "," + trade.getLastUpdatedDate() + "," + trade.getShopId() + "," + trade.getSiteId());
+            sb.append(trade.getDate() + "," + trade.getLastUpdatedDate() + "," + trade.getShopId() + "," + trade.getSiteId());
+            sb.append(",");
             //#
             StrUtils.appBuider(sb, trade.getOrderStatus());
             sb.append(",");
@@ -55,8 +61,10 @@ public class SalesAmazonFbaTradeReportProvider {
             StrUtils.appBuider(sb, trade.getCurrency());
             sb.append(",");
             sb.append("" + trade.getItemPrice() + "," + trade.getItemTax() + "," +
-                    "" + trade.getShippingPrice() + "," + trade.getGiftWrapTax() + "," + trade.getItemPromotionDiscount()
+                    "" + trade.getShippingPrice() + "," + trade.getShippingTax()
+                    + "," + trade.getGiftWrapPrice() + "," + trade.getGiftWrapTax() + "," + trade.getItemPromotionDiscount()
                     + "," + trade.getShipPromotionDiscount());
+            sb.append(",");
             //#
             StrUtils.appBuider(sb, trade.getShipCity());
             sb.append(",");
@@ -74,6 +82,9 @@ public class SalesAmazonFbaTradeReportProvider {
             sb.append(",");
             //#
             StrUtils.appBuider(sb, trade.getIsBusinessOrder());
+            sb.append(",");
+            //#
+            StrUtils.appBuider(sb, trade.getPurchaseOrderNumber());
             sb.append(",");
             //#
             StrUtils.appBuider(sb, trade.getPriceDesignation());

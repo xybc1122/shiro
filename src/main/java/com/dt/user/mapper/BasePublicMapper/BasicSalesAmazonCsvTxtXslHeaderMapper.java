@@ -1,8 +1,10 @@
 package com.dt.user.mapper.BasePublicMapper;
 
+import com.dt.user.provider.BasicSalesAmazonCsvTxtXslHeaderProvider;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 
 import java.util.List;
 
@@ -14,9 +16,6 @@ public interface BasicSalesAmazonCsvTxtXslHeaderMapper {
      * @param seId
      * @return
      */
-    @Select("SELECT\n" +
-            "  `import_templet`\n" +
-            "FROM `basic_sales_amazon_csv_txt_xsl_header`\n" +
-            "WHERE site_id=#{seId} and tb_id = #{tbId}\n")
-    List<String> headerList(@Param("seId") Long seId, @Param("tbId") Integer tbId);
+    @SelectProvider(type = BasicSalesAmazonCsvTxtXslHeaderProvider.class, method = "findHeadInfo")
+    List<String> headerList(@Param("seId") Long seId, @Param("tbId") Integer tbId, @Param("areaId") Integer areaId);
 }

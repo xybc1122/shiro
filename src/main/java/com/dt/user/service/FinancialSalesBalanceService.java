@@ -6,6 +6,11 @@ import java.util.List;
 
 public interface FinancialSalesBalanceService {
 
-
-    int addInfo(List<FinancialSalesBalance> fsbList);
+    /**
+     * 财务存入信息
+     * @param fsbList
+     * @param tbId
+     * @return
+     */
+    int addInfo(List<FinancialSalesBalance> fsbList,Integer tbId);
 }

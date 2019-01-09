@@ -2,6 +2,7 @@ package com.dt.user.provider;
 
 
 import com.dt.user.model.FinancialSalesBalance;
+import com.dt.user.toos.Constants;
 import com.dt.user.utils.StrUtils;
 
 import java.util.List;
@@ -12,8 +13,13 @@ public class FinancialSalesBalanceProvider {
     @SuppressWarnings("unchecked")
     public String addInfo(Map<String, Object> infoMap) {
         List<FinancialSalesBalance> fsbList = (List<FinancialSalesBalance>) infoMap.get("fsbList");
+        Integer tbId = (Integer) infoMap.get("tbId");
+        String db = "financial_sales_amazon_balance";
+        if (tbId == Constants.FINANCE_ID_YY) {
+            db = "sales_amazon_fba_balance";
+        }
         // sql前缀
-        String prefix = "insert into financial_sales_amazon_balance" +
+        String prefix = "insert into " + db +
                 "(`date`,`shop_id`,`site_id`,`settlemen_id`," +
                 "`payment_type_id`,`type`,`order_id`,`sku`," +
                 "`sku_id`,`description`,`o_quantity`,`quantity`," +
@@ -80,7 +86,7 @@ public class FinancialSalesBalanceProvider {
                     "" + fsb.getStdProductSales() + "," + fsb.getStdSalesOriginal() + "," + fsb.getStdSalesAdd() + "," + fsb.getStdSalesMinus() + "," +
                     fsb.getStdFba() + "," + fsb.getStdFbas() + "," + fsb.getStdFbaOriginal() + "," + fsb.getLightningDealFee() + "," +
                     "" + fsb.getFbaInventoryFee() + "," + fsb.getStatus() + "," + fsb.getCreateDate() + "," + fsb.getCreateIdUser() + "," +
-                    "" + fsb.getModifyDate() + "," + fsb.getModifyIdUser() + "," + fsb.getAuditDate() + "," + fsb.getAuditIdUser() + "," + fsb.getRecordingId() +","+ fsb.getPointFee() +","+ fsb.getLowValueGoods() + "),")
+                    "" + fsb.getModifyDate() + "," + fsb.getModifyIdUser() + "," + fsb.getAuditDate() + "," + fsb.getAuditIdUser() + "," + fsb.getRecordingId() + "," + fsb.getPointFee() + "," + fsb.getLowValueGoods() + "),")
             ;
         }
         String sql = sb.toString().substring(0, sb.length() - 1);

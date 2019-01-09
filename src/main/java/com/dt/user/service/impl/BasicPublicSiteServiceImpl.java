@@ -23,4 +23,9 @@ public class BasicPublicSiteServiceImpl implements BasicPublicSiteService {
     public List<BasicPublicSite> getShopIdTakeSiteList(Long sId) {
         return basicPublicSiteMapper.getShopIdTakeSiteList(sId);
     }
+
+    @Override
+    public Long getSiteId(String url) {
+        return basicPublicSiteMapper.getSiteId(url);
+    }
 }

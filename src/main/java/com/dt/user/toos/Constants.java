@@ -74,6 +74,11 @@ public interface Constants {
     String MEXICO_TIME = "dd/MM/yyyy HH:mm:ss";
 
     /**
+     * 北美日期转换
+     */
+    String NORTH_AMERICA = "yyyy-MM-dd'T'HH:mm:ss";
+
+    /**
      * 打印消息 xls
      */
     String MSG_XLS = "xlsx/xls文件表头信息不一致/请检查~";
@@ -88,10 +93,14 @@ public interface Constants {
     int FINANCE_ID = 85;
 
     /**
+     * 运营财务导入ID
+     */
+    int FINANCE_ID_YY = 104;
+
+    /**
      * 业务导入ID
      */
     int BUSINESS_ID = 108;
 
-    String CODING ="utf-8";
 
 }

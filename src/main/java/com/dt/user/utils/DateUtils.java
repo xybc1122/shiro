@@ -33,9 +33,8 @@ public class DateUtils {
         calendar.add(Calendar.DAY_OF_MONTH, time);
         return calendar.getTime().getTime();
     }
-
     /**
-     * 美国/加拿大/德国/澳大利亚/英国/时间转换
+     * 美国/加拿大/德国/澳大利亚/英国/时间转换/北美
      *
      * @throws ParseException
      */
