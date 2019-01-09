@@ -9,10 +9,7 @@ import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -26,19 +23,18 @@ public class UserUploadController {
 
     /**
      * 获取上传记录
-     *
-     * @param sId
-     * @param seId
      * @return
      */
-    @GetMapping("/getInfo")
-    public ResponseBase getInfo(@RequestParam("sId") String sId, @RequestParam("seId") String seId, HttpServletRequest request) {
+    @PostMapping("/getInfo")
+    public ResponseBase getInfo(@RequestBody UserUpload requestUp, HttpServletRequest request) {
+        List<UserUpload> userUploadList;
         String token = GetCookie.getToken(request);
         UserInfo user = JwtUtils.jwtUser(token);
         if (user == null) {
             return BaseApiService.setResultError("token 失效");
         }
-        List<UserUpload> userUploadList = userUploadService.getUserUploadInfo(user.getUid(), Long.parseLong(sId), Long.parseLong(seId));
+        requestUp.setUid(user.getUid());
+        userUploadList = userUploadService.getUserUploadInfo(requestUp);
         return BaseApiService.setResultSuccess(userUploadList);
     }
 

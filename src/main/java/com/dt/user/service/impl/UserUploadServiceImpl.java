@@ -19,8 +19,8 @@ public class UserUploadServiceImpl implements UserUploadService {
     }
 
     @Override
-    public List<UserUpload> getUserUploadInfo(Long uid, Long sId, Long siteId) {
-        return userUploadMapper.getUserUploadInfo(uid, sId, siteId);
+    public List<UserUpload> getUserUploadInfo(UserUpload upload) {
+        return userUploadMapper.getUserUploadInfo(upload);
     }
 
     @Override

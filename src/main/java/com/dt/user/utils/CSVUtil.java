@@ -2,6 +2,7 @@ package com.dt.user.utils;
 
 import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvWriter;
+import com.dt.user.toos.Constants;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -16,18 +17,9 @@ public class CSVUtil {
      */
     public static String startReadLine(String filePath, Long site, int tbId) {
         JSONObject readJson = new JSONObject();
-        InputStreamReader isr = null;
-        BufferedReader reader = null;
-        String coding;
-        try {
+        try (InputStreamReader isr = new InputStreamReader(new FileInputStream(filePath), Constants.CODING);
+             BufferedReader reader = new BufferedReader(isr)) {
             //设置编码格式 ,日文解码shift_jis
-            if (tbId == 108) {
-                coding = "utf-8";
-            } else {
-                coding = site == 9L ? "shift_jis" : "GBK";
-            }
-            isr = new InputStreamReader(new FileInputStream(filePath), coding);
-            reader = new BufferedReader(isr);
             String line;
             int index = 1;
             while ((line = reader.readLine()) != null) {
@@ -73,8 +65,6 @@ public class CSVUtil {
             readJson.put("index", -1);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            TryUtils.ioClose(reader, isr, null, null, null);
         }
         return readJson.toJSONString();
     }

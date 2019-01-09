@@ -18,5 +18,5 @@ public interface SalesAmazonFbaBusinessreportMapper {
      * @return
      */
     @InsertProvider(type = SalesAmazonFbaBusinessreporProvider.class, method = "addAmazonAdBus")
-    int AddSalesAmazonAdHlList(@Param("hlList") List<SalesAmazonFbaBusinessreport> hlList);
+    int AddSalesAmazonAdHlList(@Param("busList") List<SalesAmazonFbaBusinessreport> busList);
 }

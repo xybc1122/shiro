@@ -92,4 +92,6 @@ public interface Constants {
      */
     int BUSINESS_ID = 108;
 
+    String CODING ="utf-8";
+
 }

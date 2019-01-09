@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 // 开启异步调用功能 线程池
 @EnableAsync
-public class UserApp {
+public class DtApp {
 
     public static void main(String[] args) {
-        SpringApplication.run(UserApp.class, args);
+        SpringApplication.run(DtApp.class, args);
     }
 }
