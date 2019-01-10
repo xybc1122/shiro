@@ -30,8 +30,8 @@ public class TxtUtils {
         }
     }
 
-    public static Long readFile(String filePath){
-        Long count = 0L;
+    public static Double readFile(String filePath) {
+        Double count = 0.0;
         File file = new File(filePath);
         try (FileInputStream fis = new FileInputStream(file);
              Scanner scanner = new Scanner(fis)) {
@@ -41,7 +41,7 @@ public class TxtUtils {
             }
             return count;
         } catch (Exception e) {
-            return 0L;
+            return 0.0;
         }
     }
 

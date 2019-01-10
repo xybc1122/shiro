@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -73,7 +75,7 @@ public class UploadController {
     @Autowired
     private BasicPublicAmazonTypeMapper typeMapper;
     //获取没有SKU的List集合 并发List 容器
-    private CopyOnWriteArrayList skuNoIdList;
+    private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
     //行数 /报错行数
     ThreadLocal<Long> count = ThreadLocal.withInitial(() -> 0L);
     //没有sku有几行存入
@@ -111,8 +113,8 @@ public class UploadController {
      * @return
      */
     @GetMapping("/timing")
-    public ResponseBase s() {
-        return BaseApiService.setResultSuccess(Timing.getInstance());
+    public ResponseBase timingStatus() {
+        return BaseApiService.setResultSuccess("");
     }
 
     @GetMapping("/downloadCommonFile")
@@ -123,8 +125,6 @@ public class UploadController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         return null;
     }
 
@@ -152,54 +152,58 @@ public class UploadController {
         int fileCount = 0;
         List<UserUpload> uploadList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < files.size(); i++) {
-            file = files.get(i);
-            //指定文件存放路径
-            String saveFilePath = Constants.SAVE_FILE_PATH;
-            String contentType = file.getContentType();//图片||文件类型
-            String fileName = file.getOriginalFilename();//图片||文件名字
-            try {
-                FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
-            } catch (Exception e) {
-                isUpload = false;
-                msg = "上传失败~" + fileName;
-                fileCount++;
-                sb.append(fileName);
+        try {
+            for (int i = 0; i < files.size(); i++) {
+                file = files.get(i);
+                //指定文件存放路径
+                String saveFilePath = Constants.SAVE_FILE_PATH;
+                String contentType = file.getContentType();//图片||文件类型
+                String fileName = file.getOriginalFilename();//图片||文件名字
+                try {
+                    FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
+                } catch (Exception e) {
+                    isUpload = false;
+                    msg = "上传失败~" + fileName;
+                    fileCount++;
+                    sb.append(fileName);
+                }
+                //店铺ID
+                Integer shopId = null;
+                if (StringUtils.isNotBlank(sId)) {
+                    shopId = Integer.parseInt(sId);
+                }
+                //站点ID
+                Integer siteId = null;
+                if (StringUtils.isNotBlank(seId)) {
+                    siteId = Integer.parseInt(seId);
+                }
+                Integer tbId = null;
+                if (StringUtils.isNotBlank(menuId)) {
+                    tbId = Integer.parseInt(menuId);
+                }
+                // pId
+                Integer pId = null;
+                if (StringUtils.isNotBlank(payId)) {
+                    pId = Integer.parseInt(payId);
+                }
+                // pId
+                Integer aId = null;
+                if (StringUtils.isNotBlank(areaId)) {
+                    aId = Integer.parseInt(areaId);
+                }
+                int status = isUpload ? 0 : 4;
+                //记录用户上传信息~
+                upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, status, msg, tbId, aId);
+                if (isUpload) {
+                    uploadList.add(upload);
+                }
+                isUpload = true;
             }
-            //店铺ID
-            Integer shopId = null;
-            if (StringUtils.isNotBlank(sId)) {
-                shopId = Integer.parseInt(sId);
-            }
-            //站点ID
-            Integer siteId = null;
-            if (StringUtils.isNotBlank(seId)) {
-                siteId = Integer.parseInt(seId);
-            }
-            Integer tbId = null;
-            if (StringUtils.isNotBlank(menuId)) {
-                tbId = Integer.parseInt(menuId);
-            }
-            // pId
-            Integer pId = null;
-            if (StringUtils.isNotBlank(payId)) {
-                pId = Integer.parseInt(payId);
-            }
-            // pId
-            Integer aId = null;
-            if (StringUtils.isNotBlank(areaId)) {
-                aId = Integer.parseInt(areaId);
-            }
-            int status = isUpload ? 0 : 4;
-            //记录用户上传信息~
-            upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, status, msg, tbId, aId);
-            if (isUpload) {
-                uploadList.add(upload);
-            }
-            isUpload = true;
+            String getMsg = "上传了" + files.size() + "个文件/" + "其中" + fileCount + "个文件失败~ 失败文件名字" + sb.toString() + "";
+            return BaseApiService.setResultSuccess(getMsg, uploadList);
+        } catch (Exception e) {
+            return BaseApiService.setResultError("上传程序出错,所有文件停止处理,请重新上传~", uploadList);
         }
-        String getMsg = "上传了" + files.size() + "个文件/" + "其中" + fileCount + "个文件失败~ 失败文件名字" + sb.toString() + "";
-        return BaseApiService.setResultSuccess(getMsg, uploadList);
     }
 
     /**
@@ -212,6 +216,8 @@ public class UploadController {
     public ResponseBase redFileInfo(@RequestBody UserUpload upload) {
         List<ResponseBase> responseBaseList = new ArrayList<>();
         int baseNum = upload.getUploadSuccessList().size();
+        //获取上传状态集合
+        Set<Timing> setUpListData = new HashSet<>();
         ResponseBase responseBase;
         if (baseNum > 0) {
             for (int i = 0; i < baseNum; i++) {
@@ -225,7 +231,7 @@ public class UploadController {
                     responseBase = importXls(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("txt")) {
-                    responseBase = importTxt(userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
+                    responseBase = importTxt(userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId(), setUpListData);
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
@@ -235,8 +241,23 @@ public class UploadController {
     }
 
 
+    /**
+     * 设置文件总数
+     *
+     * @param filePath
+     */
+    public void setFileCount(String filePath, Timing timing) {
+        //首先获得行数
+        Double sumCount = TxtUtils.readFile(filePath);
+        if (sumCount != 0.0) {
+            //获得总行数
+            timing.setTotalNumber(sumCount);
+        }
+    }
+
     //###############################封装Txt
-    public ResponseBase importTxt(String saveFilePath, String fileName, Long shopId, Long uid, Long recordingId, Integer tbId, Integer aId) {
+    public ResponseBase importTxt(String saveFilePath, String fileName, Long shopId, Long uid, Long recordingId, Integer tbId, Integer aId, Set<Timing> setTiming) {
+        Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + fileName;
         try (InputStreamReader read = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8);
@@ -253,20 +274,20 @@ public class UploadController {
             }
             writeLock.lock();
             try {
-                skuNoIdList = new CopyOnWriteArrayList();
                 //设置文件总数
-                Timing.setFileCount(filePath);
+                setFileCount(filePath, timing);
                 //第一行List头
                 List<String> strLineHead = new ArrayList<>();
                 strLineHead.add(lineHead);
-                responseCsv = saveTxt(br, shopId, uid, recordingId, strLineHead);
+                responseCsv = saveTxt(br, shopId, uid, recordingId, strLineHead, timing, setTiming);
                 return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
             } finally {
                 writeLock.unlock();
             }
         } catch (IOException e) {
             //System.out.println(e.getMessage() + "-------------------------");
-            Timing.getInstance().setStatus("error");
+            timing.setStatus("exception");
+            setTiming.add(timing);
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
         } finally {
@@ -277,7 +298,7 @@ public class UploadController {
     /**
      * 封装Txt
      */
-    public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> lineHead) throws IOException {
+    public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> lineHead, Timing timing, Set<Timing> setTiming) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
         List<SalesAmazonFbaTradeReport> sfbTradList = new ArrayList<>();
@@ -302,14 +323,24 @@ public class UploadController {
             if (sftPort != null) {
                 sfbTradList.add(sftPort);
             }
-            //获得count
-            Timing.getInstance().setDataLength(count.get());
+            //计算百分比
+            int percentage = (int) ((count.get() / timing.getTotalNumber()) * 100);
+            timing.setPercentage(percentage);
+            if (percentage == 60) {
+                //设置颜色
+                timing.setColor("#8e71c7");
+            }
+            setTiming.add(timing);
         }
         int countTrad;
         if (sfbTradList.size() > 0) {
             //插入数据
+            timing.setMsg("正在导入数据库..........");
             countTrad = tradeReportService.AddSalesAmazonAdTrdList(sfbTradList);
             if (countTrad > 0) {
+                timing.setStatus("success");
+                timing.setMsg("数据导入成功..........");
+                setTiming.add(timing);
                 return printCount(countTrad, begin);
             }
         }
@@ -353,9 +384,8 @@ public class UploadController {
             csvReader = new CsvReader(isr);
             writeLock.lock();
             try {
-                skuNoIdList = new CopyOnWriteArrayList();
                 //设置文件总数
-                Timing.setFileCount(filePath);
+                //Timing.setFileCount(filePath);
                 responseCsv = saveCsv(csvReader, row, shopId, siteId, uid, pId.longValue(), id, tbId, 1L);
                 return saveUserUploadInfo(responseCsv, id, fileName, oldHeadList, 2);
             } finally {
@@ -363,7 +393,7 @@ public class UploadController {
             }
         } catch (Exception e) {
             //System.out.println(e.getMessage() + "-------------------------");
-            Timing.getInstance().setStatus("error");
+            //Timing.getInstance().setStatus("error");
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
             return saveUserUploadInfo(responseCsv, id, fileName, null, 0);
         } finally {
@@ -420,7 +450,7 @@ public class UploadController {
             }
             index++;
             //获得count
-            Timing.getInstance().setDataLength(count.get());
+            //Timing.getInstance().setDataLength(count.get());
         }
         int number = 0;
         //财务
@@ -1223,7 +1253,6 @@ public class UploadController {
             int lastRowNum = sheet.getLastRowNum(); // 获取总行数
             writeLock.lock();
             try {
-                skuNoIdList = new CopyOnWriteArrayList();
                 switch (tbId) {
                     //Cpr
                     case 105:
@@ -1406,7 +1435,7 @@ public class UploadController {
         }
         if (cprList.size() > 0) {
             int countCpr = cprService.AddSalesAmazonAdCprList(cprList);
-            Timing.getInstance().setStatus("success");
+            //Timing.getInstance().setStatus("success");
             return printCount(countCpr, begin);
         }
         return null;
@@ -1849,28 +1878,33 @@ public class UploadController {
      * @return
      */
     public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String fileName, List<String> head, int type) {
-        if (responseBase.getCode() == 200) {
-            if (skuNoIdList.size() != 0) {
-                if (type == 1) {
-                    //写入xlsx 文件写入到服务器的地址   Constants.WRITE_SAVE_FILE_PATH
-                    XlsUtils.outPutXssFile(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
-                } else if (type == 2) {
-                    //写入CSV文件到本地
-                    CSVUtil.write(head, skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
-                } else if (type == 3) {
-                    TxtUtils.writeFileTxt(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
-                    //写入Txt
+        try {
+            if (responseBase.getCode() == 200) {
+                if (skuNoIdList.size() != 0) {
+                    if (type == 1) {
+                        //写入xlsx 文件写入到服务器的地址   Constants.WRITE_SAVE_FILE_PATH
+                        XlsUtils.outPutXssFile(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                    } else if (type == 2) {
+                        //写入CSV文件到本地
+                        CSVUtil.write(head, skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                    } else if (type == 3) {
+                        TxtUtils.writeFileTxt(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                        //写入Txt
+                    }
+                    //上传成功 有些skuId 记录上传信息~
+                    String msg = responseBase.getMsg() + "----有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
+                    sumErrorSku.set(0);
+                    return upUserUpload(2, recordingId, fileName, msg);
                 }
-                //上传成功 有些skuId 记录上传信息~
-                String msg = responseBase.getMsg() + "----有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
-                sumErrorSku.set(0);
-                return upUserUpload(2, recordingId, fileName, msg);
+                //上传成功 都有skuId~
+                return upUserUpload(0, recordingId, fileName, responseBase.getMsg());
+            } else {
+                //存入信息报错
+                return upUserUpload(1, recordingId, fileName, responseBase.getMsg());
             }
-            //上传成功 都有skuId~
-            return upUserUpload(0, recordingId, fileName, responseBase.getMsg());
-        } else {
-            //存入信息报错
-            return upUserUpload(1, recordingId, fileName, responseBase.getMsg());
+        } finally {
+            //清空数据
+            skuNoIdList.clear();
         }
     }
 
