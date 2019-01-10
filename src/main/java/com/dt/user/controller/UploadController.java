@@ -76,6 +76,7 @@ public class UploadController {
     private BasicPublicAmazonTypeMapper typeMapper;
     //获取没有SKU的List集合 并发List 容器
     private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArraySet<Timing> setTiming = new CopyOnWriteArraySet<>();
     //行数 /报错行数
     ThreadLocal<Long> count = ThreadLocal.withInitial(() -> 0L);
     //没有sku有几行存入
@@ -113,12 +114,35 @@ public class UploadController {
      * @return
      */
     @GetMapping("/timing")
-    public ResponseBase timingStatus() {
-        return BaseApiService.setResultSuccess("");
+    public ResponseBase timingStatus(@RequestParam("redIds") String redIds) {
+        Set<Timing> set = new HashSet<>();
+        String[] ids = redIds.split(",");
+        int i = 0;
+        List<String> arrayList = new ArrayList<>(Arrays.asList(ids));
+        if (setTiming.size() > 0) {
+            //如果两个长度不够
+            if (ids.length != setTiming.size()) {
+                int length = setTiming.size() - ids.length;
+                for (int k = 0; k < length; k++) {
+                    arrayList.add("0");
+                }
+            }
+            for (Timing t : setTiming) {
+                for (int j = 0; j < arrayList.size(); j++) {
+                    if (t.getRedId().equals(Long.parseLong(arrayList.get(j)))) {
+                        set.add(t);
+                        break;
+                    }
+                }
+            }
+        }
+        //查询数据
+        return BaseApiService.setResultSuccess(set);
     }
 
     @GetMapping("/downloadCommonFile")
-    public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest
+            request, HttpServletResponse response) {
         String path = "D:/";
         try {
             FileUtils.downloadFile(path, response, request);
@@ -216,9 +240,8 @@ public class UploadController {
     public ResponseBase redFileInfo(@RequestBody UserUpload upload) {
         List<ResponseBase> responseBaseList = new ArrayList<>();
         int baseNum = upload.getUploadSuccessList().size();
-        //获取上传状态集合
-        Set<Timing> setUpListData = new HashSet<>();
         ResponseBase responseBase;
+
         if (baseNum > 0) {
             for (int i = 0; i < baseNum; i++) {
                 UserUpload userUpload = upload.getUploadSuccessList().get(i);
@@ -231,7 +254,7 @@ public class UploadController {
                     responseBase = importXls(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("txt")) {
-                    responseBase = importTxt(userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId(), setUpListData);
+                    responseBase = importTxt(userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
@@ -256,7 +279,8 @@ public class UploadController {
     }
 
     //###############################封装Txt
-    public ResponseBase importTxt(String saveFilePath, String fileName, Long shopId, Long uid, Long recordingId, Integer tbId, Integer aId, Set<Timing> setTiming) {
+    public ResponseBase importTxt(String saveFilePath, String fileName, Long shopId, Long uid, Long
+            recordingId, Integer tbId, Integer aId) {
         Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + fileName;
@@ -272,18 +296,16 @@ public class UploadController {
             if (!isFlg) {
                 return saveUserUploadInfo(BaseApiService.setResultError("表头信息不一致"), recordingId, fileName, null, 3);
             }
+            //等等 有人在蹲坑
             writeLock.lock();
-            try {
-                //设置文件总数
-                setFileCount(filePath, timing);
-                //第一行List头
-                List<String> strLineHead = new ArrayList<>();
-                strLineHead.add(lineHead);
-                responseCsv = saveTxt(br, shopId, uid, recordingId, strLineHead, timing, setTiming);
-                return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
-            } finally {
-                writeLock.unlock();
-            }
+            timing.setRedId(recordingId);
+            //设置文件总数
+            setFileCount(filePath, timing);
+            //第一行List头
+            List<String> strLineHead = new ArrayList<>();
+            strLineHead.add(lineHead);
+            responseCsv = saveTxt(br, shopId, uid, recordingId, strLineHead, timing);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
         } catch (IOException e) {
             //System.out.println(e.getMessage() + "-------------------------");
             timing.setStatus("exception");
@@ -292,13 +314,16 @@ public class UploadController {
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
         } finally {
             count.set(0L);
+            //开门放坑
+            writeLock.unlock();
         }
     }
 
     /**
      * 封装Txt
      */
-    public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> lineHead, Timing timing, Set<Timing> setTiming) throws IOException {
+    public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long
+            recordingId, List<String> lineHead, Timing timing) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
         List<SalesAmazonFbaTradeReport> sfbTradList = new ArrayList<>();
@@ -356,7 +381,8 @@ public class UploadController {
      * @param shopId
      * @return
      */
-    public ResponseBase importCsv(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId, Long id, Integer tbId) {
+    public ResponseBase importCsv(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
+            pId, Long id, Integer tbId) {
         ResponseBase responseCsv;
         List<String> oldHeadList;
         String filePath = saveFilePath + fileName;
@@ -413,7 +439,8 @@ public class UploadController {
      * @param uid
      * @return
      */
-    public ResponseBase saveCsv(CsvReader csvReader, int row, Long sId, Long seId, Long uid, Long pId, Long recordingId, Integer tbId, Long dateTime) throws IOException {
+    public ResponseBase saveCsv(CsvReader csvReader, int row, Long sId, Long seId, Long uid, Long pId, Long
+            recordingId, Integer tbId, Long dateTime) throws IOException {
         List<FinancialSalesBalance> fsbList = null;
         List<SalesAmazonFbaBusinessreport> sfbList = null;
         // 开始时间
@@ -753,7 +780,8 @@ public class UploadController {
     /**
      * csv 财务存入对象
      */
-    public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws IOException {
+    public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws
+            IOException {
         //设置时间类型转换
         setDate(fsb, seId, csvReader);
         fsb.setSettlemenId(StrUtils.repString(csvReader.get(1)));
@@ -992,7 +1020,8 @@ public class UploadController {
     /**
      * 美国 业务存入对象
      */
-    public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader csvReader, Long sId, Long seId, Long dateTime) throws IOException {
+    public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader csvReader, Long
+            sId, Long seId, Long dateTime) throws IOException {
         sfb.setDate(dateTime);
         String sAsin;
         if (seId.intValue() == 1 || seId.intValue() == 4 || seId.intValue() == 5 || seId.intValue() == 6
@@ -1135,7 +1164,8 @@ public class UploadController {
      * @param headList
      * @return
      */
-    public boolean compareHeadCsv(List<String> headList, List<String> oldHeadList, List<String> fBalanceHead) {
+    public boolean compareHeadCsv
+    (List<String> headList, List<String> oldHeadList, List<String> fBalanceHead) {
         //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
         for (int i = 0; i < oldHeadList.size(); i++) {
             String head = oldHeadList.get(i).replace("\"", "").replace("﻿", "").trim();
@@ -1229,7 +1259,8 @@ public class UploadController {
      * @param tbId
      * @return
      */
-    public ResponseBase importXls(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long recordingId, Integer tbId) {
+    public ResponseBase importXls(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
+            recordingId, Integer tbId) {
         String filePath = saveFilePath + fileName;
         ResponseBase responseBase = null;
         //判断文件类型 fileType()
@@ -1333,7 +1364,8 @@ public class UploadController {
      *
      * @return
      */
-    public ResponseBase readTableOar(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
+    public ResponseBase readTableOar(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long
+            recordingId,
                                      int totalNumber, Sheet sheet, List<String> head) {
         List<SalesAmazonAdOar> oarList;
         SalesAmazonAdOar adOar;
@@ -1369,7 +1401,8 @@ public class UploadController {
      *
      * @return
      */
-    public ResponseBase readTableStr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
+    public ResponseBase readTableStr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long
+            recordingId,
                                      int totalNumber, Sheet sheet) {
         List<SalesAmazonAdStr> strList;
         SalesAmazonAdStr adStr;
@@ -1409,7 +1442,8 @@ public class UploadController {
      * @param sheet
      * @return
      */
-    public ResponseBase readTableCpr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
+    public ResponseBase readTableCpr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long
+            recordingId,
                                      int totalNumber, Sheet sheet, List<String> head) {
         List<SalesAmazonAdCpr> cprList;
         SalesAmazonAdCpr saCpr;
@@ -1877,7 +1911,8 @@ public class UploadController {
      * @param id
      * @return
      */
-    public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String fileName, List<String> head, int type) {
+    public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String
+            fileName, List<String> head, int type) {
         try {
             if (responseBase.getCode() == 200) {
                 if (skuNoIdList.size() != 0) {

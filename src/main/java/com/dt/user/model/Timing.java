@@ -4,6 +4,8 @@ package com.dt.user.model;
  * 定时请求的对象
  */
 public class Timing {
+    //上传页面id
+    private Long redId;
 
 //    private static volatile Timing timing = null;
     /**
@@ -30,6 +32,14 @@ public class Timing {
      * msg
      */
     private String msg;
+
+    public Long getRedId() {
+        return redId;
+    }
+
+    public void setRedId(Long redId) {
+        this.redId = redId;
+    }
 
     public String getMsg() {
         return msg;
