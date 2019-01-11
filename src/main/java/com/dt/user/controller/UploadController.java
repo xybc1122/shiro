@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -72,6 +74,8 @@ public class UploadController {
     @Autowired
     private SalesAmazonFbaTradeReportService tradeReportService;
 
+    private Future<ResponseBase> future;
+
     @Autowired
     private BasicPublicAmazonTypeMapper typeMapper;
     //获取没有SKU的List集合 并发List 容器
@@ -106,6 +110,27 @@ public class UploadController {
         Long typeCount = count.get();
         typeCount--;
         count.set(typeCount);
+    }
+
+    /**
+     * 还有问题 bug!
+     * 执行完成后删除 setTiming 里面的数据
+     */
+    @GetMapping("/setTimingDel")
+    public ResponseBase delSetTimingInfo(@RequestParam("redIds") String redIds) {
+        System.out.println("删除前" + setTiming.size());
+        String[] ids = redIds.split(",");
+        for (Timing t : setTiming) {
+            for (int i = 0; i < ids.length; i++) {
+                if (t.getRedId().equals(Long.parseLong(ids[i]))) {
+                    setTiming.remove(t);
+                    break;
+                }
+            }
+        }
+        System.out.println("删除后" + setTiming.size());
+        //删除成功
+        return BaseApiService.setResultSuccess("删除数据成功");
     }
 
     /**
@@ -241,7 +266,6 @@ public class UploadController {
         List<ResponseBase> responseBaseList = new ArrayList<>();
         int baseNum = upload.getUploadSuccessList().size();
         ResponseBase responseBase;
-
         if (baseNum > 0) {
             for (int i = 0; i < baseNum; i++) {
                 UserUpload userUpload = upload.getUploadSuccessList().get(i);
@@ -259,23 +283,9 @@ public class UploadController {
                     // System.out.println("txt");
                 }
             }
+
         }
         return BaseApiService.setResultSuccess(responseBaseList);
-    }
-
-
-    /**
-     * 设置文件总数
-     *
-     * @param filePath
-     */
-    public void setFileCount(String filePath, Timing timing) {
-        //首先获得行数
-        Double sumCount = TxtUtils.readFile(filePath);
-        if (sumCount != 0.0) {
-            //获得总行数
-            timing.setTotalNumber(sumCount);
-        }
     }
 
     //###############################封装Txt
@@ -294,29 +304,63 @@ public class UploadController {
             List<String> txtHead = Arrays.asList(lineHead.split("\t"));
             boolean isFlg = ArrUtils.eqOrderList(head, txtHead);
             if (!isFlg) {
+                timing.setInfo("exception", 0, "表头信息不一致");
+                setTiming.add(timing);
+                //删除记录表信息里的数据
                 return saveUserUploadInfo(BaseApiService.setResultError("表头信息不一致"), recordingId, fileName, null, 3);
             }
-            //等等 有人在蹲坑
-            writeLock.lock();
-            timing.setRedId(recordingId);
+            timing.setInfo(fileName, recordingId);
             //设置文件总数
-            setFileCount(filePath, timing);
+            timing.setFileCount(filePath);
             //第一行List头
             List<String> strLineHead = new ArrayList<>();
             strLineHead.add(lineHead);
-            responseCsv = saveTxt(br, shopId, uid, recordingId, strLineHead, timing);
+            //多线程处理
+            responseCsv = dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing).get();
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
         } catch (IOException e) {
             //System.out.println(e.getMessage() + "-------------------------");
-            timing.setStatus("exception");
+            timing.setInfo("exception", 0, "程序处理数据出错，请检查报错信息");
             setTiming.add(timing);
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             count.set(0L);
-            //开门放坑
-            writeLock.unlock();
         }
+        return null;
+    }
+
+    /**
+     * 线程池 处理数据Xls
+     *
+     * @throws IOException
+     */
+    @Async("executor")
+    public Future<ResponseBase> dealWithXlsData(CsvReader csvReader, int row, Long shopId, Long siteId, Long uid, Integer pId, Long recordingId, Integer tbId, Long dateTime, Timing timing) throws IOException {
+        future = new AsyncResult<>(saveCsv(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, dateTime, timing));
+        return future;
+    }
+
+    /**
+     * 线程池 处理数据 Txt
+     */
+    @Async("executor")
+    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing) throws IOException {
+        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing));
+        return future;
+    }
+
+    /**
+     * 线程池 处理数据CSv
+     *
+     * @throws IOException
+     */
+    @Async("executor")
+    public Future<ResponseBase> dealWithCsvData(CsvReader csvReader, int row, Long shopId, Long siteId, Long uid, Integer pId, Long recordingId, Integer tbId, Long dateTime, Timing timing) throws IOException {
+        future = new AsyncResult<>(saveCsv(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, dateTime, timing));
+        return future;
     }
 
     /**
@@ -330,6 +374,7 @@ public class UploadController {
         SalesAmazonFbaTradeReport sftPort;
         SalesAmazonFbaTradeReport tradeReport;
         String line;
+        timing.setMsg("正在校验数据..........");
         v1:
         while ((line = br.readLine()) != null) {
             //count ++
@@ -361,10 +406,10 @@ public class UploadController {
         if (sfbTradList.size() > 0) {
             //插入数据
             timing.setMsg("正在导入数据库..........");
+
             countTrad = tradeReportService.AddSalesAmazonAdTrdList(sfbTradList);
             if (countTrad > 0) {
-                timing.setStatus("success");
-                timing.setMsg("数据导入成功..........");
+                timing.setInfo("success", "数据导入成功..........");
                 setTiming.add(timing);
                 return printCount(countTrad, begin);
             }
@@ -382,7 +427,7 @@ public class UploadController {
      * @return
      */
     public ResponseBase importCsv(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
-            pId, Long id, Integer tbId) {
+            pId, Long recordingId, Integer tbId) {
         ResponseBase responseCsv;
         List<String> oldHeadList;
         String filePath = saveFilePath + fileName;
@@ -393,35 +438,36 @@ public class UploadController {
         // 创建CSV读对象
         CsvReader csvReader = null;
         //获得头信息长度
+        Timing timing = new Timing();
         csvJson = CSVUtil.startReadLine(filePath, siteId, tbId);
         rowJson = JSONObject.parseObject(csvJson);
         row = (Integer) rowJson.get("index");
         if (row == -1) {
-            return upUserUpload(3, id, fileName, Constants.MSG_ERROR);
+            timing.setInfo("exception", 0, "字段第一行信息比对不上");
+            setTiming.add(timing);
+            return upUserUpload(3, recordingId, fileName, Constants.MSG_ERROR);
         }
         oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
         //对比表头是否一致
         comparisonBase = comparison(oldHeadList, siteId, tbId);
         if (comparisonBase != null) {
-            return saveUserUploadInfo(comparisonBase, id, fileName, null, 2);
+            timing.setInfo("exception", 0, "表头信息不一致");
+            setTiming.add(timing);
+            return saveUserUploadInfo(comparisonBase, recordingId, fileName, null, 2);
         }
-
         try (InputStreamReader isr = new InputStreamReader(new FileInputStream(new File(filePath)), StandardCharsets.UTF_8)) {
             csvReader = new CsvReader(isr);
-            writeLock.lock();
-            try {
-                //设置文件总数
-                //Timing.setFileCount(filePath);
-                responseCsv = saveCsv(csvReader, row, shopId, siteId, uid, pId.longValue(), id, tbId, 1L);
-                return saveUserUploadInfo(responseCsv, id, fileName, oldHeadList, 2);
-            } finally {
-                writeLock.unlock();
-            }
+            timing.setInfo(fileName, recordingId);
+            //设置文件总数
+            timing.setFileCount(filePath);
+            responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, 1L, timing).get();
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, oldHeadList, 2);
         } catch (Exception e) {
-            //System.out.println(e.getMessage() + "-------------------------");
-            //Timing.getInstance().setStatus("error");
+            // System.out.println(e.getMessage() + "-------------------------");
+            timing.setInfo("exception", 0, "程序处理数据出错，请检查报错信息");
+            setTiming.add(timing);
             responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
-            return saveUserUploadInfo(responseCsv, id, fileName, null, 0);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
         } finally {
             if (csvReader != null) {
                 csvReader.close();
@@ -439,8 +485,8 @@ public class UploadController {
      * @param uid
      * @return
      */
-    public ResponseBase saveCsv(CsvReader csvReader, int row, Long sId, Long seId, Long uid, Long pId, Long
-            recordingId, Integer tbId, Long dateTime) throws IOException {
+    public ResponseBase saveCsv(CsvReader csvReader, int row, Long sId, Long seId, Long uid, Integer pId, Long
+            recordingId, Integer tbId, Long dateTime, Timing timing) throws IOException {
         List<FinancialSalesBalance> fsbList = null;
         List<SalesAmazonFbaBusinessreport> sfbList = null;
         // 开始时间
@@ -457,12 +503,13 @@ public class UploadController {
         } else if (tbId == Constants.BUSINESS_ID) {
             sfbList = ArrUtils.listT(tList);
         }
+        timing.setMsg("正在校验数据..........");
         while (csvReader.readRecord()) {
             inCreateCount();
             if (index >= row) {
                 //85 == 财务上传ID | 104 运营上传
                 if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
-                    fb = saveFinance(setFsb(sId, seId, uid, pId, recordingId), csvReader, sId, seId);
+                    fb = saveFinance(setFsb(sId, seId, uid, pId.longValue(), recordingId), csvReader, sId, seId);
                     if (fb != null) {
                         fsbList.add(fb);
                     }
@@ -476,20 +523,29 @@ public class UploadController {
                 }
             }
             index++;
-            //获得count
-            //Timing.getInstance().setDataLength(count.get());
+            //计算百分比
+            timing.setAttributesTim(count.get());
+            setTiming.add(timing);
         }
         int number = 0;
         //财务
         if (fsbList != null) {
             if (fsbList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
                 number = fsbService.addInfo(fsbList, tbId);
+                timing.setInfo("success", "数据导入成功..........");
+                setTiming.add(timing);
             }
         }
         //业务
         if (sfbList != null) {
             if (sfbList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
                 number = busService.AddSalesAmazonAdBusList(sfbList);
+                timing.setInfo("success", "数据导入成功..........");
+                setTiming.add(timing);
             }
         }
         if (number != 0) {
@@ -1261,58 +1317,40 @@ public class UploadController {
      */
     public ResponseBase importXls(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
             recordingId, Integer tbId) {
+        Timing timing = new Timing();
         String filePath = saveFilePath + fileName;
-        ResponseBase responseBase = null;
+        ResponseBase responseBase;
         //判断文件类型 fileType()
         File file = new File(filePath);
         try (FileInputStream in = new FileInputStream(filePath);
              Workbook wb = fileType(in, file)) {
             if (wb == null) {
-                return BaseApiService.setResultError("不是excel文件~");
+                //这里这样返回 会有问题 //暂定
+                return BaseApiService.setResultError("不是excel文件");
             }
             Sheet sheet = wb.getSheetAt(0);
-            int line = 1;
             int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
-            //拿到数据库的表头 进行校验
+            //拿到数据库的表头 进行校验 !!!这里还可以优化 暂定
             List<String> head = getHeadInfo(siteId, tbId, null);
             //对比表头
             ResponseBase headResponse = contrastHeadMethod(totalNumber, sheet, head);
             //如果表头对比失败
             if (headResponse != null) {
+                timing.setInfo("exception", 0, "表头信息不一致");
+                setTiming.add(timing);
                 return headResponse;
             }
-            int lastRowNum = sheet.getLastRowNum(); // 获取总行数
-            writeLock.lock();
-            try {
-                switch (tbId) {
-                    //Cpr
-                    case 105:
-                        responseBase = readTableCpr(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet, head);
-                        break;
-                    // STR
-                    case 107:
-                        responseBase = readTableStr(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet);
-                        break;
-                    //OAR
-                    case 106:
-                        responseBase = readTableOar(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet, head);
-                        break;
-                    //HL
-                    case 125:
-                        responseBase = readTableHl(line, lastRowNum, shopId, siteId, uid, recordingId, totalNumber, sheet);
-                        break;
-                }
-                return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1);
-            } finally {
-                writeLock.unlock();
-            }
+            timing.setInfo(fileName, recordingId);
+            responseBase = readTable(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing);
+            return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1);
         } catch (FileNotFoundException e) {
             return BaseApiService.setResultError("FileInputStream 异常~");
         } catch (Exception e) {
 //            System.out.println(e.getMessage());
-            responseBase = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
+            timing.setInfo("exception", 0, "程序处理数据出错，请检查报错信息");
+            setTiming.add(timing);
             //如果报错更新状态
-            responseBase = saveUserUploadInfo(responseBase, recordingId, fileName, null, 0);
+            responseBase = saveUserUploadInfo(BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~"), recordingId, fileName, null, 0);
             return responseBase;
         } finally {
             count.set(0L);
@@ -1320,120 +1358,8 @@ public class UploadController {
     }
 
     /**
-     * 读取HL 信息
-     *
-     * @param line
-     * @param lastRowNum
-     * @param shopId
-     * @param siteId
-     * @param uid
-     * @param recordingId
-     * @param totalNumber
-     * @param sheet
-     * @return
-     */
-    public ResponseBase readTableHl(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long recordingId,
-                                    int totalNumber, Sheet sheet) {
-        List<SalesAmazonAdHl> hlList;
-        SalesAmazonAdHl adHl;
-        Row row;
-        Cell cell;
-        // 开始时间
-        Long begin = new Date().getTime();
-        hlList = new ArrayList<>();
-        for (int i = line; i <= lastRowNum; i++) {
-            //count ++
-            inCreateCount();
-            adHl = setHl(shopId, siteId, uid, recordingId);
-            for (int j = 0; j < totalNumber; j++) {
-                row = sheet.getRow(i);
-                cell = row.getCell(j);
-                adHl = setHlPojo(j, adHl, cell);
-            }
-            hlList.add(adHl);
-        }
-        if (hlList.size() > 0) {
-            int countHl = hlService.AddSalesAmazonAdHlList(hlList);
-            return printCount(countHl, begin);
-        }
-        return null;
-    }
-
-    /**
-     * 读取Oar信息
-     *
-     * @return
-     */
-    public ResponseBase readTableOar(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long
-            recordingId,
-                                     int totalNumber, Sheet sheet, List<String> head) {
-        List<SalesAmazonAdOar> oarList;
-        SalesAmazonAdOar adOar;
-        // 开始时间
-        Long begin = new Date().getTime();
-        Row row = null;
-        Cell cell;
-        oarList = new ArrayList<>();
-        for (int i = line; i <= lastRowNum; i++) {
-            //count ++
-            inCreateCount();
-            adOar = setOar(shopId, siteId, uid, recordingId);
-            for (int j = 0; j < totalNumber; j++) {
-                row = sheet.getRow(i);
-                cell = row.getCell(j);
-                adOar = setOarPojo(j, adOar, cell);
-            }
-            Long skuId = skuService.getAsinSkuId(shopId, siteId, adOar.getOtherAsin());
-            //设置没有SKU的信息导入
-            if (xslSkuList(skuId, adOar, row, totalNumber, head) != null) {
-                oarList.add((SalesAmazonAdOar) xslSkuList(skuId, adOar, row, totalNumber, head));
-            }
-        }
-        if (oarList.size() > 0) {
-            int countOar = oarService.AddSalesAmazonAdOarList(oarList);
-            return printCount(countOar, begin);
-        }
-        return null;
-    }
-
-    /**
-     * 读取Str信息
-     *
-     * @return
-     */
-    public ResponseBase readTableStr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long
-            recordingId,
-                                     int totalNumber, Sheet sheet) {
-        List<SalesAmazonAdStr> strList;
-        SalesAmazonAdStr adStr;
-        // 开始时间
-        Long begin = new Date().getTime();
-        Row row;
-        Cell cell;
-        strList = new ArrayList<>();
-        for (int i = line; i <= lastRowNum; i++) {
-            //count ++
-            inCreateCount();
-            adStr = setStr(shopId, siteId, uid, recordingId);
-            for (int j = 0; j < totalNumber; j++) {
-                row = sheet.getRow(i);
-                cell = row.getCell(j);
-                adStr = setStrPojo(j, adStr, cell);
-            }
-            strList.add(adStr);
-        }
-        if (strList.size() > 0) {
-            int countStr = strService.AddSalesAmazonAdStrList(strList);
-            return printCount(countStr, begin);
-        }
-        return null;
-    }
-
-    /**
      * 读取Cprxls 信息
      *
-     * @param line
-     * @param lastRowNum
      * @param shopId
      * @param siteId
      * @param uid
@@ -1442,35 +1368,117 @@ public class UploadController {
      * @param sheet
      * @return
      */
-    public ResponseBase readTableCpr(int line, int lastRowNum, Long shopId, Long siteId, Long uid, Long
-            recordingId,
-                                     int totalNumber, Sheet sheet, List<String> head) {
-        List<SalesAmazonAdCpr> cprList;
-        SalesAmazonAdCpr saCpr;
-        Row row = null;
-        Cell cell;
+    public ResponseBase readTable(Long shopId, Long siteId, Long uid, Long
+            recordingId, int totalNumber, List<String> head, Integer tbId, Sheet sheet, Timing timing) {
         // 开始时间
         Long begin = new Date().getTime();
-        cprList = new ArrayList<>();
+        Row row;
+        Cell cell;
+        List<SalesAmazonAdCpr> cprList = null;
+        List<SalesAmazonAdStr> strList = null;
+        List<SalesAmazonAdOar> oarList = null;
+        List<SalesAmazonAdHl> hlList = null;
+        SalesAmazonAdHl adHl;
+        SalesAmazonAdOar adOar;
+        SalesAmazonAdCpr saCpr;
+        SalesAmazonAdStr adStr;
+        List<?> tList = new ArrayList<>();
+        if (tbId == 105) {
+            cprList = ArrUtils.listT(tList);
+        } else if (tbId == 107) {
+            strList = ArrUtils.listT(tList);
+        } else if (tbId == 106) {
+            oarList = ArrUtils.listT(tList);
+        } else if (tbId == 125) {
+            hlList = ArrUtils.listT(tList);
+        }
+
+        int line = 1;
+        int lastRowNum = sheet.getLastRowNum(); // 获取总行数
+        timing.setTotalNumber((double) lastRowNum);
+        timing.setMsg("正在校验数据..........");
         for (int i = line; i <= lastRowNum; i++) {
             //count ++
             inCreateCount();
-            saCpr = setCpr(shopId, siteId, uid, recordingId);
-            for (int j = 0; j < totalNumber; j++) {
-                row = sheet.getRow(i);
-                cell = row.getCell(j);
-                saCpr = setCprPojo(j, saCpr, cell);
+            row = sheet.getRow(i);
+            // 105 cpr
+            if (tbId == 105) {
+                saCpr = setCpr(shopId, siteId, uid, recordingId);
+                for (int j = 0; j < totalNumber; j++) {
+                    cell = row.getCell(j);
+                    saCpr = setCprPojo(j, saCpr, cell);
+                }
+                Long skuId = skuService.selSkuId(shopId, siteId, saCpr.getAdvertisedSku());
+                //设置没有SKU的信息导入
+                if (xslSkuList(skuId, saCpr, row, totalNumber, head) != null) {
+                    cprList.add((SalesAmazonAdCpr) xslSkuList(skuId, saCpr, row, totalNumber, head));
+                }
+                //107 str
+            } else if (tbId == 107) {
+                adStr = setStr(shopId, siteId, uid, recordingId);
+                for (int j = 0; j < totalNumber; j++) {
+                    cell = row.getCell(j);
+                    adStr = setStrPojo(j, adStr, cell);
+                }
+                strList.add(adStr);
+                //106 oar
+            } else if (tbId == 106) {
+                adOar = setOar(shopId, siteId, uid, recordingId);
+                for (int j = 0; j < totalNumber; j++) {
+                    cell = row.getCell(j);
+                    adOar = setOarPojo(j, adOar, cell);
+                }
+                Long skuId = skuService.getAsinSkuId(shopId, siteId, adOar.getOtherAsin());
+                //设置没有SKU的信息导入
+                if (xslSkuList(skuId, adOar, row, totalNumber, head) != null) {
+                    oarList.add((SalesAmazonAdOar) xslSkuList(skuId, adOar, row, totalNumber, head));
+                }
+            } else if (tbId == 125) {
+                adHl = setHl(shopId, siteId, uid, recordingId);
+                for (int j = 0; j < totalNumber; j++) {
+                    row = sheet.getRow(i);
+                    cell = row.getCell(j);
+                    adHl = setHlPojo(j, adHl, cell);
+                }
+                hlList.add(adHl);
             }
-            Long skuId = skuService.selSkuId(shopId, siteId, saCpr.getAdvertisedSku());
-            //设置没有SKU的信息导入
-            if (xslSkuList(skuId, saCpr, row, totalNumber, head) != null) {
-                cprList.add((SalesAmazonAdCpr) xslSkuList(skuId, saCpr, row, totalNumber, head));
+            //计算百分比
+            timing.setAttributesTim(count.get());
+            setTiming.add(timing);
+        }
+        int saveCount = 0;
+        if (cprList != null) {
+            if (cprList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                saveCount = cprService.AddSalesAmazonAdCprList(cprList);
             }
         }
-        if (cprList.size() > 0) {
-            int countCpr = cprService.AddSalesAmazonAdCprList(cprList);
-            //Timing.getInstance().setStatus("success");
-            return printCount(countCpr, begin);
+        if (strList != null) {
+            if (strList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                saveCount = strService.AddSalesAmazonAdStrList(strList);
+            }
+        }
+        if (oarList != null) {
+            if (oarList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                saveCount = oarService.AddSalesAmazonAdOarList(oarList);
+            }
+        }
+        if (hlList != null) {
+            if (hlList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                saveCount = hlService.AddSalesAmazonAdHlList(hlList);
+            }
+        }
+        if (saveCount > 0) {
+            timing.setInfo("success", "数据导入成功..........");
+            setTiming.add(timing);
+            return printCount(saveCount, begin);
         }
         return null;
     }
@@ -1486,7 +1494,7 @@ public class UploadController {
                 return BaseApiService.setResultSuccess(msg, upload);
             case 1:
                 upload = recordInfo(status, msg, id, fileName);
-                return BaseApiService.setResultError("error" + msg, upload);
+                return BaseApiService.setResultError("error/" + msg, upload);
             case 2:
                 upload = recordInfo(2, msg, id, fileName);
                 return BaseApiService.setResultSuccess(msg, upload);
@@ -1835,8 +1843,8 @@ public class UploadController {
         Cell cell;
         List<String> twoList = new ArrayList<>();
         for (int i = 0; i < 1; i++) {
+            row = sheet.getRow(i);
             for (int j = 0; j < totalNumber; j++) {
-                row = sheet.getRow(i);
                 cell = row.getCell(j);
                 twoList.add(cell.toString().trim());
                 System.out.println(cell.toString().trim());

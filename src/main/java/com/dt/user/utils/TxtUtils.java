@@ -30,19 +30,5 @@ public class TxtUtils {
         }
     }
 
-    public static Double readFile(String filePath) {
-        Double count = 0.0;
-        File file = new File(filePath);
-        try (FileInputStream fis = new FileInputStream(file);
-             Scanner scanner = new Scanner(fis)) {
-            while (scanner.hasNextLine()) {
-                scanner.nextLine();
-                count++;
-            }
-            return count;
-        } catch (Exception e) {
-            return 0.0;
-        }
-    }
 
 }

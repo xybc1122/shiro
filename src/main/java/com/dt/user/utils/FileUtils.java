@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class FileUtils {
     /**
@@ -36,6 +37,20 @@ public class FileUtils {
         }
     }
 
+    public static Double readFile(String filePath) {
+        Double count = 0.0;
+        File file = new File(filePath);
+        try (FileInputStream fis = new FileInputStream(file);
+             Scanner scanner = new Scanner(fis)) {
+            while (scanner.hasNextLine()) {
+                scanner.nextLine();
+                count++;
+            }
+            return count;
+        } catch (Exception e) {
+            return 0.0;
+        }
+    }
     /**
      * 删除单个文件
      *
