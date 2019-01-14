@@ -11,6 +11,9 @@ public class ArrUtils {
      * @return
      */
     public static boolean equalList(List<String> oneList, List twoList) {
+        if (twoList == null) {
+            return false;
+        }
         if (oneList.size() != twoList.size()) {
             return false;
         } else {
@@ -24,10 +27,14 @@ public class ArrUtils {
      * @return
      */
     public static boolean eqOrderList(List<String> oneList, List<String> twoList) {
+        if (twoList == null) {
+            return false;
+        }
         if (oneList.size() != twoList.size()) {
             return false;
         }
         for (int i = 0; i < oneList.size(); i++) {
+            System.out.println(twoList.get(i).trim());
             if (!(oneList.get(i)).equals(twoList.get(i).trim())) {
                 return false;
             }

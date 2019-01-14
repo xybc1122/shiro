@@ -17,7 +17,7 @@ public class SalesAmazonFbaTradeReportProvider {
                 "`fulfillment_channel`, `sales_channel`,`order_channel`,`url`,`ship_service_level`,`product_name`,`sku`,`sku_id`,\n" +
                 "`asin`,`item_status`,`quantity`,`currency`,`item_price`,`item_tax`,`shipping_price`,`shipping_tax`,`gift_wrap_price`,\n" +
                 "`gift_wrap_tax`,`item_promotion_discount`,`ship_promotion_discount`,`ship_city`,`ship_state`,`ship_postal_code`,\n" +
-                "`ship_country`,`promotion_ids`,`is_business_order`,`purchase_order_number`,`price_designation`,\n" +
+                "`ship_country`,`promotion_ids`,`is_business_order`,`purchase_order_number`,`price_designation`, `is_replacement_order`,`original_order_id`,\n" +
                 "`create_date`,`create_id_user`,`modify_date`,`modify_id_user`,`audit_date`,`audit_id_user`,`recording_id`)values";
         // 保存sql后缀
         StringBuilder sb = new StringBuilder();
@@ -88,6 +88,12 @@ public class SalesAmazonFbaTradeReportProvider {
             sb.append(",");
             //#
             StrUtils.appBuider(sb, trade.getPriceDesignation());
+            sb.append(",");
+            //#
+            StrUtils.appBuider(sb, trade.getIsReplacementOrder());
+            sb.append(",");
+            //#
+            StrUtils.appBuider(sb, trade.getOriginalOrderId());
             sb.append(",");
             sb.append(trade.getCreateDate() + ","
                     + trade.getCreateIdUser() + "," + trade.getModifyDate() + ","

@@ -81,7 +81,10 @@ public class UploadController {
     //获取没有SKU的List集合 并发List 容器
     private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
     private CopyOnWriteArraySet<Timing> setTiming = new CopyOnWriteArraySet<>();
-    //行数 /报错行数
+    //总的行数
+    ThreadLocal<Long> numberCount = ThreadLocal.withInitial(() -> 0L);
+
+    //真实存入函数
     ThreadLocal<Long> count = ThreadLocal.withInitial(() -> 0L);
     //没有sku有几行存入
     ThreadLocal<Integer> sumErrorSku = ThreadLocal.withInitial(() -> 0);
@@ -92,6 +95,12 @@ public class UploadController {
     //写锁
     Lock writeLock = readWriteLock.writeLock();
 
+
+    public void inCreateNumberCount() {
+        Long myNumberCount = numberCount.get();
+        myNumberCount++;
+        numberCount.set(myNumberCount);
+    }
 
     //并发++
     public void inCreateSumNoSku() {
@@ -113,27 +122,6 @@ public class UploadController {
     }
 
     /**
-     * 还有问题 bug!
-     * 执行完成后删除 setTiming 里面的数据
-     */
-    @GetMapping("/setTimingDel")
-    public ResponseBase delSetTimingInfo(@RequestParam("redIds") String redIds) {
-        System.out.println("删除前" + setTiming.size());
-        String[] ids = redIds.split(",");
-        for (Timing t : setTiming) {
-            for (int i = 0; i < ids.length; i++) {
-                if (t.getRedId().equals(Long.parseLong(ids[i]))) {
-                    setTiming.remove(t);
-                    break;
-                }
-            }
-        }
-        System.out.println("删除后" + setTiming.size());
-        //删除成功
-        return BaseApiService.setResultSuccess("删除数据成功");
-    }
-
-    /**
      * 定时请求的状态
      *
      * @return
@@ -142,16 +130,15 @@ public class UploadController {
     public ResponseBase timingStatus(@RequestParam("redIds") String redIds) {
         Set<Timing> set = new HashSet<>();
         String[] ids = redIds.split(",");
-        int i = 0;
         List<String> arrayList = new ArrayList<>(Arrays.asList(ids));
         if (setTiming.size() > 0) {
-            //如果两个长度不够
-            if (ids.length != setTiming.size()) {
-                int length = setTiming.size() - ids.length;
-                for (int k = 0; k < length; k++) {
-                    arrayList.add("0");
-                }
-            }
+//            //如果两个长度不够
+//            if (ids.length != setTiming.size()) {
+//                int length = setTiming.size() - ids.length;
+//                for (int k = 0; k < length; k++) {
+//                    arrayList.add("0");
+//                }
+//            }
             for (Timing t : setTiming) {
                 for (int j = 0; j < arrayList.size(); j++) {
                     if (t.getRedId().equals(Long.parseLong(arrayList.get(j)))) {
@@ -169,6 +156,7 @@ public class UploadController {
     public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest
             request, HttpServletResponse response) {
         String path = "D:/";
+        System.out.println("sss");
         try {
             FileUtils.downloadFile(path, response, request);
         } catch (IOException e) {
@@ -282,10 +270,47 @@ public class UploadController {
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
+                System.out.println("删除前" + setTiming.size());
+                for (Timing t : setTiming) {
+                    if (t.getRedId().equals(userUpload.getId())) {
+                        setTiming.remove(t);
+                        break;
+                    }
+                }
+                System.out.println("删除后" + setTiming.size());
             }
-
         }
         return BaseApiService.setResultSuccess(responseBaseList);
+    }
+
+    /**
+     * 封装错误信息
+     *
+     * @param msg
+     * @param recordingId
+     * @param fileName
+     * @return
+     */
+    public ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing timing, String status) {
+        timing.setInfo(status, percentage, msg);
+        setTiming.add(timing);
+        return saveUserUploadInfo(BaseApiService.setResultError(msg), recordingId, fileName, null, 0);
+    }
+
+    /**
+     * 封装获得编码格式 适用于TXT  CSV
+     *
+     * @param filePath
+     * @return
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
+     */
+    public InputStreamReader streamReader(String filePath) throws Exception {
+        String fileEncode = EncodingDetect.getJavaEncode(filePath);
+        if (fileEncode == null) {
+            throw new Exception("filePath加载文件路径不存在");
+        }
+        return new InputStreamReader(new FileInputStream(filePath), fileEncode);
     }
 
     //###############################封装Txt
@@ -294,7 +319,7 @@ public class UploadController {
         Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + fileName;
-        try (InputStreamReader read = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8);
+        try (InputStreamReader read = streamReader(filePath);
              BufferedReader br = new BufferedReader(read)
         ) {
             //拿到数据库的表头 进行校验
@@ -303,33 +328,30 @@ public class UploadController {
             String lineHead = br.readLine();
             List<String> txtHead = Arrays.asList(lineHead.split("\t"));
             boolean isFlg = ArrUtils.eqOrderList(head, txtHead);
-            if (!isFlg) {
-                timing.setInfo("exception", 0, "表头信息不一致");
-                setTiming.add(timing);
-                //删除记录表信息里的数据
-                return saveUserUploadInfo(BaseApiService.setResultError("表头信息不一致"), recordingId, fileName, null, 3);
-            }
             timing.setInfo(fileName, recordingId);
+            if (!isFlg) {
+                //返回错误信息
+                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception");
+            }
             //设置文件总数
             timing.setFileCount(filePath);
             //第一行List头
             List<String> strLineHead = new ArrayList<>();
             strLineHead.add(lineHead);
             //多线程处理
-            responseCsv = dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing).get();
+            responseCsv = dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId).get();
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
-        } catch (IOException e) {
-            //System.out.println(e.getMessage() + "-------------------------");
-            timing.setInfo("exception", 0, "程序处理数据出错，请检查报错信息");
-            setTiming.add(timing);
-            responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
+        } catch (NumberFormatException n) {
+            String errorMsg = "第" + (numberCount.get() + 1) + "行信息错误,数据存入失败~,错误信息" + n.getMessage();
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } catch (Exception e) {
-            e.printStackTrace();
+            //System.out.println(e.getMessage() + "-------------------------");
+            String errorMsg = "第" + count.get() + "行信息错误,数据存入失败~,错误信息";
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } finally {
             count.set(0L);
+            numberCount.set(0L);
         }
-        return null;
     }
 
     /**
@@ -338,8 +360,9 @@ public class UploadController {
      * @throws IOException
      */
     @Async("executor")
-    public Future<ResponseBase> dealWithXlsData(CsvReader csvReader, int row, Long shopId, Long siteId, Long uid, Integer pId, Long recordingId, Integer tbId, Long dateTime, Timing timing) throws IOException {
-        future = new AsyncResult<>(saveCsv(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, dateTime, timing));
+    public Future<ResponseBase> dealWithXlsData(Long shopId, Long siteId, Long uid, Long
+            recordingId, int totalNumber, List<String> head, Integer tbId, Sheet sheet, Timing timing) {
+        future = new AsyncResult<>(readTable(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing));
         return future;
     }
 
@@ -347,8 +370,8 @@ public class UploadController {
      * 线程池 处理数据 Txt
      */
     @Async("executor")
-    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing) throws IOException {
-        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing));
+    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
+        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId));
         return future;
     }
 
@@ -363,35 +386,66 @@ public class UploadController {
         return future;
     }
 
+
     /**
      * 封装Txt
      */
     public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long
-            recordingId, List<String> lineHead, Timing timing) throws IOException {
+            recordingId, List<String> lineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
-        List<SalesAmazonFbaTradeReport> sfbTradList = new ArrayList<>();
+        List<SalesAmazonFbaTradeReport> safTradList = null;
+        List<SalesAmazonFbaRefund> safRefundList = null;
         SalesAmazonFbaTradeReport sftPort;
-        SalesAmazonFbaTradeReport tradeReport;
+        SalesAmazonFbaRefund sfRefund;
+        List<?> tList = new ArrayList<>();
+        if (tbId == 109) {
+            safTradList = ArrUtils.listT(tList);
+        } else if (tbId == 110) {
+            safRefundList = ArrUtils.listT(tList);
+        }
         String line;
         timing.setMsg("正在校验数据..........");
         v1:
         while ((line = br.readLine()) != null) {
-            //count ++
+            //真实数量++
+            inCreateNumberCount();
+            //count ++ 成功数量
             inCreateCount();
-            sftPort = setTraPort(shopId, uid, recordingId);
             // 一次读入一行数据
             String[] newLine = line.split("\t", -1);
-            for (int i = 0; i < newLine.length; i++) {
-                tradeReport = saveTradeReport(i, sftPort, newLine, shopId);
-                if (tradeReport == null) {
-                    //先拿到这一行信息 newLine
-                    exportTxtType(lineHead, line);
-                    continue v1;
-                }
-            }
-            if (sftPort != null) {
-                sfbTradList.add(sftPort);
+            switch (tbId) {
+                //订单报告
+                case 109:
+                    sftPort = setTraPort(shopId, uid, recordingId);
+                    for (int i = 0; i < newLine.length; i++) {
+                        sftPort = saveTradeReport(i, sftPort, newLine, shopId);
+                        if (sftPort == null) {
+                            //先拿到这一行信息 newLine
+                            exportTxtType(lineHead, line);
+                            continue v1;
+                        }
+                    }
+                    if (sftPort != null) {
+                        safTradList.add(sftPort);
+                    }
+                    break;
+                //退货报告
+                case 110:
+                    sfRefund = setRefund(shopId, uid, recordingId);
+                    for (int i = 0; i < newLine.length; i++) {
+                        sfRefund = salesAmazonFbaRefund(i, sfRefund, newLine, shopId, aId);
+                        if (sfRefund == null) {
+                            //先拿到这一行信息 newLine
+                            exportTxtType(lineHead, line);
+                            continue v1;
+                        }
+                    }
+                    System.out.println(sfRefund);
+                    if (sfRefund != null) {
+                        safRefundList.add(sfRefund);
+                    }
+                    break;
             }
             //计算百分比
             int percentage = (int) ((count.get() / timing.getTotalNumber()) * 100);
@@ -402,19 +456,25 @@ public class UploadController {
             }
             setTiming.add(timing);
         }
-        int countTrad;
-        if (sfbTradList.size() > 0) {
-            //插入数据
-            timing.setMsg("正在导入数据库..........");
-
-            countTrad = tradeReportService.AddSalesAmazonAdTrdList(sfbTradList);
-            if (countTrad > 0) {
-                timing.setInfo("success", "数据导入成功..........");
-                setTiming.add(timing);
-                return printCount(countTrad, begin);
+        int countTrad = 0;
+        if (safTradList != null) {
+            if (safTradList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                countTrad = tradeReportService.AddSalesAmazonAdTrdList(safTradList);
             }
         }
-        return BaseApiService.setResultError("Txt存入异常~");
+        if (safRefundList != null) {
+            if (safRefundList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                //导入数据库
+            }
+        }
+        if (countTrad > 0) {
+            return printCount(begin, timing, count.get());
+        }
+        return BaseApiService.setResultError("数据存入异常,请检查错误信息");
     }
 
     /**
@@ -429,9 +489,8 @@ public class UploadController {
     public ResponseBase importCsv(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
             pId, Long recordingId, Integer tbId) {
         ResponseBase responseCsv;
-        List<String> oldHeadList;
+        List<String> fileHeadList;
         String filePath = saveFilePath + fileName;
-        ResponseBase comparisonBase;
         String csvJson;
         JSONObject rowJson;
         int row;
@@ -442,37 +501,41 @@ public class UploadController {
         csvJson = CSVUtil.startReadLine(filePath, siteId, tbId);
         rowJson = JSONObject.parseObject(csvJson);
         row = (Integer) rowJson.get("index");
+        //必须在这里设置id
+        timing.setInfo(fileName, recordingId);
         if (row == -1) {
-            timing.setInfo("exception", 0, "字段第一行信息比对不上");
-            setTiming.add(timing);
-            return upUserUpload(3, recordingId, fileName, Constants.MSG_ERROR);
+            //返回错误信息
+            return errorResult(0, "表中真实字段第一行信息比对不上", recordingId, fileName, timing, "exception");
         }
-        oldHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
+        //拿到之前的表头信息
+        fileHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
+        //拿到数据库的表头 进行校验
+        List<String> sqlHeadList = getHeadInfo(siteId, tbId, null);
         //对比表头是否一致
-        comparisonBase = comparison(oldHeadList, siteId, tbId);
-        if (comparisonBase != null) {
-            timing.setInfo("exception", 0, "表头信息不一致");
-            setTiming.add(timing);
-            return saveUserUploadInfo(comparisonBase, recordingId, fileName, null, 2);
+        boolean isFlg = compareHeadCsv(fileHeadList, sqlHeadList);
+        if (!isFlg) {
+            //返回错误信息
+            return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception");
         }
-        try (InputStreamReader isr = new InputStreamReader(new FileInputStream(new File(filePath)), StandardCharsets.UTF_8)) {
+        try (InputStreamReader isr = streamReader(filePath)) {
             csvReader = new CsvReader(isr);
-            timing.setInfo(fileName, recordingId);
             //设置文件总数
             timing.setFileCount(filePath);
             responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, 1L, timing).get();
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, oldHeadList, 2);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2);
+        } catch (NumberFormatException n) {
+            String errorMsg = "第" + (numberCount.get() + 1) + "行信息错误,数据存入失败~,错误信息" + n.getMessage();
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } catch (Exception e) {
             // System.out.println(e.getMessage() + "-------------------------");
-            timing.setInfo("exception", 0, "程序处理数据出错，请检查报错信息");
-            setTiming.add(timing);
-            responseCsv = BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~");
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 0);
+            String errorMsg = "第" + count.get() + "行信息错误,数据存入失败~,错误信息";
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } finally {
             if (csvReader != null) {
                 csvReader.close();
             }
             count.set(0L);
+            numberCount.set(0L);
         }
     }
 
@@ -494,9 +557,7 @@ public class UploadController {
         int index = 0;
         FinancialSalesBalance fb;
         SalesAmazonFbaBusinessreport sfb;
-        if (tbId == null) {
-            return BaseApiService.setResultError("没有tbId------");
-        }
+
         List<?> tList = new ArrayList<>();
         if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
             fsbList = ArrUtils.listT(tList);
@@ -505,8 +566,9 @@ public class UploadController {
         }
         timing.setMsg("正在校验数据..........");
         while (csvReader.readRecord()) {
-            inCreateCount();
             if (index >= row) {
+                inCreateNumberCount();
+                inCreateCount();
                 //85 == 财务上传ID | 104 运营上传
                 if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
                     fb = saveFinance(setFsb(sId, seId, uid, pId.longValue(), recordingId), csvReader, sId, seId);
@@ -534,8 +596,6 @@ public class UploadController {
                 //插入数据
                 timing.setMsg("正在导入数据库..........");
                 number = fsbService.addInfo(fsbList, tbId);
-                timing.setInfo("success", "数据导入成功..........");
-                setTiming.add(timing);
             }
         }
         //业务
@@ -544,18 +604,13 @@ public class UploadController {
                 //插入数据
                 timing.setMsg("正在导入数据库..........");
                 number = busService.AddSalesAmazonAdBusList(sfbList);
-                timing.setInfo("success", "数据导入成功..........");
-                setTiming.add(timing);
+
             }
         }
         if (number != 0) {
-            // 结束时间
-            Long end = new Date().getTime();
-            Long successSum = count.get() - row;
-            Long sum = successSum + sumErrorSku.get();
-            return BaseApiService.setResultSuccess("总共" + sum + "条数据/" + successSum + "条数据插入成功/失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
+            return printCount(begin, timing, count.get());
         }
-        return BaseApiService.setResultError("表里的skuID全部不一致 请修改~");
+        return BaseApiService.setResultError("存入数据失败，请检查信息");
     }
 
     /**
@@ -630,24 +685,6 @@ public class UploadController {
     }
 
     /**
-     * CSV头部比较返回
-     *
-     * @param headArr
-     * @param seId
-     * @param id
-     * @return
-     * @throws IOException
-     */
-    public ResponseBase comparison(List<String> headArr, Long seId, int id) {
-        List<String> headList = new ArrayList<>();
-        //比较头部
-        if (!compareHeadCsv(headList, headArr, getHeadInfo(seId, id, null))) {
-            return BaseApiService.setResultError("CSV文件表头信息不一致/请检查~");
-        }
-        return null;
-    }
-
-    /**
      * 设置时间转换类型
      *
      * @param fsb
@@ -691,6 +728,87 @@ public class UploadController {
     }
 
     /**
+     * 退货报告信息存入
+     *
+     * @param sft
+     * @param j
+     * @return
+     * @throws IOException
+     */
+    public SalesAmazonFbaRefund salesAmazonFbaRefund(int i, SalesAmazonFbaRefund sft, String[] j, Long sId, Integer aId) {
+        switch (i) {
+            case 0:
+                sft.setDate(DateUtils.getTime(j[i], Constants.ORDER_RETURN));
+                break;
+            case 1:
+                String oId = StrUtils.repString(j[i]);
+                if (StringUtils.isEmpty(oId)) {
+                    return null;
+                }
+                sft.setOrderId(oId);
+                //查询 获得site Id
+                SalesAmazonFbaTradeReport serviceReport = tradeReportService.getReport(sId, oId);
+                if (serviceReport == null) {
+                    return null;
+                }
+                //如果有一个是空的 就返回null
+                if (serviceReport.getDate() == null || serviceReport.getSiteId() == null) {
+                    return null;
+                }
+                sft.setSiteId(serviceReport.getSiteId());
+                sft.setPurchaseDate(serviceReport.getDate());
+                break;
+            case 2:
+                sft.setSku(StrUtils.repString(j[i]));
+                break;
+            case 3:
+                sft.setsAsin(StrUtils.repString(j[i]));
+                boolean isFlgId = skuEqAsin(sft.getSku(), sft.getsAsin(), sId, sft.getSiteId(), sft);
+                if (!isFlgId) {
+                    return null;
+                }
+                break;
+            case 4:
+                sft.setFnsku(StrUtils.repString(j[i]));
+                break;
+            case 5:
+                sft.setpName(StrUtils.repString(j[i]));
+                break;
+            case 6:
+                sft.setQuantity(StrUtils.replaceInteger(j[i]));
+                break;
+            case 7:
+                sft.setFc(StrUtils.repString(j[i]));
+                break;
+            case 8:
+                sft.setDetailedDisposition(StrUtils.repString(j[i]));
+                break;
+            case 9:
+                sft.setReason(StrUtils.repString(j[i]));
+                break;
+            case 10:
+                if (aId == 4 && sft.getSiteId() == 9) {
+                    sft.setLicensePlateNumber(j[i]);
+                } else {
+                    sft.setRefundStaus(j[i]);
+                }
+                break;
+            case 11:
+                if (aId == 4 && sft.getSiteId() == 9) {
+                    sft.setCustomerRemarks(j[i]);
+                } else {
+                    sft.setLicensePlateNumber(j[i]);
+                }
+                break;
+
+            case 12:
+                sft.setCustomerRemarks(j[i]);
+                break;
+        }
+        return sft;
+    }
+
+    /**
      * 订单报告信息存入
      *
      * @param sft
@@ -707,10 +825,10 @@ public class UploadController {
                 sft.setMerchantOrderId(StrUtils.repString(j[i]));
                 break;
             case 2:
-                sft.setDate(DateUtils.getTime(j[i], Constants.NORTH_AMERICA));
+                sft.setDate(DateUtils.getTime(j[i], Constants.ORDER_RETURN));
                 break;
             case 3:
-                sft.setLastUpdatedDate(DateUtils.getTime(j[i], Constants.NORTH_AMERICA));
+                sft.setLastUpdatedDate(DateUtils.getTime(j[i], Constants.ORDER_RETURN));
                 break;
             case 4:
                 sft.setOrderStatus(StrUtils.repString(j[i]));
@@ -807,6 +925,12 @@ public class UploadController {
             case 31:
                 sft.setPriceDesignation(StrUtils.repString(j[i]));
                 break;
+            case 32:
+                sft.setIsReplacementOrder(StrUtils.repString(j[i]));
+                break;
+            case 33:
+                sft.setOriginalOrderId(StrUtils.repString(j[i]));
+                break;
         }
         return sft;
     }
@@ -817,7 +941,7 @@ public class UploadController {
      * @param sku
      * @param asin
      */
-    public boolean skuEqAsin(String sku, String asin, Long sId, Long seId, SalesAmazonFbaTradeReport sft) {
+    public boolean skuEqAsin(String sku, String asin, Long sId, Long seId, Object obj) {
         if (StringUtils.isNotEmpty(sku) && StringUtils.isNotEmpty(asin)) {
             //查询skuId
             Long skuId = skuService.selSkuId(sId, seId, sku);
@@ -825,9 +949,21 @@ public class UploadController {
             if (skuId == null || asinId == null) {
                 return false;
             }
-            if (skuId.equals(asinId)) {
-                sft.setSkuId(skuId);
-                return true;
+            //订单
+            if (obj instanceof SalesAmazonFbaTradeReport) {
+                SalesAmazonFbaTradeReport sftReport = (SalesAmazonFbaTradeReport) obj;
+                if (skuId.equals(asinId)) {
+                    sftReport.setSkuId(skuId);
+                    return true;
+                }
+            }
+            //退货
+            if (obj instanceof SalesAmazonFbaRefund) {
+                SalesAmazonFbaRefund sftRefund = (SalesAmazonFbaRefund) obj;
+                if (skuId.equals(asinId)) {
+                    sftRefund.setSkuId(skuId);
+                    return true;
+                }
             }
         }
         return false;
@@ -1217,19 +1353,19 @@ public class UploadController {
     /**
      * csv 对比表头返回
      *
-     * @param headList
      * @return
      */
     public boolean compareHeadCsv
-    (List<String> headList, List<String> oldHeadList, List<String> fBalanceHead) {
-        //拿到表头信息 对比数据库的表头 如果不一致 抛出报错信息 不执行下去
+    (List<String> oldHeadList, List<String> sqlHeadList) {
+        List<String> headList = new ArrayList<>();
+        //转换下头信息
         for (int i = 0; i < oldHeadList.size(); i++) {
             String head = oldHeadList.get(i).replace("\"", "").replace("﻿", "").trim();
             headList.add(head);
             System.out.println(head);
         }
         //如果不一致返回false
-        return ArrUtils.eqOrderList(headList, fBalanceHead);
+        return ArrUtils.eqOrderList(headList, sqlHeadList);
     }
 
     /**
@@ -1248,6 +1384,13 @@ public class UploadController {
     }
 
 //################通用设置表头
+
+    /**
+     * 退货报告通用对象
+     */
+    public SalesAmazonFbaRefund setRefund(Long sId, Long uid, Long recordingId) {
+        return new SalesAmazonFbaRefund(sId, new Date().getTime(), uid, recordingId);
+    }
 
     /**
      * 订单报告通用对象
@@ -1325,35 +1468,34 @@ public class UploadController {
         try (FileInputStream in = new FileInputStream(filePath);
              Workbook wb = fileType(in, file)) {
             if (wb == null) {
-                //这里这样返回 会有问题 //暂定
-                return BaseApiService.setResultError("不是excel文件");
+                //返回错误信息
+                return errorResult(0, "不是excel文件", recordingId, fileName, timing, "exception");
             }
             Sheet sheet = wb.getSheetAt(0);
             int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
             //拿到数据库的表头 进行校验 !!!这里还可以优化 暂定
             List<String> head = getHeadInfo(siteId, tbId, null);
             //对比表头
-            ResponseBase headResponse = contrastHeadMethod(totalNumber, sheet, head);
-            //如果表头对比失败
-            if (headResponse != null) {
-                timing.setInfo("exception", 0, "表头信息不一致");
-                setTiming.add(timing);
-                return headResponse;
-            }
+            boolean isFlg = compareHeadXls(totalNumber, sheet, head);
+            //必须在 setTiming.add 前设置id
             timing.setInfo(fileName, recordingId);
-            responseBase = readTable(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing);
+            //如果表头对比失败
+            if (!isFlg) {
+                //返回错误信息
+                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception");
+            }
+            responseBase = dealWithXlsData(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing).get();
             return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1);
-        } catch (FileNotFoundException e) {
-            return BaseApiService.setResultError("FileInputStream 异常~");
+        } catch (NumberFormatException n) {
+            String errorMsg = "第" + (numberCount.get() + 1) + "行信息错误,数据存入失败~,错误信息" + n.getMessage();
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } catch (Exception e) {
-//            System.out.println(e.getMessage());
-            timing.setInfo("exception", 0, "程序处理数据出错，请检查报错信息");
-            setTiming.add(timing);
-            //如果报错更新状态
-            responseBase = saveUserUploadInfo(BaseApiService.setResultError("第" + count.get() + "行信息错误,数据存入失败~"), recordingId, fileName, null, 0);
-            return responseBase;
+            //System.out.println(e.getMessage());
+            String errorMsg = "第" + count.get() + "行信息错误,数据存入失败~,错误信息";
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } finally {
             count.set(0L);
+            numberCount.set(0L);
         }
     }
 
@@ -1392,12 +1534,13 @@ public class UploadController {
         } else if (tbId == 125) {
             hlList = ArrUtils.listT(tList);
         }
-
         int line = 1;
         int lastRowNum = sheet.getLastRowNum(); // 获取总行数
         timing.setTotalNumber((double) lastRowNum);
         timing.setMsg("正在校验数据..........");
         for (int i = line; i <= lastRowNum; i++) {
+            //真实数量++
+            inCreateNumberCount();
             //count ++
             inCreateCount();
             row = sheet.getRow(i);
@@ -1476,11 +1619,9 @@ public class UploadController {
             }
         }
         if (saveCount > 0) {
-            timing.setInfo("success", "数据导入成功..........");
-            setTiming.add(timing);
-            return printCount(saveCount, begin);
+            return printCount(begin, timing, count.get());
         }
-        return null;
+        return BaseApiService.setResultError("数据存入异常,请检查错误信息");
     }
 
     /**
@@ -1513,13 +1654,12 @@ public class UploadController {
      * @param s
      * @return
      */
-    public ResponseBase printCount(int s, Long begin) {
-        if (s > 0) {
-            // 结束时间
-            Long end = new Date().getTime();
-            return BaseApiService.setResultSuccess(count.get() - 1 + "条数据插入成功~花费时间 : " + (end - begin) / 1000 + " s");
-        }
-        return null;
+    public ResponseBase printCount(Long begin, Timing timing, Long successNumber) {
+        timing.setInfo("success", "数据导入成功..........");
+        setTiming.add(timing);
+        // 结束时间
+        Long end = new Date().getTime();
+        return BaseApiService.setResultSuccess("总共" + numberCount.get() + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
     }
 
     /**
@@ -1815,30 +1955,13 @@ public class UploadController {
     }
 
     /**
-     * 比较头部 Txt
-     *
-     * @param totalNumber
-     * @param sheet
-     * @param head
-     * @return
-     */
-    public ResponseBase contrastHeadMethod(int totalNumber, Sheet sheet, List<String> head) {
-        //如果对比正常 返回 Null
-        if (!compareHeadXls(totalNumber, sheet, head)) {
-            //更新
-            return BaseApiService.setResultError(Constants.MSG_XLS);
-        }
-        return null;
-    }
-
-    /**
      * 对比xls 表头信息是否一致
      *
      * @param totalNumber
      * @param sheet
      * @return
      */
-    public boolean compareHeadXls(int totalNumber, Sheet sheet, List<String> fBalanceHead) {
+    public boolean compareHeadXls(int totalNumber, Sheet sheet, List<String> slqHead) {
         Row row;
         Cell cell;
         List<String> twoList = new ArrayList<>();
@@ -1850,7 +1973,7 @@ public class UploadController {
                 System.out.println(cell.toString().trim());
             }
         }
-        return ArrUtils.eqOrderList(fBalanceHead, twoList);
+        return ArrUtils.eqOrderList(slqHead, twoList);
     }
 
     /**

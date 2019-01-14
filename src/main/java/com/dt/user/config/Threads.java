@@ -18,7 +18,7 @@ public class Threads {
 		// 设置核心线程数
 		executor.setCorePoolSize(10);
 		// 设置最大线程数
-		executor.setMaxPoolSize(15);
+		executor.setMaxPoolSize(20);
 		// 设置队列容量
 		executor.setQueueCapacity(20);
 		// 设置线程活跃时间（秒）

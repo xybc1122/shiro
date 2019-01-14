@@ -74,9 +74,9 @@ public interface Constants {
     String MEXICO_TIME = "dd/MM/yyyy HH:mm:ss";
 
     /**
-     * 北美日期转换
+     * 订单/退货 日期转换
      */
-    String NORTH_AMERICA = "yyyy-MM-dd'T'HH:mm:ss";
+    String ORDER_RETURN = "yyyy-MM-dd'T'HH:mm:ss";
 
     /**
      * 打印消息 xls

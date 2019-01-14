@@ -41,6 +41,8 @@ public class SalesAmazonFbaTradeReport {
     private String isBusinessOrder;
     private String purchaseOrderNumber;
     private String priceDesignation;
+    private String isReplacementOrder;
+    private String originalOrderId;
     private Long createDate;
     private Long createIdUser;
     private Long modifyDate;
@@ -48,6 +50,7 @@ public class SalesAmazonFbaTradeReport {
     private Long auditDate;
     private Long auditIdUser;
     private Long recordingId;
+
 
 
     public SalesAmazonFbaTradeReport() {
@@ -59,6 +62,22 @@ public class SalesAmazonFbaTradeReport {
         this.createDate = createDate;
         this.createIdUser = createIdUser;
         this.recordingId = recordingId;
+    }
+
+    public String getIsReplacementOrder() {
+        return isReplacementOrder;
+    }
+
+    public void setIsReplacementOrder(String isReplacementOrder) {
+        this.isReplacementOrder = isReplacementOrder;
+    }
+
+    public String getOriginalOrderId() {
+        return originalOrderId;
+    }
+
+    public void setOriginalOrderId(String originalOrderId) {
+        this.originalOrderId = originalOrderId;
     }
 
     public Long getRecordingId() {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 @Service
 public class SalesAmazonFbaTradeReportServiceImpl implements SalesAmazonFbaTradeReportService {
 
@@ -16,5 +17,10 @@ public class SalesAmazonFbaTradeReportServiceImpl implements SalesAmazonFbaTrade
     @Override
     public int AddSalesAmazonAdTrdList(List<SalesAmazonFbaTradeReport> trdList) {
         return tradeReportMapper.AddSalesAmazonAdTrdList(trdList);
+    }
+
+    @Override
+    public SalesAmazonFbaTradeReport getReport(Long sId, String oId) {
+        return tradeReportMapper.getReport(sId, oId);
     }
 }
