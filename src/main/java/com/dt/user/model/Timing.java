@@ -57,17 +57,17 @@ public class Timing {
     /**
      * 设置属性
      *
-     * @param count
+     * @param index
      * @return
      */
-    public void setAttributesTim(Long count) {
-        int percentage = (int) ((count / this.totalNumber) * 100);
+    public void setAttributesTim(int index) {
+        int percentage = (int) (((index + 1) / this.totalNumber) * 100);
         this.percentage = percentage;
         if (this.percentage == 60) {
             //设置颜色
             this.color = "#8e71c7";
         }
-        if (this.percentage == 100) {
+        if (this.percentage == 95) {
             //设置颜色
             this.color = "#67C23A";
         }
@@ -75,6 +75,7 @@ public class Timing {
 
     /**
      * 设置文件总数
+     *
      * @param filePath
      */
     public void setFileCount(String filePath) {

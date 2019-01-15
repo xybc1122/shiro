@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -74,20 +74,26 @@ public class UploadController {
     @Autowired
     private SalesAmazonFbaTradeReportService tradeReportService;
 
+    @Autowired
+    private SalesAmazonFbaRefundService refundService;
+    /**
+     * 多线程返回接收
+     */
     private Future<ResponseBase> future;
 
     @Autowired
     private BasicPublicAmazonTypeMapper typeMapper;
     //获取没有SKU的List集合 并发List 容器
     private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
-    private CopyOnWriteArraySet<Timing> setTiming = new CopyOnWriteArraySet<>();
-    //总的行数
-    ThreadLocal<Long> numberCount = ThreadLocal.withInitial(() -> 0L);
 
+    private CopyOnWriteArraySet<Timing> setTiming = new CopyOnWriteArraySet<>();
+    //没有sku有几行存入
+    ThreadLocal<Long> numberCount = ThreadLocal.withInitial(() -> 0L);
     //真实存入函数
     ThreadLocal<Long> count = ThreadLocal.withInitial(() -> 0L);
     //没有sku有几行存入
     ThreadLocal<Integer> sumErrorSku = ThreadLocal.withInitial(() -> 0);
+
     //读写锁
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
     //读锁
@@ -132,13 +138,13 @@ public class UploadController {
         String[] ids = redIds.split(",");
         List<String> arrayList = new ArrayList<>(Arrays.asList(ids));
         if (setTiming.size() > 0) {
-//            //如果两个长度不够
-//            if (ids.length != setTiming.size()) {
-//                int length = setTiming.size() - ids.length;
-//                for (int k = 0; k < length; k++) {
-//                    arrayList.add("0");
-//                }
-//            }
+            //如果两个长度不够
+            if (arrayList.size() != setTiming.size()) {
+                int length = setTiming.size() - arrayList.size();
+                for (int k = 0; k < length; k++) {
+                    arrayList.add("0");
+                }
+            }
             for (Timing t : setTiming) {
                 for (int j = 0; j < arrayList.size(); j++) {
                     if (t.getRedId().equals(Long.parseLong(arrayList.get(j)))) {
@@ -341,12 +347,9 @@ public class UploadController {
             //多线程处理
             responseCsv = dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId).get();
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
-        } catch (NumberFormatException n) {
-            String errorMsg = "第" + (numberCount.get() + 1) + "行信息错误,数据存入失败~,错误信息" + n.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } catch (Exception e) {
-            //System.out.println(e.getMessage() + "-------------------------");
-            String errorMsg = "第" + count.get() + "行信息错误,数据存入失败~,错误信息";
+            System.out.println(e.getMessage());
+            String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息";
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } finally {
             count.set(0L);
@@ -405,10 +408,9 @@ public class UploadController {
             safRefundList = ArrUtils.listT(tList);
         }
         String line;
+        int index = 0;
         timing.setMsg("正在校验数据..........");
-        v1:
         while ((line = br.readLine()) != null) {
-            //真实数量++
             inCreateNumberCount();
             //count ++ 成功数量
             inCreateCount();
@@ -423,7 +425,7 @@ public class UploadController {
                         if (sftPort == null) {
                             //先拿到这一行信息 newLine
                             exportTxtType(lineHead, line);
-                            continue v1;
+                            break;
                         }
                     }
                     if (sftPort != null) {
@@ -438,22 +440,17 @@ public class UploadController {
                         if (sfRefund == null) {
                             //先拿到这一行信息 newLine
                             exportTxtType(lineHead, line);
-                            continue v1;
+                            break;
                         }
                     }
-                    System.out.println(sfRefund);
                     if (sfRefund != null) {
                         safRefundList.add(sfRefund);
                     }
                     break;
             }
+            index++;
             //计算百分比
-            int percentage = (int) ((count.get() / timing.getTotalNumber()) * 100);
-            timing.setPercentage(percentage);
-            if (percentage == 60) {
-                //设置颜色
-                timing.setColor("#8e71c7");
-            }
+            timing.setAttributesTim(index);
             setTiming.add(timing);
         }
         int countTrad = 0;
@@ -469,10 +466,12 @@ public class UploadController {
                 //插入数据
                 timing.setMsg("正在导入数据库..........");
                 //导入数据库
+                countTrad = refundService.AddSalesAmazonAdRefundList(safRefundList);
+
             }
         }
         if (countTrad > 0) {
-            return printCount(begin, timing, count.get());
+            return printCount(begin, timing, count.get(), index);
         }
         return BaseApiService.setResultError("数据存入异常,请检查错误信息");
     }
@@ -523,12 +522,8 @@ public class UploadController {
             timing.setFileCount(filePath);
             responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, 1L, timing).get();
             return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2);
-        } catch (NumberFormatException n) {
-            String errorMsg = "第" + (numberCount.get() + 1) + "行信息错误,数据存入失败~,错误信息" + n.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } catch (Exception e) {
-            // System.out.println(e.getMessage() + "-------------------------");
-            String errorMsg = "第" + count.get() + "行信息错误,数据存入失败~,错误信息";
+            String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } finally {
             if (csvReader != null) {
@@ -586,7 +581,7 @@ public class UploadController {
             }
             index++;
             //计算百分比
-            timing.setAttributesTim(count.get());
+            timing.setAttributesTim(index);
             setTiming.add(timing);
         }
         int number = 0;
@@ -608,7 +603,7 @@ public class UploadController {
             }
         }
         if (number != 0) {
-            return printCount(begin, timing, count.get());
+            return printCount(begin, timing, count.get(), index);
         }
         return BaseApiService.setResultError("存入数据失败，请检查信息");
     }
@@ -788,21 +783,21 @@ public class UploadController {
                 break;
             case 10:
                 if (aId == 4 && sft.getSiteId() == 9) {
-                    sft.setLicensePlateNumber(j[i]);
+                    sft.setLicensePlateNumber(StrUtils.repString(j[i]));
                 } else {
-                    sft.setRefundStaus(j[i]);
+                    sft.setRefundStaus(StrUtils.repString(j[i]));
                 }
                 break;
             case 11:
                 if (aId == 4 && sft.getSiteId() == 9) {
-                    sft.setCustomerRemarks(j[i]);
+                    sft.setCustomerRemarks(StrUtils.repString(j[i]));
                 } else {
-                    sft.setLicensePlateNumber(j[i]);
+                    sft.setLicensePlateNumber(StrUtils.repString(j[i]));
                 }
                 break;
 
             case 12:
-                sft.setCustomerRemarks(j[i]);
+                sft.setCustomerRemarks(StrUtils.repString(j[i]));
                 break;
         }
         return sft;
@@ -1486,12 +1481,8 @@ public class UploadController {
             }
             responseBase = dealWithXlsData(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing).get();
             return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1);
-        } catch (NumberFormatException n) {
-            String errorMsg = "第" + (numberCount.get() + 1) + "行信息错误,数据存入失败~,错误信息" + n.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } catch (Exception e) {
-            //System.out.println(e.getMessage());
-            String errorMsg = "第" + count.get() + "行信息错误,数据存入失败~,错误信息";
+            String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
         } finally {
             count.set(0L);
@@ -1534,12 +1525,12 @@ public class UploadController {
         } else if (tbId == 125) {
             hlList = ArrUtils.listT(tList);
         }
+        int index = 0;
         int line = 1;
         int lastRowNum = sheet.getLastRowNum(); // 获取总行数
         timing.setTotalNumber((double) lastRowNum);
         timing.setMsg("正在校验数据..........");
         for (int i = line; i <= lastRowNum; i++) {
-            //真实数量++
             inCreateNumberCount();
             //count ++
             inCreateCount();
@@ -1585,8 +1576,9 @@ public class UploadController {
                 }
                 hlList.add(adHl);
             }
+            index++;
             //计算百分比
-            timing.setAttributesTim(count.get());
+            timing.setAttributesTim(index);
             setTiming.add(timing);
         }
         int saveCount = 0;
@@ -1619,7 +1611,7 @@ public class UploadController {
             }
         }
         if (saveCount > 0) {
-            return printCount(begin, timing, count.get());
+            return printCount(begin, timing, count.get(), index);
         }
         return BaseApiService.setResultError("数据存入异常,请检查错误信息");
     }
@@ -1654,12 +1646,12 @@ public class UploadController {
      * @param s
      * @return
      */
-    public ResponseBase printCount(Long begin, Timing timing, Long successNumber) {
+    public ResponseBase printCount(Long begin, Timing timing, Long successNumber, int index) {
         timing.setInfo("success", "数据导入成功..........");
         setTiming.add(timing);
         // 结束时间
         Long end = new Date().getTime();
-        return BaseApiService.setResultSuccess("总共" + numberCount.get() + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
+        return BaseApiService.setResultSuccess("总共" + index + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
     }
 
     /**
