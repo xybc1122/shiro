@@ -176,7 +176,7 @@ public class UserController {
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
             LinkedHashMap staffValue = (LinkedHashMap) userMap.get("staffValue");
             List<Integer> rolesId = (List<Integer>) userMap.get("rolesId");
-            String pwdUserDate = (String) userMap.get("pwdUserDate");
+            Long effectiveDate = (Long) userMap.get("effectiveDate");
             UserInfo userInfo = new UserInfo();
             userInfo.setUserName(userName);
             //md5盐值密码加密
@@ -190,7 +190,7 @@ public class UserController {
                 userInfo.setEffectiveDate(0L);
             } else {
                 //设置 用户有效时间
-                userInfo.setEffectiveDate(DateUtils.UTCLongODefaultString(pwdUserDate));
+                userInfo.setEffectiveDate(effectiveDate);
             }
             //如果点击了   密码始终有效
             if (checkedPwdAlways) {
@@ -205,7 +205,7 @@ public class UserController {
                     userInfo.setPwdStatus(DateUtils.getRearDate(Integer.parseInt(pwdAlwaysInput)));
                 }
             }
-            userInfo.setName(staffValue.get("sName").toString());
+            userInfo.setName(staffValue.get("employeeName").toString());
             //更新员工信息
             userService.saveUserInfo(userInfo);
             Long uid = userInfo.getUid();

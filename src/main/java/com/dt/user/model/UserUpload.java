@@ -7,6 +7,10 @@ public class UserUpload {
     public UserUpload() {
 
     }
+
+    /**
+     * 存入记录信息集合数据
+     */
     private List<UserUpload> uploadSuccessList;
     private Long id;
     private Long uid;
@@ -64,6 +68,37 @@ public class UserUpload {
      * 洲ID
      */
     private Integer areaId;
+    /**
+     * 业务报告时间
+     */
+    private String businessTime;
+
+    public UserUpload(Long uid, String name, Long createDate, Long delDate, Long delDateId, String filePath, String writeFilePath, String remark, Integer status, Long shopId, Long siteId, Integer pId, Integer tbId, Long recordingId, Integer areaId, String businessTime) {
+        this.uid = uid;
+        this.name = name;
+        this.createDate = createDate;
+        this.delDate = delDate;
+        this.delDateId = delDateId;
+        this.filePath = filePath;
+        this.writeFilePath = writeFilePath;
+        this.remark = remark;
+        this.status = status;
+        this.shopId = shopId;
+        this.siteId = siteId;
+        this.pId = pId;
+        this.tbId = tbId;
+        this.recordingId = recordingId;
+        this.areaId = areaId;
+        this.businessTime = businessTime;
+    }
+
+    public String getBusinessTime() {
+        return businessTime;
+    }
+
+    public void setBusinessTime(String businessTime) {
+        this.businessTime = businessTime;
+    }
 
     public List<UserUpload> getUploadSuccessList() {
         return uploadSuccessList;

@@ -1,20 +1,13 @@
 package com.dt.user.shiro;
 
-import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.ApplicationContextRegister;
-import com.dt.user.config.BaseApiService;
-import com.dt.user.config.BaseRedisService;
 import com.dt.user.model.UserInfo;
-import com.dt.user.service.MenuService;
 import com.dt.user.service.PermsMapperService;
 import com.dt.user.service.RoleService;
 import com.dt.user.service.UserService;
-import com.dt.user.utils.GetCookie;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;

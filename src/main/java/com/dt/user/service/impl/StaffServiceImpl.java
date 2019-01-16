@@ -1,7 +1,7 @@
 package com.dt.user.service.impl;
 
 import com.dt.user.mapper.StaffMapper;
-import com.dt.user.model.Staff;
+import com.dt.user.model.HrArchivesEmployee;
 import com.dt.user.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ public class StaffServiceImpl implements StaffService {
     private StaffMapper staffMapper;
 
     @Override
-    public List<Staff> GetStaffList() {
+    public List<HrArchivesEmployee> GetStaffList() {
         return staffMapper.GetStaffList();
     }
 

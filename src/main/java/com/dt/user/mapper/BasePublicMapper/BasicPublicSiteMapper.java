@@ -38,12 +38,12 @@ public interface BasicPublicSiteMapper {
     /**
      * 洲 业务
      * 通过url 去查询site ID
+     *
      * @param url
      * @return
      */
     @Select("SELECT `site_id` FROM `basic_public_site`" +
             "WHERE url=#{url}")
     Long getSiteId(@Param("url") String url);
-
 
 }

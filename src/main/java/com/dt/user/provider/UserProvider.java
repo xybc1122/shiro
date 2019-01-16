@@ -61,26 +61,21 @@ public class UserProvider {
             if (checkedUserAlways) {
                 SET("effective_date=" + 0);
             } else if (userMap.get("effectiveDate") != null) {
-                if (userMap.get("effectiveDate") instanceof String) {
-                    String effectiveDate = (String) userMap.get("effectiveDate");
-                    SET("effective_date=" + DateUtils.UTCLongODefaultString(effectiveDate));
-                } else if (userMap.get("effectiveDate") instanceof Long) {
-                    //什么都不做
+                if (userMap.get("effectiveDate") instanceof Long) {
+                    Long effectiveDate = (Long) userMap.get("effectiveDate");
+                    SET("effective_date=" + effectiveDate);
                 }
             }
             //如果勾选密码始终有效
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
             if (checkedPwdAlways) {
                 SET("pwd_status=" + 0);
-            } else if (userMap.get("pwdStatus") != null) {
-                if (userMap.get("pwdStatus") instanceof String) {
-                    String pwdStatus = (String) userMap.get("pwdStatus");
-                    SET("pwd_status=" + DateUtils.UTCLongODefaultString(pwdStatus));
-                } else if (userMap.get("pwdStatus") instanceof Long) {
-                    //什么都不做
+            } else if (userMap.get("pwdAlwaysInput") != null) {
+                if (userMap.get("pwdAlwaysInput") instanceof Long) {
+                    Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
+                    SET("pwd_status=" + DateUtils.getRearDate(pwdAlwaysInput));
                 }
             }
-
             if (userMap.get("accountStatus") != null) {
                 Integer accountStatus = (Integer) userMap.get("accountStatus");
                 SET("account_status=" + accountStatus);

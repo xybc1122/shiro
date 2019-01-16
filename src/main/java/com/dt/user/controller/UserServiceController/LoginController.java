@@ -41,6 +41,7 @@ public class LoginController extends BaseApiService {
         // 把用户名和密码封装为 UsernamePasswordToken 对象 记住我
         UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd());
         try {
+            //获得token 去判断登陆
             if (!currentUser.isAuthenticated()) {
                 // 执行登录.
                 currentUser.login(token);

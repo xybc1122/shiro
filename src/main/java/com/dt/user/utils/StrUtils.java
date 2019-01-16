@@ -79,7 +79,7 @@ public class StrUtils {
                     replace(',', '.');
             return Double.parseDouble(newNumber);
         }
-        //如果都有 并且 j > i 等于加拿大的
+        //如果都有 并且 j < i 等于加拿大的
         else if (i != -1 && j != -1 && j < i) {
             String newNumber = number.
                     replace(",", "");
