@@ -163,13 +163,12 @@ public class UploadController {
         return BaseApiService.setResultSuccess(set);
     }
 
-    @GetMapping("/downloadCommonFile")
-    public ResponseBase downloadFile(@RequestParam("fileId") String fileId, HttpServletRequest
-            request, HttpServletResponse response) {
-        String path = "D:/";
-        System.out.println("sss");
+    @PostMapping("/downloadCommonFile")
+    public ResponseBase downloadFile(HttpServletRequest
+                                             request, HttpServletResponse response, @RequestBody Map<String, Object> fileMap) {
+        String filePath = (String) fileMap.get("filePath");
         try {
-            FileUtils.downloadFile(path, response, request);
+            FileUtils.downloadFile(filePath, response, request);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -306,10 +305,10 @@ public class UploadController {
      * @param fileName
      * @return
      */
-    public ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing timing, String status) {
+    public ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing timing, String status, String saveFilePath) {
         timing.setInfo(status, percentage, msg);
         setTiming.add(timing);
-        return saveUserUploadInfo(BaseApiService.setResultError(msg), recordingId, fileName, null, 0);
+        return saveUserUploadInfo(BaseApiService.setResultError(msg), recordingId, fileName, null, 0, saveFilePath);
     }
 
     /**
@@ -346,7 +345,7 @@ public class UploadController {
             timing.setInfo(fileName, recordingId);
             if (!isFlg) {
                 //返回错误信息
-                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception");
+                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath);
             }
             //设置文件总数
             timing.setFileCount(filePath);
@@ -355,11 +354,11 @@ public class UploadController {
             strLineHead.add(lineHead);
             //多线程处理
             responseCsv = dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId).get();
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3, saveFilePath);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息";
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath);
         } finally {
             count.set(0L);
             numberCount.set(0L);
@@ -540,7 +539,7 @@ public class UploadController {
         timing.setInfo(fileName, recordingId);
         if (row == -1) {
             //返回错误信息
-            return errorResult(0, "表中真实字段第一行信息比对不上", recordingId, fileName, timing, "exception");
+            return errorResult(0, "表中真实字段第一行信息比对不上", recordingId, fileName, timing, "exception", filePath);
         }
         //拿到之前的表头信息
         fileHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
@@ -550,17 +549,17 @@ public class UploadController {
         boolean isFlg = compareHeadCsv(fileHeadList, sqlHeadList);
         if (!isFlg) {
             //返回错误信息
-            return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception");
+            return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath);
         }
         try (InputStreamReader isr = streamReader(filePath)) {
             csvReader = new CsvReader(isr);
             //设置文件总数
             timing.setFileCount(filePath);
             responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, businessTime, timing).get();
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2, saveFilePath);
         } catch (Exception e) {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath);
         } finally {
             if (csvReader != null) {
                 csvReader.close();
@@ -650,16 +649,17 @@ public class UploadController {
      * @param status
      * @param msg
      */
-    public UserUpload recordInfo(Integer status, String msg, Long id, String fileName) {
+    public UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String saveFilePath) {
         UserUpload upload = new UserUpload();
         upload.setId(id);
         upload.setUid(new Date().getTime());
-        upload.setName(fileName);
         if (status != 0) {
             if (status == 3) {
                 upload.setStatus(status);
             }
             if (status == 2) {
+                upload.setName(fileName);
+                upload.setFilePath(saveFilePath);
                 upload.setStatus(status);
             }
             if (status == 1) {
@@ -1558,7 +1558,7 @@ public class UploadController {
              Workbook wb = fileType(in, file)) {
             if (wb == null) {
                 //返回错误信息
-                return errorResult(0, "不是excel文件", recordingId, fileName, timing, "exception");
+                return errorResult(0, "不是excel文件", recordingId, fileName, timing, "exception", filePath);
             }
             Sheet sheet = wb.getSheetAt(0);
             int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
@@ -1571,13 +1571,13 @@ public class UploadController {
             //如果表头对比失败
             if (!isFlg) {
                 //返回错误信息
-                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception");
+                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", filePath);
             }
             responseBase = dealWithXlsData(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing).get();
-            return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1);
+            return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1, filePath);
         } catch (Exception e) {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception");
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", filePath);
         } finally {
             count.set(0L);
             numberCount.set(0L);
@@ -1713,20 +1713,21 @@ public class UploadController {
     /**
      * 通用更新方法
      */
-    public ResponseBase upUserUpload(int status, Long id, String fileName, String msg) {
+    public ResponseBase upUserUpload(int status, Long id, String fileName, String msg, String saveFilePath) {
         UserUpload upload;
         switch (status) {
             case 0:
-                upload = recordInfo(status, msg, id, fileName);
+                upload = recordInfo(status, msg, id, fileName, saveFilePath);
                 return BaseApiService.setResultSuccess(msg, upload);
             case 1:
-                upload = recordInfo(status, msg, id, fileName);
+                upload = recordInfo(status, msg, id, fileName, saveFilePath);
                 return BaseApiService.setResultError("error/" + msg, upload);
             case 2:
-                upload = recordInfo(2, msg, id, fileName);
+                int fileIndex = saveFilePath.lastIndexOf("/");
+                upload = recordInfo(status, msg, id, "NO" + fileName,     saveFilePath.substring(0,fileIndex) + "SkuNo/");
                 return BaseApiService.setResultSuccess(msg, upload);
             case 3:
-                upload = recordInfo(status, msg, id, fileName);
+                upload = recordInfo(status, msg, id, fileName, saveFilePath);
                 return BaseApiService.setResultError(msg, upload);
             case 4:
                 break;
@@ -2132,7 +2133,7 @@ public class UploadController {
      * @return
      */
     public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String
-            fileName, List<String> head, int type) {
+            fileName, List<String> head, int type, String saveFilePath) {
         try {
             if (responseBase.getCode() == 200) {
                 if (skuNoIdList.size() != 0) {
@@ -2149,13 +2150,13 @@ public class UploadController {
                     //上传成功 有些skuId 记录上传信息~
                     String msg = responseBase.getMsg() + "====>有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
                     sumErrorSku.set(0);
-                    return upUserUpload(2, recordingId, fileName, msg);
+                    return upUserUpload(2, recordingId, fileName, msg, saveFilePath);
                 }
                 //上传成功 都有skuId~
-                return upUserUpload(0, recordingId, fileName, responseBase.getMsg());
+                return upUserUpload(0, recordingId, fileName, responseBase.getMsg(), saveFilePath);
             } else {
                 //存入信息报错
-                return upUserUpload(1, recordingId, fileName, responseBase.getMsg());
+                return upUserUpload(1, recordingId, fileName, responseBase.getMsg(), saveFilePath);
             }
         } finally {
             //清空数据

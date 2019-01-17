@@ -29,6 +29,7 @@ public interface TableHeadMapper {
 
     /**
      * 通过mid查询一个数据
+     *
      * @param mid
      * @return
      */
@@ -36,16 +37,17 @@ public interface TableHeadMapper {
             "LEFT JOIN `system_user_menu_field` AS tf ON tf.field_id=t.id\n" +
             "LEFT JOIN `system_user_menu` AS m ON m.`menu_id`=tf.m_id\n" +
             "WHERE  m.`menu_id`=#{mId}")
-    TableHead getTableHead(@Param("mId")Long mid);
+    TableHead getTableHead(@Param("mId") Long mid);
+
     /**
      * 根据菜单id查询对应显示的表头
      */
-    @SelectProvider(type = TableHeadProvider.class,method = "showTableHead")
+    @SelectProvider(type = TableHeadProvider.class, method = "showTableHead")
     List<TableHead> getTableHeadList(Map<String, Object> mapHead);
 
     /**
      * 查询所有表头信息
      */
-    @Select("SELECT`id`,`head_name` FROM `system_user_table_head`")
+    @Select("SELECT`id`,`head_name`,`menu_id` FROM `system_user_table_head`")
     List<TableHead> findByHeadList();
 }

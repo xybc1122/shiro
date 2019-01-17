@@ -18,25 +18,10 @@ public class TableHeadImpl implements TableHeadService {
     private TableHeadMapper tableHeadMapper;
 
     @Override
-    public List<TableHead> findByMenuIdHeadList(Long id, Long uid) {
-        //创建一个新的数组
-        List<TableHead> headNew = new ArrayList<>();
+    public List<TableHead> findByMenuIdHeadList(Long menuId, Long uid) {
         //接收数据库传来的对象
         List<TableHead> headList = tableHeadMapper.findByHeader(uid);
-        for (TableHead head : headList) {
-            //判断不为空
-            if (StringUtils.isNotBlank(head.getMenuId())) {
-                //切割变成数组
-                String[] menu_id = head.getMenuId().trim().split(",");
-                for (int i = 0; i < menu_id.length; i++) {
-                    int menuId = Integer.parseInt(menu_id[i]);
-                    if (menuId == id) {
-                        headNew.add(head);
-                    }
-                }
-            }
-        }
-        return headNew;
+        return headNewList(headList, menuId);
     }
 
     @Override
@@ -50,7 +35,35 @@ public class TableHeadImpl implements TableHeadService {
     }
 
     @Override
-    public List<TableHead> findByHeadList() {
-        return tableHeadMapper.findByHeadList();
+    public List<TableHead> findByHeadList(Long menuId) {
+        List<TableHead> tableHeads = tableHeadMapper.findByHeadList();
+        return headNewList(tableHeads, menuId);
+
+    }
+
+    /**
+     * 遍历查找对应的menuId
+     *
+     * @param headList
+     * @param mId
+     * @return
+     */
+    public List<TableHead> headNewList(List<TableHead> headList, Long mId) {
+        //创建一个新的数组
+        List<TableHead> headNew = new ArrayList<>();
+        for (TableHead head : headList) {
+            //判断不为空
+            if (StringUtils.isNotBlank(head.getMenuId())) {
+                //切割变成数组
+                String[] menu_id = head.getMenuId().trim().split(",");
+                for (int i = 0; i < menu_id.length; i++) {
+                    int menuId = Integer.parseInt(menu_id[i]);
+                    if (mId == menuId) {
+                        headNew.add(head);
+                    }
+                }
+            }
+        }
+        return headNew;
     }
 }

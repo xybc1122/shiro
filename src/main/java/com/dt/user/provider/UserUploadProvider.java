@@ -1,7 +1,11 @@
 package com.dt.user.provider;
 
 import com.dt.user.model.UserUpload;
+import com.dt.user.utils.DateUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.util.ByteSource;
 
 public class UserUploadProvider {
 
@@ -25,6 +29,27 @@ public class UserUploadProvider {
                 WHERE("tb_id=" + upload.getTbId());
             }
             WHERE("del_mark=0");
+        }}.toString();
+    }
+
+    /**
+     * 更新用户信息
+     * @param upload
+     * @return
+     */
+    public String upUploadInfo(UserUpload upload) {
+//        UPDATE `system_user_upload`\n" +
+//        "SET\n" +
+//                "`remark` = #{remark},\n" +
+//                "`status` = #{status}\n" +
+//                "WHERE `id` = #{id}
+        return new SQL() {{
+            UPDATE("`system_user_upload`");
+            if (StringUtils.isNotBlank(upload.getRemark())) {
+
+            }
+
+           // WHERE("uid=" + uid);
         }}.toString();
 
     }

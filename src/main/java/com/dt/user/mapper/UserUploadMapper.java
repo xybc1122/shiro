@@ -15,6 +15,10 @@ public interface UserUploadMapper {
             "`remark` = #{remark},\n" +
             "`status` = #{status}\n" +
             "WHERE `id` = #{id}")
+    /**
+     * 查询用户上传记录
+     */
+    @SelectProvider(type = UserUploadProvider.class, method = "upUploadInfo")
     int upUploadInfo(UserUpload userUpload);
 
     /**

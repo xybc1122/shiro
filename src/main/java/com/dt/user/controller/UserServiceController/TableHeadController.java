@@ -22,6 +22,7 @@ public class TableHeadController {
 
     /**
      * 通过uid 来查询 对应的表头信息
+     *
      * @param id
      * @param request
      * @return
@@ -39,6 +40,7 @@ public class TableHeadController {
 
     /**
      * 通过一组menuId  in()查询一组菜单对应表头的数据
+     *
      * @param mapHead
      * @return
      */
@@ -49,6 +51,7 @@ public class TableHeadController {
 
     /**
      * 通过一个菜单iD查询一个菜单对应表头的数据
+     *
      * @param mid
      * @return
      */
@@ -59,10 +62,12 @@ public class TableHeadController {
 
     /**
      * 查询所有的表头信息  无查询条件
+     *
      * @return
      */
     @GetMapping("/findHeads")
-    public ResponseBase findHeads() {
-        return BaseApiService.setResultSuccess(tableHeadService.findByHeadList());
+    public ResponseBase findHeads(@RequestParam("mId") String mid) {
+
+        return BaseApiService.setResultSuccess(tableHeadService.findByHeadList(Long.parseLong(mid)));
     }
 }

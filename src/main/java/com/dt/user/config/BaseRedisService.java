@@ -91,6 +91,10 @@ public class BaseRedisService {
         return null;
     }
 
+    //获取key 过期时间
+    public Long getTtl(String key) {
+        return stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
 
     //redis 删除数据
     public void delData(String key) {

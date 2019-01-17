@@ -52,6 +52,7 @@ public class FileUtils {
             return 0.0;
         }
     }
+
     /**
      * 删除单个文件
      *
@@ -79,9 +80,9 @@ public class FileUtils {
      * 下载文件
      */
     public static void downloadFile(String path, HttpServletResponse response, HttpServletRequest request) throws IOException {
-        InputStream fis = null;
-        OutputStream toClient = null;
-        try {
+        try (InputStream fis = new BufferedInputStream(new FileInputStream(path));
+             OutputStream toClient = new BufferedOutputStream(response.getOutputStream())
+        ) {
             // path是指欲下载的文件的路径。
             File downloadFile = new File(path);
             // 取得文件名。
@@ -89,9 +90,6 @@ public class FileUtils {
             filename = URLEncoder.encode(filename, "utf-8");
             // 取得文件的后缀名。
 //           String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
-
-            // 以流的形式下载文件。
-            fis = new BufferedInputStream(new FileInputStream(path));
             byte[] buffer = new byte[fis.available()];
             fis.read(buffer);
             // 清空response
@@ -101,20 +99,11 @@ public class FileUtils {
             response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
             response.addHeader("Content-Disposition", "attachment;filename=\"" + filename + "\"");
             response.addHeader("Content-Length", "" + downloadFile.length());
-            toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/octet-stream");
             toClient.write(buffer);
             toClient.flush();
         } catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
-            if (fis != null) {
-                fis.close();
-            }
-            if (toClient != null) {
-                toClient.close();
-            }
-
         }
     }
 }
