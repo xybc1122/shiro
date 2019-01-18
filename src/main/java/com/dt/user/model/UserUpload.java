@@ -4,8 +4,14 @@ import java.util.List;
 
 public class UserUpload {
 
+
     public UserUpload() {
 
+    }
+
+    public UserUpload(Long id, Long uid) {
+        this.id = id;
+        this.uid = uid;
     }
 
     /**

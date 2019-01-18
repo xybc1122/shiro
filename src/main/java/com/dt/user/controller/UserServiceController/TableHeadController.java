@@ -29,13 +29,13 @@ public class TableHeadController {
      */
     @GetMapping("/head")
     public ResponseBase findByHead(@RequestParam("menu_id") Long id, HttpServletRequest request) {
-        String token = GetCookie.getToken(request);
-        UserInfo user = JwtUtils.jwtUser(token);
-        if (user != null) {
-            List<TableHead> headList = tableHeadService.findByMenuIdHeadList(id, user.getUid());
-            return BaseApiService.setResultSuccess(headList);
+        UserInfo user = GetCookie.getUser(request);
+        if (user == null) {
+            return BaseApiService.setResultError("用户无效~");
         }
-        return BaseApiService.setResultError(null);
+        List<TableHead> headList = tableHeadService.findByMenuIdHeadList(id, user.getUid());
+        return BaseApiService.setResultSuccess(headList);
+
     }
 
     /**

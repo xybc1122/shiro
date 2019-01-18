@@ -51,10 +51,10 @@ public interface UserMapper {
             "WHERE `uid` = #{uid};")
     int upUserLandingTime(UserInfo userInfo);
 
+
     /**
      * 通过 id查询 用户 跟角色
      */
-
     @Select("SELECT uid,user_name,`status`,`name` FROM system_user_info WHERE uid=#{uid}")
     @Results({
             @Result(id = true, column = "uid", property = "uid"),

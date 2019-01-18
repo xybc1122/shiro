@@ -23,16 +23,16 @@ public class UserUploadController {
 
     /**
      * 获取上传记录
+     *
      * @return
      */
     @PostMapping("/getInfo")
     public ResponseBase getInfo(@RequestBody UserUpload requestUp, HttpServletRequest request) {
-        List<UserUpload> userUploadList;
-        String token = GetCookie.getToken(request);
-        UserInfo user = JwtUtils.jwtUser(token);
+        UserInfo user = GetCookie.getUser(request);
         if (user == null) {
-            return BaseApiService.setResultError("token 失效");
+            return BaseApiService.setResultError("用户无效~");
         }
+        List<UserUpload> userUploadList;
         requestUp.setUid(user.getUid());
         userUploadList = userUploadService.getUserUploadInfo(requestUp);
         return BaseApiService.setResultSuccess(userUploadList);

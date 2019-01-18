@@ -38,6 +38,24 @@ public class FileUtils {
         }
     }
 
+    /**
+     * 创建文件
+     *
+     * @param path
+     */
+    public static void mkdirFile(String path) {
+        File pathFile = new File(path); // 相对路径，如果没有则要建立一个新的output.txt文件
+        if (!pathFile.exists()) {
+            pathFile.mkdirs();
+        }
+    }
+
+    /**
+     * 读取文件总行数
+     *
+     * @param filePath
+     * @return
+     */
     public static Double readFile(String filePath) {
         Double count = 0.0;
         File file = new File(filePath);

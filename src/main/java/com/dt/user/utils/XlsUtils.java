@@ -14,6 +14,20 @@ public class XlsUtils {
     private static final String EXCEL_XLSX = "xlsx";
 
     /**
+     * 判断文件类型
+     */
+    public static Workbook fileType(FileInputStream in, File file) {
+        try {
+            //判断文件是否是excel
+            XlsUtils.checkExcel(file);
+            //判断Excel的版本,获取Workbook
+            return XlsUtils.getWorkbook(in, file);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * 判断Excel的版本,获取Workbook
      *
      * @param in
@@ -87,10 +101,8 @@ public class XlsUtils {
      * @param filePath
      */
     public static void outPutXssFile(List<List<String>> xssList, String filePath, String fileName) {
-        File targetFile = new File(filePath);
-        if (!targetFile.exists()) {
-            targetFile.mkdirs();
-        }
+        FileUtils.mkdirFile(filePath);
+
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet();
         for (int i = 0; i < xssList.size(); i++) {

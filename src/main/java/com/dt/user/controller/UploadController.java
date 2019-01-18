@@ -106,32 +106,6 @@ public class UploadController {
     //写锁
     Lock writeLock = readWriteLock.writeLock();
 
-
-    public void inCreateNumberCount() {
-        Long myNumberCount = numberCount.get();
-        myNumberCount++;
-        numberCount.set(myNumberCount);
-    }
-
-    //并发++
-    public void inCreateSumNoSku() {
-        Integer sumSku = sumErrorSku.get();
-        sumSku++;
-        sumErrorSku.set(sumSku);
-    }
-
-    public void inCreateCount() {
-        Long myCount = count.get();
-        myCount++;
-        count.set(myCount);
-    }
-
-    public void delCreateCount() {
-        Long typeCount = count.get();
-        typeCount--;
-        count.set(typeCount);
-    }
-
     /**
      * 定时请求的状态
      *
@@ -185,8 +159,8 @@ public class UploadController {
                                      @RequestParam("seId") String seId, @RequestParam("payId") String payId,
                                      @RequestParam("menuId") String menuId,
                                      @RequestParam("areaId") String areaId, @RequestParam("businessTime") String businessTime) {
-        String token = GetCookie.getToken(request);
-        UserInfo user = JwtUtils.jwtUser(token);
+        //获得用户信息
+        UserInfo user = GetCookie.getUser(request);
         if (user == null) {
             return BaseApiService.setResultError("用户无效~");
         }
@@ -252,7 +226,7 @@ public class UploadController {
             String getMsg = "上传了" + files.size() + "个文件/" + "其中" + fileCount + "个文件失败~ 失败文件名字" + sb.toString() + "";
             return BaseApiService.setResultSuccess(getMsg, uploadList);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            //System.out.println(e.getMessage());
             return BaseApiService.setResultError("上传异常,请检查问题", uploadList);
         }
     }
@@ -285,14 +259,14 @@ public class UploadController {
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
-                System.out.println("删除前" + setTiming.size());
+                //System.out.println("删除前" + setTiming.size());
                 for (Timing t : setTiming) {
                     if (t.getRedId().equals(userUpload.getId())) {
                         setTiming.remove(t);
                         break;
                     }
                 }
-                System.out.println("删除后" + setTiming.size());
+                // System.out.println("删除后" + setTiming.size());
             }
         }
         return BaseApiService.setResultSuccess(responseBaseList);
@@ -412,21 +386,26 @@ public class UploadController {
         SalesAmazonFbaTradeReport sftPort;
         SalesAmazonFbaRefund sfRefund;
         SalesAmazonFbaReceivestock sfReceives;
-        List<?> tList = new ArrayList<>();
-        if (tbId == 109) {
-            safTradList = ArrUtils.listT(tList);
-        } else if (tbId == 110) {
-            safRefundList = ArrUtils.listT(tList);
-        } else if (tbId == 113) {
-            sfReceivesList = ArrUtils.listT(tList);
-        }
         String line;
         int index = 0;
         timing.setMsg("正在校验数据..........");
+        List<?> tList = new ArrayList<>();
+        switch (tbId) {
+            case 109:
+                safTradList = ArrUtils.listT(tList);
+                break;
+            case 110:
+                safRefundList = ArrUtils.listT(tList);
+                break;
+            case 113:
+                sfReceivesList = ArrUtils.listT(tList);
+                break;
+        }
         while ((line = br.readLine()) != null) {
-            inCreateNumberCount();
+            //numberCount++
+            CrrUtils.inCreateNumberLong(numberCount);
             //count ++ 成功数量
-            inCreateCount();
+            CrrUtils.inCreateNumberLong(count);
             // 一次读入一行数据
             String[] newLine = line.split("\t", -1);
             switch (tbId) {
@@ -598,8 +577,10 @@ public class UploadController {
         timing.setMsg("正在校验数据..........");
         while (csvReader.readRecord()) {
             if (index >= row) {
-                inCreateNumberCount();
-                inCreateCount();
+                //numberCount++
+                CrrUtils.inCreateNumberLong(numberCount);
+                //count ++ 成功数量
+                CrrUtils.inCreateNumberLong(count);
                 //85 == 财务上传ID | 104 运营上传
                 if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
                     fb = saveFinance(setFsb(sId, seId, uid, pId.longValue(), recordingId), csvReader, sId, seId);
@@ -651,9 +632,7 @@ public class UploadController {
      * @param msg
      */
     public UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String saveFilePath) {
-        UserUpload upload = new UserUpload();
-        upload.setId(id);
-        upload.setUid(new Date().getTime());
+        UserUpload upload = new UserUpload(id, new Date().getTime());
         if (status != 0) {
             if (status == 3) {
                 upload.setStatus(status);
@@ -718,49 +697,6 @@ public class UploadController {
         }
         userUploadService.addUserUploadInfo(upload);
         return upload;
-    }
-
-    /**
-     * 设置时间转换类型
-     *
-     * @param fsb
-     * @param seId
-     * @param csvReader
-     * @throws IOException
-     */
-    public void setDate(FinancialSalesBalance fsb, Long seId, CsvReader csvReader) throws IOException {
-        switch (seId.intValue()) {
-            case 1:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.USA_TIME));
-                break;
-            case 2:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.CANADA_TIME));
-                break;
-            case 3:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.AUSTRALIA_TIME));
-                break;
-            case 4:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.UNITED_KINGDOM_TIME));
-                break;
-            case 5:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.GERMAN_TIME));
-                break;
-            case 6:
-                fsb.setDate(DateUtils.getFranceTime(csvReader.get(0), Constants.FRANCE_TIME));
-                break;
-            case 7:
-                fsb.setDate(DateUtils.getItalyTime(csvReader.get(0), Constants.ITALY_TIME));
-                break;
-            case 8:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.SPAIN_TIME));
-                break;
-            case 9:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.JAPAN_TIME));
-                break;
-            case 10:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.MEXICO_TIME));
-                break;
-        }
     }
 
     /**
@@ -1058,7 +994,7 @@ public class UploadController {
     public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId) throws
             IOException {
         //设置时间类型转换
-        setDate(fsb, seId, csvReader);
+        DateUtils.setDate(fsb, seId, csvReader);
         fsb.setSettlemenId(StrUtils.repString(csvReader.get(1)));
         String type = StrUtils.repString(csvReader.get(2));
         if (StringUtils.isEmpty(type)) {
@@ -1347,9 +1283,9 @@ public class UploadController {
      */
     public void exportTxtType(List<String> head, String line) {
         //count --
-        delCreateCount();
+        CrrUtils.delCreateNumberLong(count);
         //sumNoSku ++
-        inCreateSumNoSku();
+        CrrUtils.inCreateNumberInteger(sumErrorSku);
         if (skuNoIdList.size() == 0) {
             skuNoIdList.add(head);
         }
@@ -1387,9 +1323,9 @@ public class UploadController {
     public String exportCsvType(CsvReader csvReader, Long skuId) throws IOException {
         if (skuId == null || skuId == -1) {
             //count --
-            delCreateCount();
+            CrrUtils.delCreateNumberLong(count);
             //sumNoSku ++
-            inCreateSumNoSku();
+            CrrUtils.inCreateNumberInteger(sumErrorSku);
             List<String> skuListNo = new ArrayList<>();
             for (int i = 0; i < csvReader.getColumnCount(); i++) {
                 skuListNo.add(csvReader.get(i).replace(",", "."));
@@ -1453,7 +1389,6 @@ public class UploadController {
 
     /**
      * 通用获得头信息对比
-     *
      * @param seId
      * @param tbId
      * @return
@@ -1556,7 +1491,7 @@ public class UploadController {
         //判断文件类型 fileType()
         File file = new File(filePath);
         try (FileInputStream in = new FileInputStream(filePath);
-             Workbook wb = fileType(in, file)) {
+             Workbook wb = XlsUtils.fileType(in, file)) {
             if (wb == null) {
                 //返回错误信息
                 return errorResult(0, "不是excel文件", recordingId, fileName, timing, "exception", filePath);
@@ -1626,9 +1561,10 @@ public class UploadController {
         timing.setTotalNumber((double) lastRowNum);
         timing.setMsg("正在校验数据..........");
         for (int i = line; i <= lastRowNum; i++) {
-            inCreateNumberCount();
-            //count ++
-            inCreateCount();
+            //numberCount++
+            CrrUtils.inCreateNumberLong(numberCount);
+            //count ++ 成功数量
+            CrrUtils.inCreateNumberLong(count);
             row = sheet.getRow(i);
             // 105 cpr
             if (tbId == 105) {
@@ -1977,7 +1913,6 @@ public class UploadController {
         }
         return saCpr;
     }
-
     /**
      * 封装 String  类型转换
      *
@@ -2028,19 +1963,6 @@ public class UploadController {
     }
 
 
-    /**
-     * 判断文件类型
-     */
-    public Workbook fileType(FileInputStream in, File file) {
-        try {
-            //判断文件是否是excel
-            XlsUtils.checkExcel(file);
-            //判断Excel的版本,获取Workbook
-            return XlsUtils.getWorkbook(in, file);
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     /**
      * 对比xls 表头信息是否一致
@@ -2109,9 +2031,10 @@ public class UploadController {
             if (skuNoIdList.size() == 0) {
                 skuNoIdList.add(head);
             }
-            //count -- sumNoSku ++
-            delCreateCount();
-            inCreateSumNoSku();
+            //count --
+            CrrUtils.delCreateNumberLong(count);
+            //sumNoSku ++
+            CrrUtils.inCreateNumberInteger(sumErrorSku);
             List<String> skuListNo = new ArrayList<>();
             //拿到那一行信息
             for (int i = 0; i < totalNumber; i++) {

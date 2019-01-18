@@ -73,15 +73,6 @@ public class UserInfo implements Serializable {
 
     //多个角色id 拼接  已,号隔开
     private String rId;
-
-    public String getrId() {
-        return rId;
-    }
-
-    public void setrId(String rId) {
-        this.rId = rId;
-    }
-
     //登陆时间
     private Long landingTime;
 
@@ -101,6 +92,16 @@ public class UserInfo implements Serializable {
      * 用户ids
      */
     private String uIds;
+
+
+
+    public String getrId() {
+        return rId;
+    }
+
+    public void setrId(String rId) {
+        this.rId = rId;
+    }
 
     public String getMenuName() {
         return menuName;

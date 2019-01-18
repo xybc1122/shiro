@@ -6,7 +6,6 @@ import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.MenuService;
 import com.dt.user.utils.GetCookie;
-import com.dt.user.utils.JwtUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -73,8 +72,8 @@ public class MenuController {
      */
     @GetMapping("show")
     public ResponseBase showMenu(HttpServletRequest request) {
-        String token = GetCookie.getToken(request);
-        UserInfo user = JwtUtils.jwtUser(token);
+        //获得用户信息
+        UserInfo user = GetCookie.getUser(request);
         List<Menu> rootMenu; //父菜单List
         if (user != null) {
             rootMenu = menuService.queryMenuList(user);

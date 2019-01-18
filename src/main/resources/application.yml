@@ -9,6 +9,8 @@ eureka:
 server:
   port: 9001
 spring:
+  application:
+    name: user-service
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     #120.79.153.77 192.168.1.191
@@ -35,8 +37,15 @@ spring:
       #最大等待时间：单位ms
       maxWait: 1000
       #服务的名称
-    application:
-      name: user-service
+#修改调用超时时间
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        connectTimeout: 2000
+        readTimeout: 1000
 #mybatis 下划线转驼峰 映射配置  有了这个不用写xml
 mybatis:
   configuration:

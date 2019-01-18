@@ -95,10 +95,7 @@ public class CSVUtil {
      * @param fileName      文件名
      */
     public static void write(List<String> headerList, List<List<String>> isNoSkuIdList, String filePath, String fileName) {
-        File targetFile = new File(filePath);
-        if (!targetFile.exists()) {
-            targetFile.mkdirs();
-        }
+        FileUtils.mkdirFile(filePath);
         CsvWriter csvWriter = null;
         try {
             // 创建CSV写对象

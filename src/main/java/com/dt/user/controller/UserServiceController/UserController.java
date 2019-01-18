@@ -122,15 +122,12 @@ public class UserController {
      */
     @GetMapping("/getUser")
     public ResponseBase getUser(HttpServletRequest request) {
-        String token = GetCookie.getToken(request);
-        if (StringUtils.isNotEmpty(token)) {
-            UserInfo user = JwtUtils.jwtUser(token);
-            if (user != null) {
-                UserInfo userInfo = userService.getSingleUser(user.getUid());
-                return BaseApiService.setResultSuccess(userInfo);
-            }
+        UserInfo user = GetCookie.getUser(request);
+        if (user == null) {
+            return BaseApiService.setResultError("用户无效~");
         }
-        return BaseApiService.setResultError("token无效~~");
+        UserInfo userInfo = userService.getSingleUser(user.getUid());
+        return BaseApiService.setResultSuccess(userInfo);
     }
 
 
@@ -165,8 +162,8 @@ public class UserController {
     @PostMapping("/saveUserInfo")
     public ResponseBase saveUserInfo(@RequestBody Map<String, Object> userMap, HttpServletRequest request) {
         //获得登陆的时候 生成的token
-        String token = GetCookie.getToken(request);
-        UserInfo user = JwtUtils.jwtUser(token);
+        //获得用户信息
+        UserInfo user = GetCookie.getUser(request);
         if (user != null) {
             String userName = (String) userMap.get("userName");
             String pwd = (String) userMap.get("pwd");

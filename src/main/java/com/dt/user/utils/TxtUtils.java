@@ -11,12 +11,7 @@ public class TxtUtils {
      */
     public static void writeFileTxt(List<List<String>> skuNoList, String path, String fileName) {
         try {
-
-            File pathFile = new File(path); // 相对路径，如果没有则要建立一个新的output.txt文件
-            if (!pathFile.exists()) {
-                pathFile.mkdirs();
-            }
-
+            FileUtils.mkdirFile(path);
             String filePath = path + "NO" + fileName;
             File myFile = new File(filePath);
             myFile.createNewFile();

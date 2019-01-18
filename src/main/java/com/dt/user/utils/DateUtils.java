@@ -1,8 +1,11 @@
 package com.dt.user.utils;
 
+import com.csvreader.CsvReader;
+import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.toos.Constants;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,20 +13,49 @@ import java.util.*;
 
 public class DateUtils {
 
-    //饿了么日期转换 时间戳
-    public static Long UTCLongODefaultString(String utcString) {
-        try {
-            if (StringUtils.isEmpty(utcString)) {
-                return null;
-            }
-            utcString = utcString.replace("Z", " UTC");
-            SimpleDateFormat utcFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
-            Date date = utcFormat.parse(utcString);
-            return date.getTime();
-        } catch (ParseException pe) {
-            return null;
+    /**
+     * 设置时间转换类型
+     *
+     * @param fsb
+     * @param seId
+     * @param csvReader
+     * @throws IOException
+     */
+    public static void setDate(FinancialSalesBalance fsb, Long seId, CsvReader csvReader) throws IOException {
+        switch (seId.intValue()) {
+            case 1:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.USA_TIME));
+                break;
+            case 2:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.CANADA_TIME));
+                break;
+            case 3:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.AUSTRALIA_TIME));
+                break;
+            case 4:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.UNITED_KINGDOM_TIME));
+                break;
+            case 5:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.GERMAN_TIME));
+                break;
+            case 6:
+                fsb.setDate(DateUtils.getFranceTime(csvReader.get(0), Constants.FRANCE_TIME));
+                break;
+            case 7:
+                fsb.setDate(DateUtils.getItalyTime(csvReader.get(0), Constants.ITALY_TIME));
+                break;
+            case 8:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.SPAIN_TIME));
+                break;
+            case 9:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.JAPAN_TIME));
+                break;
+            case 10:
+                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.MEXICO_TIME));
+                break;
         }
     }
+
 
     //获得当前时间+后面 N天时间的时间戳
     public static Long getRearDate(Integer time) {
