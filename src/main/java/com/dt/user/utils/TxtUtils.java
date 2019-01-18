@@ -11,10 +11,16 @@ public class TxtUtils {
      */
     public static void writeFileTxt(List<List<String>> skuNoList, String path, String fileName) {
         try {
+
+            File pathFile = new File(path); // 相对路径，如果没有则要建立一个新的output.txt文件
+            if (!pathFile.exists()) {
+                pathFile.mkdirs();
+            }
+
             String filePath = path + "NO" + fileName;
-            File writeName = new File(filePath); // 相对路径，如果没有则要建立一个新的output.txt文件
-            writeName.createNewFile(); // 创建新文件,有同名的文件的话直接覆盖
-            try (FileWriter writer = new FileWriter(writeName);
+            File myFile = new File(filePath);
+            myFile.createNewFile();
+            try (FileWriter writer = new FileWriter(myFile);
                  BufferedWriter out = new BufferedWriter(writer)
             ) {
                 for (int i = 0; i < skuNoList.size(); i++) {

@@ -34,22 +34,26 @@ public class UserUploadProvider {
 
     /**
      * 更新用户信息
+     *
      * @param upload
      * @return
      */
-    public String upUploadInfo(UserUpload upload) {
-//        UPDATE `system_user_upload`\n" +
-//        "SET\n" +
-//                "`remark` = #{remark},\n" +
-//                "`status` = #{status}\n" +
-//                "WHERE `id` = #{id}
+    public String upInfo(UserUpload upload) {
         return new SQL() {{
             UPDATE("`system_user_upload`");
             if (StringUtils.isNotBlank(upload.getRemark())) {
-
+                SET("`remark`=" + "'" + upload.getRemark() + "'");
             }
-
-           // WHERE("uid=" + uid);
+            if (upload.getStatus() != null){
+                SET("`status`=" + upload.getStatus());
+            }
+            if (StringUtils.isNotBlank(upload.getName())) {
+                SET("`name`=" + "'" + upload.getName() + "'");
+            }
+            if (StringUtils.isNotBlank(upload.getFilePath())) {
+                SET("`file_path`=" + "'" + upload.getFilePath() + "'");
+            }
+            WHERE("id=" + upload.getId());
         }}.toString();
 
     }

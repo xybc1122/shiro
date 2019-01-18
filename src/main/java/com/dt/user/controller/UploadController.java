@@ -252,6 +252,7 @@ public class UploadController {
             String getMsg = "上传了" + files.size() + "个文件/" + "其中" + fileCount + "个文件失败~ 失败文件名字" + sb.toString() + "";
             return BaseApiService.setResultSuccess(getMsg, uploadList);
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             return BaseApiService.setResultError("上传异常,请检查问题", uploadList);
         }
     }
@@ -1724,7 +1725,7 @@ public class UploadController {
                 return BaseApiService.setResultError("error/" + msg, upload);
             case 2:
                 int fileIndex = saveFilePath.lastIndexOf("/");
-                upload = recordInfo(status, msg, id, "NO" + fileName,     saveFilePath.substring(0,fileIndex) + "SkuNo/");
+                upload = recordInfo(status, msg, id, "NO" + fileName, saveFilePath.substring(0, fileIndex) + "SkuNo/");
                 return BaseApiService.setResultSuccess(msg, upload);
             case 3:
                 upload = recordInfo(status, msg, id, fileName, saveFilePath);
@@ -2114,7 +2115,7 @@ public class UploadController {
             List<String> skuListNo = new ArrayList<>();
             //拿到那一行信息
             for (int i = 0; i < totalNumber; i++) {
-                skuListNo.add(XlsUtils.getCellValue(row.getCell(i)));
+                skuListNo.add(row.getCell(i).toString());
             }
             skuNoIdList.add(skuListNo);
             return null;

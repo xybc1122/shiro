@@ -86,8 +86,8 @@ public class FileUtils {
             // path是指欲下载的文件的路径。
             File downloadFile = new File(path);
             // 取得文件名。
-            String filename = downloadFile.getName();
-            filename = URLEncoder.encode(filename, "utf-8");
+            String fileName = downloadFile.getName();
+            fileName = URLEncoder.encode(fileName, "utf-8");
             // 取得文件的后缀名。
 //           String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
             byte[] buffer = new byte[fis.available()];
@@ -97,7 +97,7 @@ public class FileUtils {
             // 设置response的Header
             // System.out.println("Download DocFile's ORGIN----" + request.getHeader("Origin"));
             response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-            response.addHeader("Content-Disposition", "attachment;filename=\"" + filename + "\"");
+            response.addHeader("Content-Disposition", "attachment;filename=\"" + fileName + "\"");
             response.addHeader("Content-Length", "" + downloadFile.length());
             response.setContentType("application/octet-stream");
             toClient.write(buffer);

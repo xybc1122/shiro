@@ -7,18 +7,11 @@ import java.util.List;
 
 @Mapper
 public interface UserUploadMapper {
+
     /**
      * 更新用户信息
      */
-    @Update("UPDATE `system_user_upload`\n" +
-            "SET\n" +
-            "`remark` = #{remark},\n" +
-            "`status` = #{status}\n" +
-            "WHERE `id` = #{id}")
-    /**
-     * 查询用户上传记录
-     */
-    @SelectProvider(type = UserUploadProvider.class, method = "upUploadInfo")
+    @UpdateProvider(type = UserUploadProvider.class, method = "upInfo")
     int upUploadInfo(UserUpload userUpload);
 
     /**
