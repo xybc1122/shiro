@@ -2,8 +2,9 @@ package com.dt.user.service.Logistics;
 
 import com.dt.user.config.ResponseBase;
 import com.dt.user.fallbcak.LogisticsClientFallback;
+import com.dt.user.service.Logistics.model.LogisticsPage;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 物流服务客户端
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public interface LogisticsClient {
 
 
-    @GetMapping("/api/v1/way/wayList")
-    ResponseBase wayInfo();
+    @RequestMapping("/api/v1/way/wayList")
+    ResponseBase wayInfo(LogisticsPage logisticsPage);
 
 }

@@ -1,10 +1,11 @@
 package com.dt.user.controller;
 
-import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.service.Logistics.LogisticsClient;
+import com.dt.user.service.Logistics.model.LogisticsPage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,8 +22,9 @@ public class LogisticsController {
      *
      * @return
      */
-    @GetMapping("/info")
-    public ResponseBase getWayInfo() {
-        return logisticsClient.wayInfo();
+    @PostMapping("/info")
+    public ResponseBase getWayInfo(@RequestBody LogisticsPage logisticsPage) {
+
+        return logisticsClient.wayInfo(logisticsPage);
     }
 }

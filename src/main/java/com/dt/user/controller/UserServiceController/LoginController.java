@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.BaseRedisService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.config.ShiroSessionListener;
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
@@ -27,7 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 public class LoginController extends BaseApiService {
 
-
+    @Autowired
+    private ShiroSessionListener sessionListener;
     @Autowired
     private UserService userService;
 
@@ -62,17 +64,18 @@ public class LoginController extends BaseApiService {
             Long ttlDate = redisService.getTtl(userKey);
             return BaseApiService.setResultError("账号/或密码错误被锁定 =====>" + ttlDate + "秒后到期!");
         }
+        //说明redis里面有没有过期 直接登陆
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();
         // dataUserJSON
         JSONObject dataUserJson;
         UserInfo user;
-        // 把用户名和密码封装为 UsernamePasswordToken 对象 记住我
-        UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd());
+        // 把用户名和密码封装为 UsernamePasswordToken  userDto.isRememberMe()对象 记住我
+        UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd(), userDto.isRememberMe());
         try {
-            //这里还是有问题的先暂时放着
-            //获得token 去判断登陆
+            //判断用户是通过记住我功能自动登录,此时session失效
             if (!currentUser.isAuthenticated()) {
+                //获得token 去判断登陆
                 // 执行登录.
                 currentUser.login(token);
                 user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
@@ -85,15 +88,16 @@ public class LoginController extends BaseApiService {
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
-                //设置token到redis 保留7天的时间
-                baseRedisService.setString(user.getUserName(), dataUserJson.toString(), 24 * 60 * 7L);
+                //设置token到redis 保留7天的时间  //这里还有问题 需要改进
+                // baseRedisService.setString(user.getUserName(), dataUserJson.toString(), 24 * 60 * 7L);
                 //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
                 }
+                System.out.println(sessionListener.getSessionCount());
                 return BaseApiService.setResultSuccess(dataUserJson);
             } else {
-                return BaseApiService.setResultError("已登录~");
+                return BaseApiService.setResultSuccess("ok");
             }
         } catch (IncorrectCredentialsException ie) {
             return setLockingTime(userDto);

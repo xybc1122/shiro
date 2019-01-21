@@ -1,13 +1,10 @@
-package com.dt.user.dto;
+package com.dt.user.service.Logistics.model;
 
-import com.dt.user.model.UserInfo;
+public class LogisticsPage {
 
-public class UserDto extends UserInfo {
 
     private Integer currentPage;
     private Integer pageSize;
-
-    private boolean rememberMe; //记住我
 
     public Integer getCurrentPage() {
         return currentPage;
@@ -23,13 +20,5 @@ public class UserDto extends UserInfo {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
-    }
-
-    public boolean isRememberMe() {
-        return rememberMe;
-    }
-
-    public void setRememberMe(boolean rememberMe) {
-        this.rememberMe = rememberMe;
     }
 }
