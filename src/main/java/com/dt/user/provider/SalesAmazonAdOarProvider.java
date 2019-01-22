@@ -1,6 +1,6 @@
 package com.dt.user.provider;
 
-import com.dt.user.model.SalesAmazonAdOar;
+import com.dt.user.model.SalesAmazonAd.SalesAmazonAdOar;
 import com.dt.user.utils.StrUtils;
 
 import java.util.List;

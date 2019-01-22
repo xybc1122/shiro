@@ -1,6 +1,6 @@
 package com.dt.user.provider;
 
-import com.dt.user.model.SalesAmazonFbaReceivestock;
+import com.dt.user.model.SalesAmazonAd.SalesAmazonFbaReceivestock;
 import com.dt.user.utils.StrUtils;
 
 import java.util.List;

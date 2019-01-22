@@ -2,7 +2,7 @@ package com.dt.user.controller.UserServiceController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.UserDto;
+import com.dt.user.dto.PageDto;
 import com.dt.user.model.Role;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.RoleService;
@@ -34,15 +34,15 @@ public class RoleController {
 
     /**
      * 查询一个角色下的所有用户跟菜单
-     * @param userDto
+     * @param pageDto
      * @return
      */
     @PostMapping("/getRoles")
-    public ResponseBase getRoles(@RequestBody UserDto userDto) {
-        PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
-        List<UserInfo> listRoles = roleService.findByRoleInfo(userDto);
+    public ResponseBase getRoles(@RequestBody PageDto pageDto) {
+        PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
+        List<UserInfo> listRoles = roleService.findByRoleInfo(pageDto);
         PageInfo<UserInfo> pageInfo = new PageInfo<>(listRoles);
-        Integer currentPage = userDto.getCurrentPage();
+        Integer currentPage = pageDto.getCurrentPage();
         return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
     }
 }

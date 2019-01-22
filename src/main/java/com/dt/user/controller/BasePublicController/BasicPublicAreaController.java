@@ -2,7 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.UserDto;
+import com.dt.user.dto.PageDto;
 import com.dt.user.model.BasePublicModel.BasicPublicArea;
 import com.dt.user.service.BasePublicService.BasicPublicAreaService;
 import com.dt.user.utils.PageInfoUtils;
@@ -25,13 +25,13 @@ public class BasicPublicAreaController {
      * @return
      */
     @PostMapping("/findByListRegion")
-    public ResponseBase findByListCompany(@RequestBody UserDto userDto) {
+    public ResponseBase findByListCompany(@RequestBody PageDto pageDto) {
         List<BasicPublicArea> basicPublicAreaList;
-        if (userDto.getCurrentPage() != null && userDto.getPageSize() != null) {
-            PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
+        if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
+            PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
             basicPublicAreaList = basicPublicAreaService.findByListArea();
             PageInfo<BasicPublicArea> pageInfo = new PageInfo<>(basicPublicAreaList);
-            Integer currentPage = userDto.getCurrentPage();
+            Integer currentPage = pageDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
         basicPublicAreaList = basicPublicAreaService.findByListArea();

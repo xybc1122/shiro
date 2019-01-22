@@ -1,7 +1,7 @@
 package com.dt.user.service.Logistics;
 
 import com.dt.user.config.ResponseBase;
-import com.dt.user.fallbcak.LogisticsClientFallback;
+import com.dt.user.service.Logistics.fallbcak.LogisticsClientFallback;
 import com.dt.user.service.Logistics.model.LogisticsPage;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface LogisticsClient {
 
 
-    @RequestMapping("/api/v1/way/wayList")
+    @RequestMapping("/api/v1/wayList")
     ResponseBase wayInfo(LogisticsPage logisticsPage);
 
 }

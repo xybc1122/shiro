@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
-import javax.servlet.Filter;
 import java.util.*;
 
 
@@ -116,6 +115,7 @@ public class ShiroConfig {
     /**
      * 配置保存sessionId的cookie
      * 注意：这里的cookie 不是上面的记住我 cookie 记住我需要一个cookie session管理 也需要自己的cookie
+     * 这里主要拿session用来做人数统计
      *
      * @return
      */
@@ -130,8 +130,8 @@ public class ShiroConfig {
         //防止xss读取cookie
         simpleCookie.setHttpOnly(true);
         simpleCookie.setPath("/");
-        //maxAge=-1表示浏览器关闭时失效此Cookie
-        simpleCookie.setMaxAge(-1);
+        //maxAge=-1 表示浏览器关闭时失效此Cookie 30分钟
+        simpleCookie.setMaxAge(60 * 30);
         return simpleCookie;
     }
 
@@ -151,8 +151,8 @@ public class ShiroConfig {
         //防止xss读取cookie
         simpleCookie.setHttpOnly(true);
         simpleCookie.setPath("/");
-        //<!-- 记住我cookie生效时间30天 ,单位秒;-->
-        simpleCookie.setMaxAge(604800);
+        //<!-- 记住我cookie生效时间7天 ,单位秒;-->
+        simpleCookie.setMaxAge(60 * 60 * 24 * 7);
         return simpleCookie;
     }
 
@@ -171,16 +171,13 @@ public class ShiroConfig {
         sessionManager.setSessionIdCookie(sessionIdCookie());
         sessionManager.setSessionDAO(sessionDAO());
         //sessionManager.setCacheManager(ehCacheManager());
-
-        //全局会话超时时间（单位毫秒），默认30分钟  暂时设置为10秒钟 用来测试
-        sessionManager.setGlobalSessionTimeout(1800000);
         //是否开启删除无效的session对象  默认为true
         sessionManager.setDeleteInvalidSessions(true);
         //是否开启定时调度器进行检测过期session 默认为true
         sessionManager.setSessionValidationSchedulerEnabled(true);
-        //设置session失效的扫描时间, 清理用户直接关闭浏览器造成的孤立会话 默认为 1个小时
+        //设置session失效的扫描时间, 清理用户直接关闭浏览器造成的孤立会话 默认为 1个小时 设置15分钟检测一次
         //设置该属性 就不需要设置 ExecutorServiceSessionValidationScheduler 底层也是默认自动调用ExecutorServiceSessionValidationScheduler
-        sessionManager.setSessionValidationInterval(3600000);
+        sessionManager.setSessionValidationInterval(6000 * 10 * 15);
         //取消url 后面的 JSESSIONID
         sessionManager.setSessionIdUrlRewritingEnabled(false);
         return sessionManager;

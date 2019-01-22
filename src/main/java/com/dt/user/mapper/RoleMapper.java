@@ -1,5 +1,5 @@
 package com.dt.user.mapper;
-import com.dt.user.dto.UserDto;
+import com.dt.user.dto.PageDto;
 import com.dt.user.model.Role;
 import com.dt.user.model.UserInfo;
 import com.dt.user.provider.RoleProvider;
@@ -29,5 +29,5 @@ public interface RoleMapper {
      * @return
      */
     @SelectProvider(type = RoleProvider.class, method = "findByRoleInfo")
-    List<UserInfo> findByRoleInfo(UserDto userDto);
+    List<UserInfo> findByRoleInfo(PageDto pageDto);
 }

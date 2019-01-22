@@ -2,7 +2,7 @@ package com.dt.user.service.impl;
 
 import com.dt.user.mapper.BasePublicMapper.BasicSalesAmazonWarehouseMapper;
 import com.dt.user.model.BasePublicModel.BasicSalesAmazonWarehouse;;
-import com.dt.user.service.BasicSalesAmazonWarehouseService;
+import com.dt.user.service.BasePublicService.BasicSalesAmazonWarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -7,10 +7,13 @@ import com.dt.user.config.ResponseBase;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
 import com.dt.user.model.*;
 import com.dt.user.model.BasePublicModel.BasicSalesAmazonWarehouse;
+import com.dt.user.model.SalesAmazonAd.*;
 import com.dt.user.service.*;
 import com.dt.user.service.BasePublicService.BasicPublicSiteService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonCsvTxtXslHeaderService;
 import com.dt.user.service.BasePublicService.BasicSalesAmazonSkuService;
+import com.dt.user.service.BasePublicService.BasicSalesAmazonWarehouseService;
+import com.dt.user.service.SalesAmazonAdService.*;
 import com.dt.user.toos.Constants;
 import com.dt.user.utils.*;
 import org.apache.commons.lang3.StringUtils;
@@ -138,6 +141,13 @@ public class UploadController {
         return BaseApiService.setResultSuccess(set);
     }
 
+    /**
+     * 下载接口
+     * @param request
+     * @param response
+     * @param fileMap
+     * @return
+     */
     @PostMapping("/downloadCommonFile")
     public ResponseBase downloadFile(HttpServletRequest
                                              request, HttpServletResponse response, @RequestBody Map<String, Object> fileMap) {
@@ -151,9 +161,15 @@ public class UploadController {
     }
 
     /**
+     * 上传接口
      * @param request
+     * @param sId
+     * @param seId
+     * @param payId
+     * @param menuId
+     * @param areaId
+     * @param businessTime
      * @return
-     * @throws Exception
      */
     @PostMapping("/file")
     public ResponseBase saveFileInfo(HttpServletRequest request, @RequestParam("sId") String sId,

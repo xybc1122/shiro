@@ -2,7 +2,7 @@ package com.dt.user.controller.UserServiceController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.UserDto;
+import com.dt.user.dto.PageDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.model.UserRole;
 import com.dt.user.service.StaffService;
@@ -10,11 +10,9 @@ import com.dt.user.service.UserRoleService;
 import com.dt.user.service.UserService;
 import com.dt.user.utils.DateUtils;
 import com.dt.user.utils.GetCookie;
-import com.dt.user.utils.JwtUtils;
 import com.dt.user.utils.PageInfoUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.util.ByteSource;
@@ -46,16 +44,16 @@ public class UserController {
     /**
      * 获取用户管理信息的一些信息
      *
-     * @param userDto
+     * @param pageDto
      * @return
      */
     @PostMapping("/show")
-    public ResponseBase showUsers(@RequestBody UserDto userDto) {
-        PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
-        List<UserInfo> listUser = userService.findByUsers(userDto);
+    public ResponseBase showUsers(@RequestBody PageDto pageDto) {
+        PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
+        List<UserInfo> listUser = userService.findByUsers(pageDto);
         //获得一些信息
         PageInfo<UserInfo> pageInfo = new PageInfo<>(listUser);
-        Integer currentPage = userDto.getCurrentPage();
+        Integer currentPage = pageDto.getCurrentPage();
         return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
     }
 
@@ -137,11 +135,11 @@ public class UserController {
      * @return
      */
     @PostMapping("/getDelUser")
-    public ResponseBase getDelUser(@RequestBody UserDto userDto) {
-        PageHelper.startPage(userDto.getCurrentPage(), userDto.getPageSize());
+    public ResponseBase getDelUser(@RequestBody PageDto pageDto) {
+        PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
         List<UserInfo> userDel = userService.findByDelUserInfo();
         PageInfo<UserInfo> pageInfo = new PageInfo<>(userDel);
-        Integer currentPage = userDto.getCurrentPage();
+        Integer currentPage = pageDto.getCurrentPage();
         return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
     }
 

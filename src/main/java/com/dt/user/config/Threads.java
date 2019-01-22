@@ -6,12 +6,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+/**
+ * 配置线程池
+ * @return
+ */
 @Configuration
 public class Threads {
-	/**
-	 * 配置线程池
-	 * @return
-	 */
 	@Bean
 	public Executor executor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

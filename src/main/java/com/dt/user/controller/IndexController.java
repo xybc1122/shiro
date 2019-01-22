@@ -11,18 +11,16 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class IndexController {
-
-
-
     /**
      * 测试是否登陆了的接口
+     *
      * @return
      */
     @GetMapping("/index")
     public ResponseBase showIndex(HttpServletRequest request) {
         String rememberMe = GetCookie.getRememberMe(request);
         //如果里面有 //记住我
-        if (StringUtils.isNotEmpty(rememberMe)){
+        if (StringUtils.isNotEmpty(rememberMe)) {
             return BaseApiService.setResultSuccess("ok");
         }
         return BaseApiService.setResultError("no");

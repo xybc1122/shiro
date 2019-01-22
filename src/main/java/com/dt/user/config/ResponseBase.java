@@ -1,5 +1,8 @@
 package com.dt.user.config;
 
+/**
+ * 封装返回前端信息
+ */
 public class ResponseBase{
 
     private Integer code;

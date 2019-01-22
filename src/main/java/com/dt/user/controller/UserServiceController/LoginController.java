@@ -5,7 +5,7 @@ import com.dt.user.config.BaseApiService;
 import com.dt.user.config.BaseRedisService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.config.ShiroSessionListener;
-import com.dt.user.dto.UserDto;
+import com.dt.user.dto.PageDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
@@ -28,9 +28,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class LoginController extends BaseApiService {
-
     @Autowired
     private ShiroSessionListener sessionListener;
+
+
     @Autowired
     private UserService userService;
 
@@ -57,7 +58,7 @@ public class LoginController extends BaseApiService {
      */
     @ResponseBody
     @PostMapping("/ajaxLogin")
-    public ResponseBase login(@RequestBody UserDto userDto, HttpServletRequest request) {
+    public ResponseBase login(@RequestBody PageDto userDto, HttpServletRequest request) {
         String userKey = userDto.getUserName() + "error";
         String strRedis = redisService.getStirngKey(userKey);
         //如果不等于null
@@ -65,7 +66,6 @@ public class LoginController extends BaseApiService {
             Long ttlDate = redisService.getTtl(userKey);
             return BaseApiService.setResultError("账号/或密码错误被锁定 =====>" + ttlDate + "秒后到期!");
         }
-        //说明redis里面有没有过期 直接登陆
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();
         // dataUserJSON
@@ -74,7 +74,6 @@ public class LoginController extends BaseApiService {
         try {
             //判断用户是通过记住我功能自动登录,此时session失效
             if (!currentUser.isAuthenticated()) {
-                //获得token 去判断登陆
                 // 把用户名和密码封装为 UsernamePasswordToken  userDto.isRememberMe()对象 记住我
                 UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd(), userDto.isRememberMe());
                 // 执行登录.
@@ -89,8 +88,6 @@ public class LoginController extends BaseApiService {
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
-                //设置用户信息放到redis //这里还有想象的空间
-                baseRedisService.setString(user.getUserName(), dataUserJson.toJSONString());
                 //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
@@ -107,7 +104,7 @@ public class LoginController extends BaseApiService {
         }
     }
 
-    public ResponseBase setLockingTime(UserDto userDto) {
+    public ResponseBase setLockingTime(PageDto userDto){
         int errorNumber = 0;
         errorNumber++;
         Long lockingTime = null;
@@ -147,6 +144,7 @@ public class LoginController extends BaseApiService {
     @GetMapping("/logout")
     public ResponseBase logout() {
         ShiroUtils.logout();
+        System.out.println(sessionListener.getSessionCount());
         return BaseApiService.setResultSuccess("注销成功!");
     }
 }

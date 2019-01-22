@@ -1,6 +1,6 @@
 package com.dt.user.service.impl;
 
-import com.dt.user.dto.UserDto;
+import com.dt.user.dto.PageDto;
 import com.dt.user.mapper.RoleMapper;
 
 import com.dt.user.model.Role;
@@ -30,7 +30,7 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public List<UserInfo> findByRoleInfo(UserDto userDto) {
-        return rolesMapper.findByRoleInfo(userDto);
+    public List<UserInfo> findByRoleInfo(PageDto pageDto) {
+        return rolesMapper.findByRoleInfo(pageDto);
     }
 }
