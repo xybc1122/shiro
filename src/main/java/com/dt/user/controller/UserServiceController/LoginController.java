@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,7 +57,7 @@ public class LoginController extends BaseApiService {
      */
     @ResponseBody
     @PostMapping("/ajaxLogin")
-    public ResponseBase login(@RequestBody UserDto userDto) {
+    public ResponseBase login(@RequestBody UserDto userDto, HttpServletRequest request) {
         String userKey = userDto.getUserName() + "error";
         String strRedis = redisService.getStirngKey(userKey);
         //如果不等于null
@@ -70,12 +71,12 @@ public class LoginController extends BaseApiService {
         // dataUserJSON
         JSONObject dataUserJson;
         UserInfo user;
-        // 把用户名和密码封装为 UsernamePasswordToken  userDto.isRememberMe()对象 记住我
-        UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd(), userDto.isRememberMe());
         try {
             //判断用户是通过记住我功能自动登录,此时session失效
             if (!currentUser.isAuthenticated()) {
                 //获得token 去判断登陆
+                // 把用户名和密码封装为 UsernamePasswordToken  userDto.isRememberMe()对象 记住我
+                UsernamePasswordToken token = new UsernamePasswordToken(userDto.getUserName(), userDto.getPwd(), userDto.isRememberMe());
                 // 执行登录.
                 currentUser.login(token);
                 user = (UserInfo) SecurityUtils.getSubject().getPrincipal();
@@ -88,13 +89,12 @@ public class LoginController extends BaseApiService {
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
-                //设置token到redis 保留7天的时间  //这里还有问题 需要改进
-                // baseRedisService.setString(user.getUserName(), dataUserJson.toString(), 24 * 60 * 7L);
+                //设置用户信息放到redis //这里还有想象的空间
+                baseRedisService.setString(user.getUserName(), dataUserJson.toJSONString());
                 //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
                 }
-                System.out.println(sessionListener.getSessionCount());
                 return BaseApiService.setResultSuccess(dataUserJson);
             } else {
                 return BaseApiService.setResultSuccess("ok");

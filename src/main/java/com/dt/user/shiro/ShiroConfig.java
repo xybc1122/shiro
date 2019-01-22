@@ -19,15 +19,17 @@ import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
+import javax.servlet.Filter;
 import java.util.*;
 
 
 @Configuration
 public class ShiroConfig {
-
 
     /**
      * cookie管理对象;记住我功能,rememberMe管理器
@@ -45,6 +47,7 @@ public class ShiroConfig {
 
     /**
      * FormAuthenticationFilter 过滤器 过滤记住我
+     *
      * @return
      */
     @Bean
@@ -64,6 +67,21 @@ public class ShiroConfig {
     public ShiroSessionListener sessionListener() {
         ShiroSessionListener sessionListener = new ShiroSessionListener();
         return sessionListener;
+    }
+
+    /**
+     * Spring Boot整合shiro出现UnavailableSecurityManagerException 配置解决方案
+     *
+     * @return
+     */
+    @Bean
+    public FilterRegistrationBean<DelegatingFilterProxy> delegatingFilterProxy() {
+        FilterRegistrationBean<DelegatingFilterProxy> registrationBean = new FilterRegistrationBean<>();
+        DelegatingFilterProxy proxy = new DelegatingFilterProxy();
+        proxy.setTargetFilterLifecycle(true);
+        proxy.setTargetBeanName("shiroFilter");
+        registrationBean.setFilter(proxy);
+        return registrationBean;
     }
 
     /**
@@ -219,7 +237,7 @@ public class ShiroConfig {
      * @param securityManager
      * @return
      */
-    @Bean
+    @Bean("shiroFilter")
     ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
@@ -227,20 +245,25 @@ public class ShiroConfig {
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
-        //其他资源都需要认证  authc 表示需要认证才能进行访问 user表示配置记住我或认证通过可以访问的地址
+        //其他资源都需要认证  authc 表示需要认证才能进行访问
+        // user表示配置记住我或认证通过可以访问的地址
         filterChainDefinitionMap.put("/**", "user");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
 
-
+    /**
+     * 配置 DefaultWebSecurityManager 来管理
+     *
+     * @return
+     */
     @Bean
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(userRealm(hashedCredentialsMatcher()));
         //配置自定义session管理，使用ehcache 或redis
         securityManager.setSessionManager(sessionManager());
-        //配置记住我 参考博客：
+        //配置记住我
         securityManager.setRememberMeManager(rememberMeManager());
         return securityManager;
     }

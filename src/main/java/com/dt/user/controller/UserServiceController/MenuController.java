@@ -25,18 +25,6 @@ public class MenuController {
     @Autowired
     private MenuService menuService;
 
-
-    /**
-     * 测试是否登陆了的接口
-     *
-     * @return
-     */
-    @GetMapping("/index")
-    public ResponseBase showIndex() {
-
-        return BaseApiService.setResultSuccess("已经登录!");
-    }
-
     /**
      * 通过角色id获取菜单树列表
      *

@@ -1,6 +1,6 @@
 package com.dt.user.service;
 
-import com.dt.user.model.BasicSalesAmazonWarehouse;
+import com.dt.user.model.BasePublicModel.BasicSalesAmazonWarehouse;
 import org.apache.ibatis.annotations.Param;
 
 public interface BasicSalesAmazonWarehouseService {

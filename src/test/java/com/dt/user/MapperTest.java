@@ -1,15 +1,20 @@
 package com.dt.user;
 
 
-import com.dt.user.mapper.BasicSalesAmazonWarehouseMapper;
+import com.dt.user.mapper.BasePublicMapper.BasicSalesAmazonWarehouseMapper;
+import com.dt.user.mapper.SalesAmazonFbaInventoryEndMapper;
 import com.dt.user.mapper.UserUploadMapper;
-import com.dt.user.model.BasicSalesAmazonWarehouse;
+import com.dt.user.model.BasePublicModel.BasicSalesAmazonWarehouse;
+import com.dt.user.model.SalesAmazonFbaInventoryEnd;
 import com.dt.user.model.UserUpload;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -18,6 +23,8 @@ public class MapperTest {
     private BasicSalesAmazonWarehouseMapper warehouseMapper;
     @Autowired
     private UserUploadMapper userUploadMapper;
+    @Autowired
+    private SalesAmazonFbaInventoryEndMapper endMapper;
 
 //    @Test
 //    public void add() {
@@ -33,6 +40,16 @@ public class MapperTest {
     public void add() {
         BasicSalesAmazonWarehouse s = warehouseMapper.getWarehouse("YYZ2");
         System.out.println(s);
+    }
+
+    @Test
+    public void end() {
+        List<SalesAmazonFbaInventoryEnd> aList = new ArrayList<>();
+        SalesAmazonFbaInventoryEnd s = new SalesAmazonFbaInventoryEnd();
+        s.setDate(1111L);
+        aList.add(s);
+        endMapper.AddSalesAmazonAdInventoryEndList(aList);
+
     }
 
     @Test

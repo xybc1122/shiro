@@ -13,18 +13,11 @@ public class ErrorController {
      * 没有登陆信息
      * @return
      */
-    @CrossOrigin
     @RequestMapping("/error/user")
     public ResponseBase wrong()
     {
+
         return BaseApiService.setResultError("您还没登陆!");
     }
 
-
-    @CrossOrigin
-    @RequestMapping("/error/403")
-    public ResponseBase error403()
-    {
-        return BaseApiService.setResultError("403!");
-    }
 }

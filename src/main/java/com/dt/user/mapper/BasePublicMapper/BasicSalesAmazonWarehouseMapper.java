@@ -1,6 +1,6 @@
-package com.dt.user.mapper;
+package com.dt.user.mapper.BasePublicMapper;
 
-import com.dt.user.model.BasicSalesAmazonWarehouse;
+import com.dt.user.model.BasePublicModel.BasicSalesAmazonWarehouse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
