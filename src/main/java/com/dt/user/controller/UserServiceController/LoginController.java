@@ -64,7 +64,7 @@ public class LoginController extends BaseApiService {
         //如果不等于null
         if (StringUtils.isNotEmpty(strRedis)) {
             Long ttlDate = redisService.getTtl(userKey);
-            return BaseApiService.setResultError("账号/或密码错误被锁定 =====>" + ttlDate + "秒后到期!");
+            return BaseApiService.setResultError("账号/或密码错误被锁定/" + ttlDate + "秒后到期!");
         }
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();

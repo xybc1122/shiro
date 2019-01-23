@@ -3,8 +3,6 @@ package com.dt.user.controller.BasePublicController;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.PageDto;
-import com.dt.user.model.BasePublicModel.BasicPublicCompany;
-import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
 import com.dt.user.model.BasePublicModel.BasicPublicShop;
 import com.dt.user.service.BasePublicService.BasicPublicShopService;
 import com.dt.user.utils.PageInfoUtils;
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("shop")
+@RequestMapping("/shop")
 public class BasicPublicShopController {
     @Autowired
     private BasicPublicShopService basicPublicShopService;
@@ -36,6 +34,16 @@ public class BasicPublicShopController {
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
         return BaseApiService.setResultError("分页无参数");
+    }
+
+    /**
+     * 获得店铺名字
+     * @return
+     */
+    @GetMapping("/getListShopName")
+    public ResponseBase findByListShop() {
+        List<BasicPublicShop> nameList = basicPublicShopService.getByListShopName();
+        return BaseApiService.setResultSuccess(nameList);
     }
 
 }

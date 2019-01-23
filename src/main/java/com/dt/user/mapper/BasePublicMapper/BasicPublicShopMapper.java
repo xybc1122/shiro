@@ -11,6 +11,7 @@ public interface BasicPublicShopMapper {
 
     /**
      * 查询店铺所有相关信息
+     *
      * @return
      */
     @Select("SELECT s.`shop_id`,s.`shop_number`,s.`shop_name`,s.`shop_eng`,s.`principal`,s.`remark`,\n" +
@@ -20,4 +21,11 @@ public interface BasicPublicShopMapper {
             "LEFT JOIN `basic_public_company`AS c ON c.`company_id`=s.`company_id`" +
             "LEFT JOIN `basic_public_platform_type`AS p ON p.`platform_type_id`=s.`platform_type_id`")
     List<BasicPublicShop> findByListShop();
+
+    /**
+     * 查询店铺名字
+     * @return
+     */
+    @Select("SELECT `shop_id`,`shop_name` from `basic_public_shop`")
+    List<BasicPublicShop> getByListShopName();
 }

@@ -18,4 +18,9 @@ public class BasicPublicShopServiceImpl implements BasicPublicShopService {
 
         return basicPublicShopMapper.findByListShop();
     }
+
+    @Override
+    public List<BasicPublicShop> getByListShopName() {
+        return basicPublicShopMapper.getByListShopName();
+    }
 }

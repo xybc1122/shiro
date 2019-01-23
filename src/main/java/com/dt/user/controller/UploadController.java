@@ -124,13 +124,13 @@ public class UploadController {
         String[] ids = redIds.split(",");
         List<String> arrayList = new ArrayList<>(Arrays.asList(ids));
         if (setTiming.size() > 0) {
-            //如果两个长度不够
-            if (arrayList.size() != setTiming.size()) {
-                int length = setTiming.size() - arrayList.size();
-                for (int k = 0; k < length; k++) {
-                    arrayList.add("0");
-                }
-            }
+//            //如果两个长度不够
+//            if (arrayList.size() != setTiming.size()) {
+//                int length = setTiming.size() - arrayList.size();
+//                for (int k = 0; k < length; k++) {
+//                    arrayList.add("0");
+//                }
+//            }
             for (Timing t : setTiming) {
                 for (int j = 0; j < arrayList.size(); j++) {
                     if (t.getRedId().equals(Long.parseLong(arrayList.get(j)))) {
