@@ -40,7 +40,7 @@ public class UserUpload {
      * 上传备注
      */
     private String remark;
-
+    private String uuidName;
     /**
      * 上传状态0代表成功,1代表失败,2代表上传成功后 有些没有skuId的没上传
      */
@@ -96,6 +96,14 @@ public class UserUpload {
         this.recordingId = recordingId;
         this.areaId = areaId;
         this.businessTime = businessTime;
+    }
+
+    public String getUuidName() {
+        return uuidName;
+    }
+
+    public void setUuidName(String uuidName) {
+        this.uuidName = uuidName;
     }
 
     public String getBusinessTime() {

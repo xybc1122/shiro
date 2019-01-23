@@ -18,10 +18,10 @@ public class TableHeadImpl implements TableHeadService {
     private TableHeadMapper tableHeadMapper;
 
     @Override
-    public List<TableHead> findByMenuIdHeadList(Long menuId, Long uid) {
+    public List<TableHead> findByMenuIdHeadList(Long menuId) {
         //接收数据库传来的对象
-        List<TableHead> headList = tableHeadMapper.findByHeader(uid);
-        return headNewList(headList, menuId);
+
+        return tableHeadMapper.findByHeader(menuId);
     }
 
     @Override

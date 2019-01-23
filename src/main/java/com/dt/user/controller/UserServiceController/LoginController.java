@@ -94,7 +94,7 @@ public class LoginController extends BaseApiService {
                 }
                 return BaseApiService.setResultSuccess(dataUserJson);
             } else {
-                return BaseApiService.setResultSuccess("ok");
+                return BaseApiService.setResultSuccess("已登陆");
             }
         } catch (IncorrectCredentialsException ie) {
             return setLockingTime(userDto);
@@ -104,7 +104,7 @@ public class LoginController extends BaseApiService {
         }
     }
 
-    public ResponseBase setLockingTime(PageDto userDto){
+    public ResponseBase setLockingTime(PageDto userDto) {
         int errorNumber = 0;
         errorNumber++;
         Long lockingTime = null;

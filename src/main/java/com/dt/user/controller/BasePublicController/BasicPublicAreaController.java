@@ -21,7 +21,6 @@ public class BasicPublicAreaController {
 
     /**
      * 获得区域的信息
-     *
      * @return
      */
     @PostMapping("/findByListRegion")
@@ -34,8 +33,7 @@ public class BasicPublicAreaController {
             Integer currentPage = pageDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
-        basicPublicAreaList = basicPublicAreaService.findByListArea();
-        return BaseApiService.setResultSuccess(basicPublicAreaList);
+        return BaseApiService.setResultError("分页无参数");
     }
 
 }

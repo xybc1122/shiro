@@ -8,7 +8,7 @@ import java.util.Map;
 
 public interface TableHeadService {
 
-    List<TableHead> findByMenuIdHeadList(Long menuId, Long uid);
+    List<TableHead> findByMenuIdHeadList(Long menuId);
 
     /**
      * 根据菜单id查询对应显示的表头
@@ -18,7 +18,6 @@ public interface TableHeadService {
 
     /**
      * 通过mid查询一个数据
-     *
      * @param mid
      * @return
      */

@@ -21,19 +21,13 @@ public class TableHeadController {
     private TableHeadService tableHeadService;
 
     /**
-     * 通过uid 来查询 对应的表头信息
+     * 通过菜单ID来查询 对应的表头信息
      *
-     * @param id
-     * @param request
      * @return
      */
     @GetMapping("/head")
-    public ResponseBase findByHead(@RequestParam("menu_id") Long id, HttpServletRequest request) {
-        UserInfo user = GetCookie.getUser(request);
-        if (user == null) {
-            return BaseApiService.setResultError("用户无效~");
-        }
-        List<TableHead> headList = tableHeadService.findByMenuIdHeadList(id, user.getUid());
+    public ResponseBase findByHead(@RequestParam("menu_id") Long mId) {
+        List<TableHead> headList = tableHeadService.findByMenuIdHeadList(mId);
         return BaseApiService.setResultSuccess(headList);
 
     }
@@ -61,7 +55,7 @@ public class TableHeadController {
     }
 
     /**
-     * 查询所有的表头信息  无查询条件
+     * 点击编辑 用菜单ID查询表头信息
      *
      * @return
      */

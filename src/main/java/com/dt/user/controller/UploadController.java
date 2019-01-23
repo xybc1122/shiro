@@ -84,6 +84,9 @@ public class UploadController {
     private SalesAmazonFbaReceivestockService receivestockService;
 
     @Autowired
+    private SalesAmazonFbaInventoryEndService endService;
+
+    @Autowired
     private BasicSalesAmazonWarehouseService warehouseService;
     /**
      * 多线程返回接收
@@ -143,6 +146,7 @@ public class UploadController {
 
     /**
      * 下载接口
+     *
      * @param request
      * @param response
      * @param fileMap
@@ -162,6 +166,7 @@ public class UploadController {
 
     /**
      * 上传接口
+     *
      * @param request
      * @param sId
      * @param seId
@@ -198,8 +203,9 @@ public class UploadController {
                 String saveFilePath = Constants.SAVE_FILE_PATH;
                 // String contentType = file.getContentType();//图片||文件类型
                 String fileName = file.getOriginalFilename();//图片||文件名字
+                String uuId = UuIDUtils.uuId(fileName);
                 try {
-                    FileUtils.uploadFile(file.getBytes(), saveFilePath, fileName);
+                    FileUtils.uploadFile(file.getBytes(), saveFilePath, uuId);
                     msg = "上传成功~";
                 } catch (Exception e) {
                     isUpload = false;
@@ -234,7 +240,7 @@ public class UploadController {
                 }
                 int status = isUpload ? 0 : 4;
                 //记录用户上传信息~
-                upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, status, msg, tbId, aId, businessTime);
+                upload = uploadOperating(new UserUpload(), siteId, shopId, fileName, saveFilePath, user, pId, status, msg, tbId, aId, businessTime, uuId);
                 if (isUpload) {
                     uploadList.add(upload);
                 }
@@ -265,14 +271,14 @@ public class UploadController {
                 int fileIndex = userUpload.getName().lastIndexOf(".");
                 String typeFile = userUpload.getName().substring(fileIndex + 1);
                 if (typeFile.equals("csv")) {
-                    responseBase = importCsv(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(),
+                    responseBase = importCsv(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(),
                             userUpload.getpId(), userUpload.getId(), userUpload.getTbId(), userUpload.getBusinessTime());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("xlsx") || typeFile.equals("xls")) {
-                    responseBase = importXls(userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
+                    responseBase = importXls(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("txt")) {
-                    responseBase = importTxt(userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
+                    responseBase = importTxt(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
@@ -297,10 +303,10 @@ public class UploadController {
      * @param fileName
      * @return
      */
-    public ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing timing, String status, String saveFilePath) {
+    public ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing timing, String status, String saveFilePath,String uuidName) {
         timing.setInfo(status, percentage, msg);
         setTiming.add(timing);
-        return saveUserUploadInfo(BaseApiService.setResultError(msg), recordingId, fileName, null, 0, saveFilePath);
+        return saveUserUploadInfo(BaseApiService.setResultError(msg), recordingId, fileName, null, 0, saveFilePath,uuidName);
     }
 
     /**
@@ -320,11 +326,11 @@ public class UploadController {
     }
 
     //###############################封装Txt
-    public ResponseBase importTxt(String saveFilePath, String fileName, Long shopId, Long uid, Long
+    public ResponseBase importTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long
             recordingId, Integer tbId, Integer aId) {
         Timing timing = new Timing();
         ResponseBase responseCsv;
-        String filePath = saveFilePath + fileName;
+        String filePath = saveFilePath + uuIdName;
         try (InputStreamReader read = streamReader(filePath);
              BufferedReader br = new BufferedReader(read)
         ) {
@@ -337,7 +343,7 @@ public class UploadController {
             timing.setInfo(fileName, recordingId);
             if (!isFlg) {
                 //返回错误信息
-                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath);
+                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath,uuIdName);
             }
             //设置文件总数
             timing.setFileCount(filePath);
@@ -346,11 +352,11 @@ public class UploadController {
             strLineHead.add(lineHead);
             //多线程处理
             responseCsv = dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId).get();
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3, saveFilePath);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3, saveFilePath,uuIdName);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息";
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath);
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath,uuIdName);
         } finally {
             count.set(0L);
             numberCount.set(0L);
@@ -391,7 +397,18 @@ public class UploadController {
 
 
     /**
-     * 封装Txt
+     * 封装TXT
+     *
+     * @param br          BufferedReader
+     * @param shopId      店铺ID
+     * @param uid         用户ID
+     * @param recordingId 记录ID
+     * @param lineHead    文件表头信息
+     * @param timing      定时请求类对象
+     * @param tbId        菜单ID
+     * @param aId         区域ID
+     * @return
+     * @throws IOException
      */
     public ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long
             recordingId, List<String> lineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
@@ -400,9 +417,11 @@ public class UploadController {
         List<SalesAmazonFbaReceivestock> sfReceivesList = null;
         List<SalesAmazonFbaRefund> safRefundList = null;
         List<SalesAmazonFbaTradeReport> safTradList = null;
+        List<SalesAmazonFbaInventoryEnd> safEndList = null;
         SalesAmazonFbaTradeReport sftPort;
         SalesAmazonFbaRefund sfRefund;
         SalesAmazonFbaReceivestock sfReceives;
+        SalesAmazonFbaInventoryEnd sfEnd;
         String line;
         int index = 0;
         timing.setMsg("正在校验数据..........");
@@ -416,6 +435,9 @@ public class UploadController {
                 break;
             case 113:
                 sfReceivesList = ArrUtils.listT(tList);
+                break;
+            case 114:
+                safEndList = ArrUtils.listT(tList);
                 break;
         }
         while ((line = br.readLine()) != null) {
@@ -460,7 +482,7 @@ public class UploadController {
                 case 113:
                     sfReceives = setReceives(shopId, uid, recordingId);
                     for (int i = 0; i < newLine.length; i++) {
-                        sfReceives = salesReceivestock(i, sfReceives, newLine, shopId, aId);
+                        sfReceives = salesReceivestock(i, sfReceives, newLine);
                         if (sfReceives == null) {
                             //先拿到这一行信息 newLine
                             exportTxtType(lineHead, line);
@@ -469,6 +491,21 @@ public class UploadController {
                     }
                     if (sfReceives != null) {
                         sfReceivesList.add(sfReceives);
+                    }
+                    break;
+                //期末库存
+                case 114:
+                    sfEnd = setEnd(shopId, uid, recordingId);
+                    for (int i = 0; i < newLine.length; i++) {
+                        sfEnd = salesEnd(i, sfEnd, newLine);
+                        if (sfEnd == null) {
+                            //先拿到这一行信息 newLine
+                            exportTxtType(lineHead, line);
+                            break;
+                        }
+                    }
+                    if (sfEnd != null) {
+                        safEndList.add(sfEnd);
                     }
                     break;
             }
@@ -502,6 +539,14 @@ public class UploadController {
                 countTrad = receivestockService.AddSalesAmazonAdReceivestockList(sfReceivesList);
             }
         }
+        if (safEndList != null) {
+            if (safEndList.size() > 0) {
+                //插入数据
+                timing.setMsg("正在导入数据库..........");
+                //导入数据库
+                countTrad = endService.AddSalesAmazonAdInventoryEndList(safEndList);
+            }
+        }
         if (countTrad > 0) {
             return printCount(begin, timing, count.get(), index);
         }
@@ -517,11 +562,11 @@ public class UploadController {
      * @param shopId
      * @return
      */
-    public ResponseBase importCsv(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
+    public ResponseBase importCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
             pId, Long recordingId, Integer tbId, String businessTime) {
         ResponseBase responseCsv;
         List<String> fileHeadList;
-        String filePath = saveFilePath + fileName;
+        String filePath = saveFilePath + uuIdName;
         String csvJson;
         JSONObject rowJson;
         int row;
@@ -536,7 +581,7 @@ public class UploadController {
         timing.setInfo(fileName, recordingId);
         if (row == -1) {
             //返回错误信息
-            return errorResult(0, "表中真实字段第一行信息比对不上", recordingId, fileName, timing, "exception", filePath);
+            return errorResult(0, "表中真实字段第一行信息比对不上", recordingId, fileName, timing, "exception", filePath,uuIdName);
         }
         //拿到之前的表头信息
         fileHeadList = JSONObject.parseArray(rowJson.get("head").toString(), String.class);
@@ -546,17 +591,17 @@ public class UploadController {
         boolean isFlg = compareHeadCsv(fileHeadList, sqlHeadList);
         if (!isFlg) {
             //返回错误信息
-            return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath);
+            return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath,uuIdName);
         }
         try (InputStreamReader isr = streamReader(filePath)) {
             csvReader = new CsvReader(isr);
             //设置文件总数
             timing.setFileCount(filePath);
             responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, businessTime, timing).get();
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2, saveFilePath);
+            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2, saveFilePath,uuIdName);
         } catch (Exception e) {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath);
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath,uuIdName);
         } finally {
             if (csvReader != null) {
                 csvReader.close();
@@ -648,13 +693,14 @@ public class UploadController {
      * @param status
      * @param msg
      */
-    public UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String saveFilePath) {
+    public UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String saveFilePath,String uuIdName) {
         UserUpload upload = new UserUpload(id, new Date().getTime());
         if (status != 0) {
             if (status == 3) {
                 upload.setStatus(status);
             }
             if (status == 2) {
+                upload.setUuidName(uuIdName);
                 upload.setName(fileName);
                 upload.setFilePath(saveFilePath);
                 upload.setStatus(status);
@@ -682,8 +728,10 @@ public class UploadController {
     public UserUpload uploadOperating(UserUpload upload, Integer siteId, Integer shopId,
                                       String fileName, String saveFilePath,
                                       UserInfo user, Integer pId, Integer status,
-                                      String msg, Integer tbId, Integer aId, String businessTime) {
-        //存入文件名字
+                                      String msg, Integer tbId, Integer aId, String businessTime, String uuId) {
+        //存入打碎后的文件名称
+        upload.setUuidName(uuId);
+        //存入真实文件名字
         upload.setName(fileName);
         //存入上传时间
         upload.setCreateDate(new Date().getTime());
@@ -699,6 +747,7 @@ public class UploadController {
         if (shopId != null) {
             upload.setShopId(shopId.longValue());
         }
+        //区域ID
         upload.setAreaId(aId);
         //付款类型ID
         upload.setpId(pId);
@@ -717,6 +766,57 @@ public class UploadController {
     }
 
     /**
+     * 期末库存信息存入
+     *
+     * @param sft
+     * @param j
+     * @return
+     * @throws IOException
+     */
+    public SalesAmazonFbaInventoryEnd salesEnd(int i, SalesAmazonFbaInventoryEnd sft, String[] j) {
+        switch (i) {
+            case 0:
+                sft.setDate(DateUtils.getTime(j[i], Constants.ORDER_RETURN));
+                break;
+            case 1:
+                sft.setFnsku(StrUtils.repString(j[i]));
+                break;
+            case 2:
+                sft.setSku(StrUtils.repString(j[i]));
+                break;
+            case 3:
+                sft.setProductName(StrUtils.repString(j[i]));
+                break;
+            case 4:
+                sft.setQuantity(StrUtils.replaceInteger(j[i]));
+                break;
+            case 5:
+                String fc = StrUtils.repString(j[i]);
+                if (StringUtils.isEmpty(fc)) {
+                    return null;
+                }
+                sft.setFc(fc);
+                BasicSalesAmazonWarehouse warehouse = warehouseService.getWarehouse(fc);
+                if (warehouse == null) {
+                    return null;
+                }
+                if (warehouse.getSiteId() == null || warehouse.getAmazonWarehouseId() == null) {
+                    return null;
+                }
+                sft.setSiteId(warehouse.getSiteId());
+                sft.setAwId(warehouse.getAmazonWarehouseId());
+                break;
+            case 6:
+                sft.setDisposition(StrUtils.repString(j[i]));
+                break;
+            case 7:
+                sft.setCountry(StrUtils.repString(j[i]));
+                break;
+        }
+        return sft;
+    }
+
+    /**
      * 接收订单信息存入
      *
      * @param sft
@@ -724,7 +824,7 @@ public class UploadController {
      * @return
      * @throws IOException
      */
-    public SalesAmazonFbaReceivestock salesReceivestock(int i, SalesAmazonFbaReceivestock sft, String[] j, Long sId, Integer aId) {
+    public SalesAmazonFbaReceivestock salesReceivestock(int i, SalesAmazonFbaReceivestock sft, String[] j) {
         switch (i) {
             case 0:
                 sft.setDate(DateUtils.getTime(j[i], Constants.ORDER_RETURN));
@@ -1406,6 +1506,7 @@ public class UploadController {
 
     /**
      * 通用获得头信息对比
+     *
      * @param seId
      * @param tbId
      * @return
@@ -1419,6 +1520,13 @@ public class UploadController {
     }
 
 //################通用设置表头
+
+    /**
+     * 期末库存通用对象
+     */
+    public SalesAmazonFbaInventoryEnd setEnd(Long sId, Long uid, Long recordingId) {
+        return new SalesAmazonFbaInventoryEnd(sId, new Date().getTime(), uid, recordingId);
+    }
 
     /**
      * 接收库存通用对象
@@ -1500,10 +1608,10 @@ public class UploadController {
      * @param tbId
      * @return
      */
-    public ResponseBase importXls(String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
+    public ResponseBase importXls(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
             recordingId, Integer tbId) {
         Timing timing = new Timing();
-        String filePath = saveFilePath + fileName;
+        String filePath = saveFilePath + uuIdName;
         ResponseBase responseBase;
         //判断文件类型 fileType()
         File file = new File(filePath);
@@ -1511,7 +1619,7 @@ public class UploadController {
              Workbook wb = XlsUtils.fileType(in, file)) {
             if (wb == null) {
                 //返回错误信息
-                return errorResult(0, "不是excel文件", recordingId, fileName, timing, "exception", filePath);
+                return errorResult(0, "不是excel文件", recordingId, fileName, timing, "exception", filePath,uuIdName);
             }
             Sheet sheet = wb.getSheetAt(0);
             int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
@@ -1524,13 +1632,13 @@ public class UploadController {
             //如果表头对比失败
             if (!isFlg) {
                 //返回错误信息
-                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", filePath);
+                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", filePath,uuIdName);
             }
             responseBase = dealWithXlsData(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing).get();
-            return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1, filePath);
+            return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1, filePath,uuIdName);
         } catch (Exception e) {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
-            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", filePath);
+            return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", filePath,uuIdName);
         } finally {
             count.set(0L);
             numberCount.set(0L);
@@ -1667,21 +1775,21 @@ public class UploadController {
     /**
      * 通用更新方法
      */
-    public ResponseBase upUserUpload(int status, Long id, String fileName, String msg, String saveFilePath) {
+    public ResponseBase upUserUpload(int status, Long id, String fileName, String msg, String saveFilePath,String uuIdName) {
         UserUpload upload;
         switch (status) {
             case 0:
-                upload = recordInfo(status, msg, id, fileName, saveFilePath);
+                upload = recordInfo(status, msg, id, fileName, saveFilePath,uuIdName);
                 return BaseApiService.setResultSuccess(msg, upload);
             case 1:
-                upload = recordInfo(status, msg, id, fileName, saveFilePath);
+                upload = recordInfo(status, msg, id, fileName, saveFilePath,uuIdName);
                 return BaseApiService.setResultError("error/" + msg, upload);
             case 2:
                 int fileIndex = saveFilePath.lastIndexOf("/");
-                upload = recordInfo(status, msg, id, "NO" + fileName, saveFilePath.substring(0, fileIndex) + "SkuNo/");
+                upload = recordInfo(status, msg, id, "NO" + fileName, saveFilePath.substring(0, fileIndex) + "SkuNo/",uuIdName);
                 return BaseApiService.setResultSuccess(msg, upload);
             case 3:
-                upload = recordInfo(status, msg, id, fileName, saveFilePath);
+                upload = recordInfo(status, msg, id, fileName, saveFilePath,uuIdName);
                 return BaseApiService.setResultError(msg, upload);
             case 4:
                 break;
@@ -1930,6 +2038,7 @@ public class UploadController {
         }
         return saCpr;
     }
+
     /**
      * 封装 String  类型转换
      *
@@ -1978,7 +2087,6 @@ public class UploadController {
         }
         return DouCell;
     }
-
 
 
     /**
@@ -2074,30 +2182,30 @@ public class UploadController {
      * @return
      */
     public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String
-            fileName, List<String> head, int type, String saveFilePath) {
+            fileName, List<String> head, int type, String saveFilePath, String uuidName) {
         try {
             if (responseBase.getCode() == 200) {
                 if (skuNoIdList.size() != 0) {
                     if (type == 1) {
                         //写入xlsx 文件写入到服务器的地址   Constants.WRITE_SAVE_FILE_PATH
-                        XlsUtils.outPutXssFile(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                        XlsUtils.outPutXssFile(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, uuidName);
                     } else if (type == 2) {
                         //写入CSV文件到本地
-                        CSVUtil.write(head, skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                        CSVUtil.write(head, skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, uuidName);
                     } else if (type == 3) {
                         //写入Txt
-                        TxtUtils.writeFileTxt(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, fileName);
+                        TxtUtils.writeFileTxt(skuNoIdList, Constants.WRITE_SAVE_FILE_PATH, uuidName);
                     }
                     //上传成功 有些skuId 记录上传信息~
                     String msg = responseBase.getMsg() + "====>有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
                     sumErrorSku.set(0);
-                    return upUserUpload(2, recordingId, fileName, msg, saveFilePath);
+                    return upUserUpload(2, recordingId, fileName, msg, saveFilePath,uuidName);
                 }
                 //上传成功 都有skuId~
-                return upUserUpload(0, recordingId, fileName, responseBase.getMsg(), saveFilePath);
+                return upUserUpload(0, recordingId, fileName, responseBase.getMsg(), saveFilePath,uuidName);
             } else {
                 //存入信息报错
-                return upUserUpload(1, recordingId, fileName, responseBase.getMsg(), saveFilePath);
+                return upUserUpload(1, recordingId, fileName, responseBase.getMsg(), saveFilePath,uuidName);
             }
         } finally {
             //清空数据

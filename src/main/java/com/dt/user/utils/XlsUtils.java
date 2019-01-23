@@ -100,7 +100,7 @@ public class XlsUtils {
      * @param xssList
      * @param filePath
      */
-    public static void outPutXssFile(List<List<String>> xssList, String filePath, String fileName) {
+    public static void outPutXssFile(List<List<String>> xssList, String filePath, String uuidName) {
         FileUtils.mkdirFile(filePath);
 
         Workbook wb = new XSSFWorkbook();
@@ -115,7 +115,7 @@ public class XlsUtils {
         }
         OutputStream fileOut = null;
         try {
-            fileOut = new FileOutputStream(filePath + "NO" + fileName);
+            fileOut = new FileOutputStream(filePath + uuidName);
             wb.write(fileOut);
         } catch (FileNotFoundException e) {
             e.printStackTrace();

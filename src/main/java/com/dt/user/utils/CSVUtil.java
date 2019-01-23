@@ -92,14 +92,13 @@ public class CSVUtil {
      * @param headerList    表头 信息
      * @param isNoSkuIdList 表体信息
      * @param filePath      路径
-     * @param fileName      文件名
      */
-    public static void write(List<String> headerList, List<List<String>> isNoSkuIdList, String filePath, String fileName) {
+    public static void write(List<String> headerList, List<List<String>> isNoSkuIdList, String filePath, String uuidName) {
         FileUtils.mkdirFile(filePath);
         CsvWriter csvWriter = null;
         try {
             // 创建CSV写对象
-            csvWriter = new CsvWriter(filePath + "NO" + fileName, ',', Charset.forName("GBK"));
+            csvWriter = new CsvWriter(filePath + uuidName, ',', Charset.forName("GBK"));
             String[] headers = new String[headerList.size()];
             headers = headerList.toArray(headers);
             // 先写表头

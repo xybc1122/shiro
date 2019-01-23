@@ -28,6 +28,19 @@ public class SalesAmazonFbaInventoryEnd {
   private Long auditIdUser;
   private Long recordingId;
 
+
+  public SalesAmazonFbaInventoryEnd() {
+
+  }
+
+  public SalesAmazonFbaInventoryEnd(Long shopId, Long createDate, Long createIdUser, Long recordingId) {
+    this.shopId = shopId;
+    this.createDate = createDate;
+    this.createIdUser = createIdUser;
+    this.recordingId = recordingId;
+  }
+
+
   public Long getId() {
     return id;
   }

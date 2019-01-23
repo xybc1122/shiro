@@ -9,10 +9,10 @@ public class TxtUtils {
     /**
      * 写入TXT文件
      */
-    public static void writeFileTxt(List<List<String>> skuNoList, String path, String fileName) {
+    public static void writeFileTxt(List<List<String>> skuNoList, String path, String uuidName) {
         try {
             FileUtils.mkdirFile(path);
-            String filePath = path + "NO" + fileName;
+            String filePath = path + uuidName;
             File myFile = new File(filePath);
             myFile.createNewFile();
             try (FileWriter writer = new FileWriter(myFile);

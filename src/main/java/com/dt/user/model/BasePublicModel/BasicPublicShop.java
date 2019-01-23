@@ -21,9 +21,13 @@ public class BasicPublicShop {
      */
     private String shopEng;
     /**
-     * 公司ID
+     * 公司名称
      */
     private String companyFullName;
+    /**
+     *平台名称
+     */
+    private String platformTypeName;
     /**
      * 负责人
      */
@@ -60,6 +64,14 @@ public class BasicPublicShop {
      * 审核人
      */
     private Long auditIdUser;
+
+    public String getPlatformTypeName() {
+        return platformTypeName;
+    }
+
+    public void setPlatformTypeName(String platformTypeName) {
+        this.platformTypeName = platformTypeName;
+    }
 
     public Long getShopId() {
         return shopId;

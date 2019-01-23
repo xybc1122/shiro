@@ -2,12 +2,14 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.dto.PageDto;
 import com.dt.user.model.BasePublicModel.BasicPublicCompany;
 import com.dt.user.service.BasePublicService.BasicPublicCompanyService;
+import com.dt.user.utils.PageInfoUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,13 +21,18 @@ public class BasicPublicCompanyController {
 
     /**
      * 获得公司的信息
-     *
      * @return
      */
-    @GetMapping("/findByListCompany")
-    public ResponseBase findByListCompany() {
-        List<BasicPublicCompany> basicPublicCompanyList = basicPublicCompanyService.findByListCompany();
-        return BaseApiService.setResultSuccess(basicPublicCompanyList);
+    @PostMapping("/findByListCompany")
+    public ResponseBase findByListCompany(@RequestBody PageDto pageDto) {
+        if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
+            PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
+            List<BasicPublicCompany> basicPublicCompanyList = basicPublicCompanyService.findByListCompany();
+            PageInfo<BasicPublicCompany> pageInfo = new PageInfo<>(basicPublicCompanyList);
+            Integer currentPage = pageDto.getCurrentPage();
+            return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
+        }
+        return BaseApiService.setResultError("分页无参数");
     }
 
 

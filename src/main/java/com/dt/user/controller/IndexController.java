@@ -18,11 +18,13 @@ public class IndexController {
      */
     @GetMapping("/index")
     public ResponseBase showIndex(HttpServletRequest request) {
-        String rememberMe = GetCookie.getRememberMe(request);
-        //如果里面有 //记住我
-        if (StringUtils.isNotEmpty(rememberMe)) {
-            return BaseApiService.setResultSuccess("ok");
-        }
-        return BaseApiService.setResultError("no");
+//        String rememberMe = GetCookie.getRememberMe(request);
+//        //如果里面有 //记住我
+//        if (StringUtils.isNotEmpty(rememberMe)) {
+//            return BaseApiService.setResultSuccess("ok");
+//        }
+//        return BaseApiService.setResultError("no");
+         return BaseApiService.setResultSuccess("ok");
+
     }
 }
