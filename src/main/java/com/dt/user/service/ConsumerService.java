@@ -41,7 +41,7 @@ public interface ConsumerService {
     Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid,
                                          Long recordingId,
                                          List<String> strLineHead, Timing timing,
-                                         Integer tbId, Integer aId) throws IOException;
+                                         Integer tbId, Integer aId,List<List<String>> skuNoIdList) throws IOException;
 
     /**
      * 多线程处理Csv

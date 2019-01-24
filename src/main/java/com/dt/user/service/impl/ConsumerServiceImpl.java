@@ -71,8 +71,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     //没有sku有几行存入
     ThreadLocal<Integer> sumErrorSku = ThreadLocal.withInitial(() -> 0);
 
-    //获取没有SKU的List集合 并发List 容器
-    private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
+//    //获取没有SKU的List集合 并发List 容器
+//    private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
 
     /**
      * 返回错误数据存入接口实例
@@ -81,7 +81,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      */
     @Override
     public CopyOnWriteArrayList<List<String>> writeNoListSku() {
-        return skuNoIdList;
+        return null;
     }
 
     /**
@@ -111,8 +111,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     @Override
     @Transactional
     @Async("executor")
-    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
-        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId));
+    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing, Integer tbId, Integer aId, List<List<String>> skuNoIdList) throws IOException {
+        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId, skuNoIdList));
         return future;
     }
 //    /**
@@ -126,7 +126,7 @@ public class ConsumerServiceImpl implements ConsumerService {
 //    }
 
     private ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long
-            recordingId, List<String> lineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
+            recordingId, List<String> lineHead, Timing timing, Integer tbId, Integer aId, List<List<String>> skuNoIdList) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
         List<SalesAmazonFbaReceivestock> sfReceivesList = null;
@@ -170,7 +170,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sftPort = saveTradeReport(i, sftPort, newLine, shopId);
                         if (sftPort == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line);
+                            exportTxtType(lineHead, line, skuNoIdList);
                             break;
                         }
                     }
@@ -185,7 +185,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sfRefund = salesAmazonFbaRefund(i, sfRefund, newLine, shopId, aId);
                         if (sfRefund == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line);
+                            exportTxtType(lineHead, line, skuNoIdList);
                             break;
                         }
                     }
@@ -200,7 +200,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sfReceives = salesReceivestock(i, sfReceives, newLine);
                         if (sfReceives == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line);
+                            exportTxtType(lineHead, line, skuNoIdList);
                             break;
                         }
                     }
@@ -215,7 +215,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sfEnd = salesEnd(i, sfEnd, newLine);
                         if (sfEnd == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line);
+                            exportTxtType(lineHead, line, skuNoIdList);
                             break;
                         }
                     }
@@ -263,7 +263,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             }
         }
         if (countTrad > 0) {
-            return printCount(begin, timing, count.get(), index);
+            return printCount(begin, timing, count.get(), index,skuNoIdList);
         }
         return BaseApiService.setResultError("数据存入异常,请检查错误信息");
     }
@@ -274,12 +274,12 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param
      * @return
      */
-    public ResponseBase printCount(Long begin, Timing timing, Long successNumber, int index) {
+    public ResponseBase printCount(Long begin, Timing timing, Long successNumber, int index, List<List<String>> skuNoIdList) {
         timing.setInfo("success", "数据导入成功..........");
         setTiming.add(timing);
         // 结束时间
         Long end = new Date().getTime();
-        return BaseApiService.setResultSuccess("总共" + index + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
+        return BaseApiService.setResultSuccess("总共" + index + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s", skuNoIdList);
     }
 
     /**
@@ -642,7 +642,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      *
      * @return
      */
-    public void exportTxtType(List<String> head, String line) {
+    public void exportTxtType(List<String> head, String line, List<List<String>> skuNoIdList) {
         //count --
         CrrUtils.delCreateNumberLong(count);
         //sumNoSku ++

@@ -245,6 +245,7 @@ public class UploadController {
      */
     @PostMapping("/addInfo")
     public ResponseBase redFileInfo(@RequestBody UserUpload upload) {
+        List<List<String>> skuNoIdList = new ArrayList<>();
         List<ResponseBase> responseBaseList = new ArrayList<>();
         int baseNum = upload.getUploadSuccessList().size();
         ResponseBase responseBase;
@@ -261,7 +262,7 @@ public class UploadController {
                     responseBase = importXls(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("txt")) {
-                    responseBase = importTxt(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
+                    responseBase = importTxt(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId(),skuNoIdList);
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
@@ -310,7 +311,7 @@ public class UploadController {
 
     //###############################封装Txt
     public ResponseBase importTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long
-            recordingId, Integer tbId, Integer aId) {
+            recordingId, Integer tbId, Integer aId, List<List<String>> skuNoIdList) {
         Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + uuIdName;
@@ -334,7 +335,7 @@ public class UploadController {
             List<String> strLineHead = new ArrayList<>();
             strLineHead.add(lineHead);
             //多线程处理
-            responseCsv = consumerService.dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId).get();
+            responseCsv = consumerService.dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId,List<List<String>> skuNoIdList).get();
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3, saveFilePath, uuIdName);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -1650,7 +1651,6 @@ public class UploadController {
      */
     public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String
             fileName, List<String> head, int type, String saveFilePath, String uuidName) {
-        try {
             if (responseBase.getCode() == 200) {
                 if (consumerService.writeNoListSku().size() != 0) {
                     if (type == 1) {
@@ -1674,10 +1674,5 @@ public class UploadController {
                 //存入信息报错
                 return upUserUpload(1, recordingId, fileName, responseBase.getMsg(), saveFilePath, uuidName);
             }
-        } finally {
-            //清空数据
-            consumerService.writeNoListSku().clear();
         }
     }
-
-}
