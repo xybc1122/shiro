@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LogisticsController {
 
-    @Autowired
-    private LogisticsClient logisticsClient;
+//    @Autowired
+//    private LogisticsClient logisticsClient;
 
 
     /**
@@ -22,9 +22,9 @@ public class LogisticsController {
      *
      * @return
      */
-    @PostMapping("/info")
-    public ResponseBase getWayInfo(@RequestBody LogisticsPage logisticsPage) {
-            System.out.println(logisticsPage);
-        return logisticsClient.wayInfo(logisticsPage);
-    }
+//    @PostMapping("/info")
+//    public ResponseBase getWayInfo(@RequestBody LogisticsPage logisticsPage) {
+//            System.out.println(logisticsPage);
+//        return logisticsClient.wayInfo(logisticsPage);
+//    }
 }

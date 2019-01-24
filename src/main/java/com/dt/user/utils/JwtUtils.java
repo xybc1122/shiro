@@ -23,6 +23,22 @@ public class JwtUtils {
 
     /**
      * 生成jwt token
+     * @return
+     */
+    public static String appKeyToken(String key) {
+        if (key == null) {
+            return null;
+        }
+        String token = Jwts.builder().setSubject(SUBJECT)
+                .claim("appKey", key)
+                .setIssuedAt(new Date())//设置新的时间
+                .signWith(SignatureAlgorithm.HS256, APPSECRET).compact();
+        return token;
+    }
+
+
+    /**
+     * 生成jwt token
      *
      * @param user
      * @return
