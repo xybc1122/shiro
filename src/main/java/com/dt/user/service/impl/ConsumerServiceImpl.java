@@ -3,7 +3,6 @@ package com.dt.user.service.impl;
 import com.csvreader.CsvReader;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
 import com.dt.user.model.BasePublicModel.BasicSalesAmazonWarehouse;
 import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.model.SalesAmazonAd.*;
@@ -28,11 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.*;
 import java.util.concurrent.Future;
 
 @Service
@@ -63,16 +58,17 @@ public class ConsumerServiceImpl implements ConsumerService {
     private SalesAmazonFbaInventoryEndService endService;
 
 
-    private CopyOnWriteArraySet<Timing> setTiming = new CopyOnWriteArraySet<>();
     //没有sku有几行存入
     ThreadLocal<Long> numberCount = ThreadLocal.withInitial(() -> 0L);
     //真实存入函数
     ThreadLocal<Long> count = ThreadLocal.withInitial(() -> 0L);
     //没有sku有几行存入
     ThreadLocal<Integer> sumErrorSku = ThreadLocal.withInitial(() -> 0);
+    //获取没有SKU的List集合 并发List 容器
+    ThreadLocal<List<List<String>>> noSkuList = new ThreadLocal<>();
 
-//    //获取没有SKU的List集合 并发List 容器
-//    private CopyOnWriteArrayList<List<String>> skuNoIdList = new CopyOnWriteArrayList<>();
+    //获取没有SKU的List集合 并发List 容器
+    private static ThreadLocal<Set<Timing>> timSet = new ThreadLocal<>();
 
     /**
      * 返回错误数据存入接口实例
@@ -80,8 +76,8 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      */
     @Override
-    public CopyOnWriteArrayList<List<String>> writeNoListSku() {
-        return null;
+    public List<List<String>> writeNoListSku() {
+        return noSkuList.get();
     }
 
     /**
@@ -90,8 +86,8 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      */
     @Override
-    public CopyOnWriteArraySet<Timing> timingWrite() {
-        return setTiming;
+    public ThreadLocal<Set<Timing>> timingWrite() {
+        return timSet;
     }
 
     /**
@@ -111,22 +107,25 @@ public class ConsumerServiceImpl implements ConsumerService {
     @Override
     @Transactional
     @Async("executor")
-    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing, Integer tbId, Integer aId, List<List<String>> skuNoIdList) throws IOException {
-        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId, skuNoIdList));
+    public Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid, Long recordingId, List<String> strLineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
+        future = new AsyncResult<>(saveTxt(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId));
         return future;
     }
-//    /**
-//     * 线程池 处理数据CSv
-//     *
-//     * @throws IOException
-//     */
-//    public Future<ResponseBase> dealWithCsvData(CsvReader csvReader, int row, Long shopId, Long siteId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime, Timing timing) throws IOException {
-//        future = new AsyncResult<>(saveCsv(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, businessTime, timing));
-//        return future;
-//    }
+
+    /**
+     * 线程池 处理数据CSv
+     *
+     * @throws IOException
+     */
+    public Future<ResponseBase> dealWithCsvData(CsvReader csvReader, int row, Long shopId, Long siteId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime, Timing timing) {
+        // future = new AsyncResult<>(saveCsv(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, businessTime, timing));
+        return future;
+    }
 
     private ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long
-            recordingId, List<String> lineHead, Timing timing, Integer tbId, Integer aId, List<List<String>> skuNoIdList) throws IOException {
+            recordingId, List<String> lineHead, Timing timing, Integer tbId, Integer aId) throws IOException {
+        //每次进来之前清空当前线程List里面的数据
+        CrrUtils.delList(noSkuList);
         // 开始时间
         Long begin = new Date().getTime();
         List<SalesAmazonFbaReceivestock> sfReceivesList = null;
@@ -170,7 +169,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sftPort = saveTradeReport(i, sftPort, newLine, shopId);
                         if (sftPort == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line, skuNoIdList);
+                            exportTxtType(lineHead, line);
                             break;
                         }
                     }
@@ -185,7 +184,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sfRefund = salesAmazonFbaRefund(i, sfRefund, newLine, shopId, aId);
                         if (sfRefund == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line, skuNoIdList);
+                            exportTxtType(lineHead, line);
                             break;
                         }
                     }
@@ -200,7 +199,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sfReceives = salesReceivestock(i, sfReceives, newLine);
                         if (sfReceives == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line, skuNoIdList);
+                            exportTxtType(lineHead, line);
                             break;
                         }
                     }
@@ -215,7 +214,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                         sfEnd = salesEnd(i, sfEnd, newLine);
                         if (sfEnd == null) {
                             //先拿到这一行信息 newLine
-                            exportTxtType(lineHead, line, skuNoIdList);
+                            exportTxtType(lineHead, line);
                             break;
                         }
                     }
@@ -227,7 +226,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             index++;
             //计算百分比
             timing.setAttributesTim(index);
-            setTiming.add(timing);
+            CrrUtils.inCreateSet(timSet, timing);
         }
         int countTrad = 0;
         if (safTradList != null) {
@@ -263,7 +262,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             }
         }
         if (countTrad > 0) {
-            return printCount(begin, timing, count.get(), index,skuNoIdList);
+            return printCount(begin, timing, count.get(), index);
         }
         return BaseApiService.setResultError("数据存入异常,请检查错误信息");
     }
@@ -274,12 +273,12 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param
      * @return
      */
-    public ResponseBase printCount(Long begin, Timing timing, Long successNumber, int index, List<List<String>> skuNoIdList) {
+    public ResponseBase printCount(Long begin, Timing timing, Long successNumber, int index) {
         timing.setInfo("success", "数据导入成功..........");
-        setTiming.add(timing);
+        CrrUtils.inCreateSet(timSet, timing);
         // 结束时间
         Long end = new Date().getTime();
-        return BaseApiService.setResultSuccess("总共" + index + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s", skuNoIdList);
+        return BaseApiService.setResultSuccess("总共" + index + "条数据/" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");
     }
 
     /**
@@ -642,7 +641,8 @@ public class ConsumerServiceImpl implements ConsumerService {
      *
      * @return
      */
-    public void exportTxtType(List<String> head, String line, List<List<String>> skuNoIdList) {
+    public void exportTxtType(List<String> head, String line) {
+        List<List<String>> skuNoIdList = CrrUtils.inCreateList(noSkuList);
         //count --
         CrrUtils.delCreateNumberLong(count);
         //sumNoSku ++
@@ -653,6 +653,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         List<String> skuListNo = new ArrayList<>();
         skuListNo.add(line);
         skuNoIdList.add(skuListNo);
+        noSkuList.set(skuNoIdList);
     }
 
 //################通用设置表头

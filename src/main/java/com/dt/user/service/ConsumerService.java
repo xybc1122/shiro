@@ -7,6 +7,7 @@ import com.dt.user.model.Timing;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
@@ -15,17 +16,17 @@ public interface ConsumerService {
     /**
      * 没有SKU接口存储
      */
-    CopyOnWriteArrayList<List<String>> writeNoListSku();
+    List<List<String>> writeNoListSku();
 
     /**
      * 实时数据信息接口
      *
      * @return
      */
-    CopyOnWriteArraySet<Timing> timingWrite();
+    ThreadLocal<Set<Timing>> timingWrite();
 
     /**
-     * 多线程处理Txt
+     * 多线程处理Txt数据
      *
      * @param br
      * @param shopId
@@ -41,10 +42,11 @@ public interface ConsumerService {
     Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid,
                                          Long recordingId,
                                          List<String> strLineHead, Timing timing,
-                                         Integer tbId, Integer aId,List<List<String>> skuNoIdList) throws IOException;
+                                         Integer tbId, Integer aId) throws IOException;
 
     /**
-     * 多线程处理Csv
+     * 多线程处理Csv数据
+     *
      * @param csvReader
      * @param row
      * @param shopId

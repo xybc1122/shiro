@@ -92,10 +92,10 @@ public class UploadController {
 
     //读写锁
     private ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    //读锁
-    Lock readLock = readWriteLock.readLock();
-    //写锁
-    Lock writeLock = readWriteLock.writeLock();
+//    //读锁
+//    Lock readLock = readWriteLock.readLock();
+//    //写锁
+//    Lock writeLock = readWriteLock.writeLock();
 
     /**
      * 定时请求的状态
@@ -107,15 +107,8 @@ public class UploadController {
         Set<Timing> set = new HashSet<>();
         String[] ids = redIds.split(",");
         List<String> arrayList = new ArrayList<>(Arrays.asList(ids));
-        if (consumerService.timingWrite().size() > 0) {
-//            //如果两个长度不够
-//            if (arrayList.size() != setTiming.size()) {
-//                int length = setTiming.size() - arrayList.size();
-//                for (int k = 0; k < length; k++) {
-//                    arrayList.add("0");
-//                }
-//            }
-            for (Timing t : consumerService.timingWrite()) {
+        if (consumerService.timingWrite().get().size() > 0) {
+            for (Timing t : consumerService.timingWrite().get()) {
                 for (int j = 0; j < arrayList.size(); j++) {
                     if (t.getRedId().equals(Long.parseLong(arrayList.get(j)))) {
                         set.add(t);
@@ -245,7 +238,6 @@ public class UploadController {
      */
     @PostMapping("/addInfo")
     public ResponseBase redFileInfo(@RequestBody UserUpload upload) {
-        List<List<String>> skuNoIdList = new ArrayList<>();
         List<ResponseBase> responseBaseList = new ArrayList<>();
         int baseNum = upload.getUploadSuccessList().size();
         ResponseBase responseBase;
@@ -262,14 +254,16 @@ public class UploadController {
                     responseBase = importXls(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getSiteId(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId());
                     responseBaseList.add(responseBase);
                 } else if (typeFile.equals("txt")) {
-                    responseBase = importTxt(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId(),skuNoIdList);
+                    responseBase = importTxt(userUpload.getUuidName(), userUpload.getFilePath(), userUpload.getName(), userUpload.getShopId(), userUpload.getUid(), userUpload.getId(), userUpload.getTbId(), userUpload.getAreaId());
                     responseBaseList.add(responseBase);
                     // System.out.println("txt");
                 }
                 //System.out.println("删除前" + setTiming.size());
-                for (Timing t : consumerService.timingWrite()) {
+                Set<Timing> setTiming = consumerService.timingWrite().get();
+                for (Timing t : setTiming) {
                     if (t.getRedId().equals(userUpload.getId())) {
-                        consumerService.timingWrite().remove(t);
+                        setTiming.remove(t);
+                        consumerService.timingWrite().set(setTiming);
                         break;
                     }
                 }
@@ -311,7 +305,7 @@ public class UploadController {
 
     //###############################封装Txt
     public ResponseBase importTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long
-            recordingId, Integer tbId, Integer aId, List<List<String>> skuNoIdList) {
+            recordingId, Integer tbId, Integer aId) {
         Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + uuIdName;
@@ -335,7 +329,7 @@ public class UploadController {
             List<String> strLineHead = new ArrayList<>();
             strLineHead.add(lineHead);
             //多线程处理
-            responseCsv = consumerService.dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId,List<List<String>> skuNoIdList).get();
+            responseCsv = consumerService.dealWithTxtData(br, shopId, uid, recordingId, strLineHead, timing, tbId, aId).get();
             return saveUserUploadInfo(responseCsv, recordingId, fileName, null, 3, saveFilePath, uuIdName);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -357,7 +351,6 @@ public class UploadController {
         future = new AsyncResult<>(readTable(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing));
         return future;
     }
-
 
 
     /**
@@ -404,8 +397,8 @@ public class UploadController {
             csvReader = new CsvReader(isr);
             //设置文件总数
             timing.setFileCount(filePath);
-            responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, businessTime, timing).get();
-            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2, saveFilePath, uuIdName);
+//            responseCsv = dealWithCsvData(csvReader, row, shopId, siteId, uid, pId, recordingId, tbId, businessTime, timing).get();
+//            return saveUserUploadInfo(responseCsv, recordingId, fileName, fileHeadList, 2, saveFilePath, uuIdName);
         } catch (Exception e) {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
@@ -416,6 +409,7 @@ public class UploadController {
             count.set(0L);
             numberCount.set(0L);
         }
+        return null;
     }
 
     /**
@@ -1651,28 +1645,28 @@ public class UploadController {
      */
     public ResponseBase saveUserUploadInfo(ResponseBase responseBase, Long recordingId, String
             fileName, List<String> head, int type, String saveFilePath, String uuidName) {
-            if (responseBase.getCode() == 200) {
-                if (consumerService.writeNoListSku().size() != 0) {
-                    if (type == 1) {
-                        //写入xlsx 文件写入到服务器的地址   Constants.WRITE_SAVE_FILE_PATH
-                        XlsUtils.outPutXssFile(consumerService.writeNoListSku(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
-                    } else if (type == 2) {
-                        //写入CSV文件到本地
-                        CSVUtil.write(head, consumerService.writeNoListSku(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
-                    } else if (type == 3) {
-                        //写入Txt
-                        TxtUtils.writeFileTxt(consumerService.writeNoListSku(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
-                    }
-                    //上传成功 有些skuId 记录上传信息~
-                    String msg = responseBase.getMsg() + "====>有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
-                    sumErrorSku.set(0);
-                    return upUserUpload(2, recordingId, fileName, msg, saveFilePath, uuidName);
+        if (responseBase.getCode() == 200) {
+            if (consumerService.writeNoListSku().size() != 0) {
+                if (type == 1) {
+                    //写入xlsx 文件写入到服务器的地址   Constants.WRITE_SAVE_FILE_PATH
+                    XlsUtils.outPutXssFile(consumerService.writeNoListSku(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
+                } else if (type == 2) {
+                    //写入CSV文件到本地
+                    CSVUtil.write(head, consumerService.writeNoListSku(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
+                } else if (type == 3) {
+                    //写入Txt
+                    TxtUtils.writeFileTxt(consumerService.writeNoListSku(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
                 }
-                //上传成功 都有skuId~
-                return upUserUpload(0, recordingId, fileName, responseBase.getMsg(), saveFilePath, uuidName);
-            } else {
-                //存入信息报错
-                return upUserUpload(1, recordingId, fileName, responseBase.getMsg(), saveFilePath, uuidName);
+                //上传成功 有些skuId 记录上传信息~
+                String msg = responseBase.getMsg() + "====>有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
+                sumErrorSku.set(0);
+                return upUserUpload(2, recordingId, fileName, msg, saveFilePath, uuidName);
             }
+            //上传成功 都有skuId~
+            return upUserUpload(0, recordingId, fileName, responseBase.getMsg(), saveFilePath, uuidName);
+        } else {
+            //存入信息报错
+            return upUserUpload(1, recordingId, fileName, responseBase.getMsg(), saveFilePath, uuidName);
         }
     }
+}
