@@ -60,7 +60,7 @@ public class Timing {
      * @param index
      * @return
      */
-    public void setAttributesTim(int index) {
+    public int setAttributesTim(int index) {
         int percentage = (int) (((index + 1) / this.totalNumber) * 100);
         this.percentage = percentage;
         if (this.percentage == 60) {
@@ -71,6 +71,7 @@ public class Timing {
             //设置颜色
             this.color = "#67C23A";
         }
+        return this.percentage;
     }
 
     /**

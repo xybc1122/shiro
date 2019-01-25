@@ -1,63 +1,56 @@
 package com.dt.user.service;
 
-import com.csvreader.CsvReader;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.model.Timing;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Future;
 
 public interface ConsumerService {
     /**
-     * 没有SKU接口存储
-     */
-    List<List<String>> writeNoListSku();
-
-    /**
-     * 实时数据信息接口
+     * 封装处理数据Txt
      *
-     * @return
-     */
-    ThreadLocal<Set<Timing>> timingWrite();
-
-    /**
-     * 多线程处理Txt数据
-     *
-     * @param br
+     * @param uuIdName
+     * @param saveFilePath
+     * @param fileName
      * @param shopId
      * @param uid
      * @param recordingId
-     * @param strLineHead
-     * @param timing
      * @param tbId
      * @param aId
      * @return
-     * @throws IOException
      */
-    Future<ResponseBase> dealWithTxtData(BufferedReader br, Long shopId, Long uid,
-                                         Long recordingId,
-                                         List<String> strLineHead, Timing timing,
-                                         Integer tbId, Integer aId) throws IOException;
+    Future<ResponseBase> importTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long
+            recordingId, Integer tbId, Integer aId);
 
     /**
-     * 多线程处理Csv数据
+     * 封装处理数据Xls
      *
-     * @param csvReader
-     * @param row
-     * @param shopId
+     * @param uuIdName
+     * @param saveFilePath
+     * @param fileName
      * @param siteId
+     * @param shopId
+     * @param uid
+     * @param recordingId
+     * @param tbId
+     * @return
+     */
+    Future<ResponseBase> importXls(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
+            recordingId, Integer tbId);
+
+
+    /**
+     * 封装处理数据Csv
+     * @param uuIdName
+     * @param saveFilePath
+     * @param fileName
+     * @param siteId
+     * @param shopId
      * @param uid
      * @param pId
      * @param recordingId
      * @param tbId
      * @param businessTime
-     * @param timing
      * @return
      */
-    Future<ResponseBase> dealWithCsvData(CsvReader csvReader, int row, Long shopId, Long siteId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime, Timing timing);
+    Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
+            pId, Long recordingId, Integer tbId, String businessTime);
 }

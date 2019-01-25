@@ -31,13 +31,16 @@ public class CrrUtils {
     }
 
     //set并发add
-    public static void inCreateSet(ThreadLocal<Set<Timing>> timingSet, Timing timing) {
+    public static Set<Timing> inCreateSet(ThreadLocal<Set<Timing>> timingSet, Timing timing) {
         Set<Timing> timings = timingSet.get();
         if (timings == null) {
             timings = new HashSet<>();
         }
-        timings.add(timing);
+        if (timing != null) {
+            timings.add(timing);
+        }
         timingSet.set(timings);
+        return timings;
     }
 
     //List清空数据
@@ -49,13 +52,12 @@ public class CrrUtils {
         }
     }
 
-    public static List<List<String>> inCreateList(ThreadLocal<List<List<String>>> timingList) {
+    public static void inCreateList(ThreadLocal<List<List<String>>> timingList) {
         List<List<String>> strList = timingList.get();
         if (strList == null) {
             strList = new ArrayList<>();
-            timingList.set(strList);
         }
-        return strList;
+        timingList.set(strList);
     }
 
     /**
