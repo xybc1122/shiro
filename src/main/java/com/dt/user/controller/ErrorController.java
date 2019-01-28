@@ -16,7 +16,6 @@ public class ErrorController {
     @RequestMapping("/error/user")
     public ResponseBase wrong()
     {
-
         return BaseApiService.setResultError("您还没登陆!");
     }
 

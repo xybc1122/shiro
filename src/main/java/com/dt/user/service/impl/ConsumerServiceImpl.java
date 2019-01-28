@@ -3,7 +3,6 @@ package com.dt.user.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.csvreader.CsvReader;
-import com.dt.user.config.ApplicationContextRegister;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicAmazonTypeMapper;
@@ -168,8 +167,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息";
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
         } finally {
-            //清空当前线程List里面的数据
-            CrrUtils.delList(noSkuList);
+            CrrUtils.clearListThread(noSkuList);
             count.set(0L);
             numberCount.set(0L);
         }
@@ -205,6 +203,8 @@ public class ConsumerServiceImpl implements ConsumerService {
                 safEndList = ArrUtils.listT(tList);
                 break;
         }
+        //计算返回前端的数
+        Map<String, Integer> intMap = new HashMap<>();
         while ((line = br.readLine()) != null) {
             //numberCount++
             CrrUtils.inCreateNumberLong(numberCount);
@@ -277,40 +277,31 @@ public class ConsumerServiceImpl implements ConsumerService {
             index++;
             //计算百分比
             int currentCount = timing.setAttributesTim(index);
-            CrrUtils.inCreateSet(timSet, timing);
-
-                ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), 1);
-
+            ws.schedule(intMap, currentCount, timSet, timing, 1L);
         }
+        //插入数据
+        timing.setMsg("正在导入数据库..........");
+        ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), 1L);
         int countTrad = 0;
         if (safTradList != null) {
             if (safTradList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 countTrad = tradeReportService.AddSalesAmazonAdTrdList(safTradList);
             }
         }
         if (safRefundList != null) {
             if (safRefundList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 //导入数据库
                 countTrad = refundService.AddSalesAmazonAdRefundList(safRefundList);
-
             }
         }
         if (sfReceivesList != null) {
             if (sfReceivesList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 //导入数据库
                 countTrad = receivestockService.AddSalesAmazonAdReceivestockList(sfReceivesList);
             }
         }
         if (safEndList != null) {
             if (safEndList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 //导入数据库
                 countTrad = endService.AddSalesAmazonAdInventoryEndList(safEndList);
             }
@@ -672,8 +663,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", filePath, uuIdName);
         } finally {
-            //清空数据
-            CrrUtils.delList(noSkuList);
+            CrrUtils.clearListThread(noSkuList);
             count.set(0L);
             numberCount.set(0L);
         }
@@ -691,7 +681,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      */
     public ResponseBase saveXls(Long shopId, Long siteId, Long uid, Long
-            recordingId, int totalNumber, List<String> head, Integer tbId, Sheet sheet, Timing timing) {
+            recordingId, int totalNumber, List<String> head, Integer tbId, Sheet sheet, Timing timing) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
         Row row;
@@ -718,6 +708,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         int line = 1;
         int lastRowNum = sheet.getLastRowNum(); // 获取总行数
         timing.setTotalNumber((double) lastRowNum);
+        Map<String, Integer> intMap = new HashMap<>();
         timing.setMsg("正在校验数据..........");
         for (int i = line; i <= lastRowNum; i++) {
             //numberCount++
@@ -768,35 +759,30 @@ public class ConsumerServiceImpl implements ConsumerService {
             }
             index++;
             //计算百分比
-            timing.setAttributesTim(index);
-            CrrUtils.inCreateSet(timSet, timing);
+            int currentCount = timing.setAttributesTim(index);
+            ws.schedule(intMap, currentCount, timSet, timing, 1L);
         }
         int saveCount = 0;
+        //插入数据
+        timing.setMsg("正在导入数据库..........");
+        ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), 1L);
         if (cprList != null) {
             if (cprList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 saveCount = cprService.AddSalesAmazonAdCprList(cprList);
             }
         }
         if (strList != null) {
             if (strList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 saveCount = strService.AddSalesAmazonAdStrList(strList);
             }
         }
         if (oarList != null) {
             if (oarList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 saveCount = oarService.AddSalesAmazonAdOarList(oarList);
             }
         }
         if (hlList != null) {
             if (hlList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 saveCount = hlService.AddSalesAmazonAdHlList(hlList);
             }
         }
@@ -862,6 +848,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                 skuListNo.add(row.getCell(i).toString());
             }
             noSkuList.get().add(skuListNo);
+            noSkuList.set(noSkuList.get());
             return null;
         }
         return "success";
@@ -1230,8 +1217,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             if (csvReader != null) {
                 csvReader.close();
             }
-            //清空数据
-            CrrUtils.delList(noSkuList);
+            CrrUtils.clearListThread(noSkuList);
             count.set(0L);
             numberCount.set(0L);
         }
@@ -1262,6 +1248,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         } else if (tbId == Constants.BUSINESS_ID) {
             sfbList = ArrUtils.listT(tList);
         }
+        Map<String, Integer> intMap = new HashMap<>();
         timing.setMsg("正在校验数据..........");
         while (csvReader.readRecord()) {
             if (index >= row) {
@@ -1286,15 +1273,17 @@ public class ConsumerServiceImpl implements ConsumerService {
             }
             index++;
             //计算百分比
-            timing.setAttributesTim(index);
-            CrrUtils.inCreateSet(timSet, timing);
+            int currentCount = timing.setAttributesTim(index);
+            ws.schedule(intMap, currentCount, timSet, timing, 1L);
         }
         int number = 0;
+        //插入数据
+        timing.setMsg("正在导入数据库..........");
+        ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), 1L);
         //财务
         if (fsbList != null) {
             if (fsbList.size() > 0) {
                 //插入数据
-                timing.setMsg("正在导入数据库..........");
                 number = fsbService.addInfo(fsbList, tbId);
             }
         }
@@ -1653,6 +1642,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                 skuListNo.add(csvReader.get(i).replace(",", "."));
             }
             noSkuList.get().add(skuListNo);
+            noSkuList.set(noSkuList.get());
             return null;
         }
         return "success";
@@ -1824,7 +1814,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      */
     public ResponseBase printCount(Long begin, Timing timing, Long successNumber, int index) {
         timing.setInfo("success", "数据导入成功..........");
-        CrrUtils.inCreateSet(timSet, timing);
+        ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), 1L);
         // 结束时间
         Long end = new Date().getTime();
         return BaseApiService.setResultSuccess("总共" + index + "条数据/ 真实数据" + successNumber + "条数据插入成功/====>失败 " + sumErrorSku.get() + "条/花费时间 : " + (end - begin) / 1000 + " s");

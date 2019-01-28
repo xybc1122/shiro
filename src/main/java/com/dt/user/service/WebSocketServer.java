@@ -1,5 +1,8 @@
 package com.dt.user.service;
 
+import com.alibaba.fastjson.JSON;
+import com.dt.user.model.Timing;
+import com.dt.user.utils.CrrUtils;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.OnClose;
@@ -7,13 +10,15 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Map;
 
 @ServerEndpoint("/websocket")
 @Component
 public class WebSocketServer {
     //接收sid
-    private Integer uId = null;
+    private Long uId = null;
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
     //concurrent包的线程安全Set，用来存放每个客户端对应的MyWebSocket对象。
@@ -28,12 +33,8 @@ public class WebSocketServer {
     public void onOpen(Session session) {
         this.session = session;
         webSocketSet.add(this);
-        this.uId = 1;
-        try {
-            sendMessage("连接成功");
-        } catch (IOException e) {
-            System.out.println("websocket IO异常");
-        }
+        this.uId = 1L;
+        System.out.println("连接成功");
     }
 
 
@@ -44,7 +45,26 @@ public class WebSocketServer {
         this.session.getBasicRemote().sendText(message);
     }
 
-    public void sendInfo(String message, Integer uId) {
+    /**
+     * 封装处理上传页面的百分比进度
+     * @param intMap
+     * @param currentCount
+     * @param timSet
+     * @param timing
+     * @param uid
+     */
+    public void schedule(Map<String, Integer> intMap, int currentCount, ThreadLocal<Set<Timing>> timSet, Timing timing, Long uid) {
+        if (intMap.size() == 0) {
+            intMap.put("current", currentCount);
+        }
+        //如果值不一样 发送webSocket给前端
+        if (intMap.get("current") != currentCount) {
+            sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), uid);
+            intMap.put("current", currentCount);
+        }
+    }
+
+    public void sendInfo(String message, Long uId) {
         for (WebSocketServer item : webSocketSet) {
             //这里可以设定只推送给这个sid的，为null则全部推送
             try {

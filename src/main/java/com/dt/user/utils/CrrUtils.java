@@ -30,6 +30,7 @@ public class CrrUtils {
         numberCount.set(myNumberCount);
     }
 
+
     //set并发add
     public static Set<Timing> inCreateSet(ThreadLocal<Set<Timing>> timingSet, Timing timing) {
         Set<Timing> timings = timingSet.get();
@@ -44,7 +45,7 @@ public class CrrUtils {
     }
 
     //List清空数据
-    public static void delList(ThreadLocal<List<List<String>>> timingList) {
+    public static void clearListThread(ThreadLocal<List<List<String>>> timingList) {
         List<List<String>> timings = timingList.get();
         if (timings != null && timings.size() > 0) {
             timings.clear();
@@ -52,6 +53,7 @@ public class CrrUtils {
         }
     }
 
+    //List添加数据
     public static void inCreateList(ThreadLocal<List<List<String>>> timingList) {
         List<List<String>> strList = timingList.get();
         if (strList == null) {

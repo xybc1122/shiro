@@ -59,11 +59,16 @@ public class MenuController {
      * @return
      */
     @GetMapping("show")
-    public ResponseBase showMenu(HttpServletRequest request) {
+    public ResponseBase showMenu(HttpServletRequest request, @RequestParam("type") String type) {
         //获得用户信息
         UserInfo user = GetCookie.getUser(request);
         List<Menu> rootMenu; //父菜单List
         if (user != null) {
+            if (type.equals("undefined")) {
+                user.setType(0);
+            } else {
+                user.setType(Integer.parseInt(type));
+            }
             rootMenu = menuService.queryMenuList(user);
             List<Menu> menuList = new ArrayList<>();
             List<Menu> childMenuList = new ArrayList<>();

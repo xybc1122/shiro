@@ -93,7 +93,17 @@ public class UserInfo implements Serializable {
      */
     private String uIds;
 
+    //菜单type 分别 是菜单还是快捷按钮
 
+    private Integer type;
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 
     public String getrId() {
         return rId;

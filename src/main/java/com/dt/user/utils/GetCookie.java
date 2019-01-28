@@ -1,6 +1,5 @@
 package com.dt.user.utils;
 
-import com.dt.user.config.BaseApiService;
 import com.dt.user.model.UserInfo;
 
 import javax.servlet.http.Cookie;
