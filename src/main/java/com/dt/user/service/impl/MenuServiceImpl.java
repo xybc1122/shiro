@@ -23,20 +23,14 @@ public class MenuServiceImpl implements MenuService {
         return menuMapper.queryMenuList(userInfo);
     }
 
-    @Override
-    public List<Menu> findMenuList() {
-        List<Menu> listMenu = menuMapper.findMenuList();
-        List<Menu> NewMenu = new ArrayList<>();
-        for (Menu menu : listMenu) {
-            if (menu.getParentId() == 0) {
-                NewMenu.add(menu);
-            }
-        }
-        return NewMenu;
-    }
 
     @Override
     public List<Menu> findQueryByRoleId(Long roleId) {
         return menuMapper.findQueryByRoleId(roleId);
+    }
+
+    @Override
+    public int addMenu(List<Menu> menu) {
+        return menuMapper.addMenu(menu);
     }
 }

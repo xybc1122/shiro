@@ -3,7 +3,11 @@ package com.dt.user.provider;
 
 import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
+import com.dt.user.utils.StrUtils;
 import org.apache.ibatis.jdbc.SQL;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * video类构建动态sql语句
@@ -33,7 +37,25 @@ public class MenuProvider {
         }}.toString();
     }
 
-    public String addMenu(final Menu menu) {
-        return null;
+    @SuppressWarnings("unchecked")
+    public String addMenu(final Map<String, Object> menuMap) {
+        List<Menu> menus = (List<Menu>) menuMap.get("menuList");
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO `system_user_menu`\n" +
+                "(`name`,`parent_id`,`url`,`icon`,`menu_order`)values");
+        for (Menu m : menus) {
+            sb.append("(");
+            StrUtils.appBuider(sb, m.getName());
+            sb.append(",");
+            sb.append(m.getParentId() + ",");
+            StrUtils.appBuider(sb, m.getUrl());
+            sb.append(",");
+            StrUtils.appBuider(sb, m.getIcon());
+            sb.append(",");
+            sb.append(m.getMenuOrder());
+            sb.append("),");
+        }
+        String sql = sb.toString().substring(0, sb.length() - 1);
+        return sql;
     }
 }

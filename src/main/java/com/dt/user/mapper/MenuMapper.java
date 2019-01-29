@@ -36,20 +36,13 @@ public interface MenuMapper {
 
 
     /**
-     * 新增一个菜单
+     * 新增菜单
      *
      * @param menu
      * @return
      */
     @InsertProvider(type = MenuProvider.class, method = "addMenu")
-    @Options(useGeneratedKeys = true, keyProperty = "menuId", keyColumn = "menu_id")
-    int addMenu(Menu menu);
-
-    /**
-     * * 获取菜单表信息
-     */
-    @Select("select menu_id,`name`,parent_id,url,icon,menu_order from system_user_menu where parent_id=0 ORDER BY menu_order ASC")
-    List<Menu> findMenuList();
+    int addMenu(@Param("menuList") List<Menu> menu);
 
 
 }

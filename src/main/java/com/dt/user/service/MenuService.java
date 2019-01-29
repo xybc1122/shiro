@@ -14,10 +14,7 @@ public interface MenuService {
      */
     List<Menu> queryMenuList(UserInfo userInfo);
 
-    /**
-     * 获取菜单表信息
-     */
-    List<Menu>findMenuList();
+
 
     /**
      * 通过角色查询菜单
@@ -27,4 +24,11 @@ public interface MenuService {
     List<Menu> findQueryByRoleId(@Param("roleId") Long roleId);
 
 
+    /**
+     * 新增菜单
+     *
+     * @param menu
+     * @return
+     */
+    int addMenu(List<Menu> menu);
 }

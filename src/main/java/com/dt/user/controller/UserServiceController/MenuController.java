@@ -6,14 +6,13 @@ import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.MenuService;
 import com.dt.user.utils.GetCookie;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -24,6 +23,28 @@ import java.util.*;
 public class MenuController {
     @Autowired
     private MenuService menuService;
+
+    /**
+     * 菜单修改接口
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    @PostMapping("/up/menu")
+    public ResponseBase roleMenu(@RequestBody Map<String, Object> menuMap) {
+        List<LinkedHashMap> linkedMenu = (List<LinkedHashMap>) menuMap.get("newMenu");
+        if (linkedMenu == null) {
+            return BaseApiService.setResultError("参数为NUll");
+        }
+        //把LinkedHashMap类型转换java Ben
+        ObjectMapper mapper = new ObjectMapper();
+        List<Menu> menus = mapper.convertValue(linkedMenu, new TypeReference<List<Menu>>() { });
+        if (menus != null && menus.size() > 0) {
+            menuService.addMenu(menus);
+            //插入数据
+        }
+        return null;
+    }
 
     /**
      * 通过角色id获取菜单树列表
@@ -115,27 +136,4 @@ public class MenuController {
         }
         return childList;
     }
-
-    /**
-     * 查询所有的菜单列表
-     *
-     * @return
-     */
-    @GetMapping("/findMenuList")
-    public ResponseBase findMenuList() {
-        int page = 1;
-        int size = 50;
-        PageHelper.startPage(page, size);
-        List<Menu> listMenu = menuService.findMenuList();
-        //获得一些信息
-        PageInfo<Menu> pageInfo = new PageInfo<>(listMenu);
-        Map<String, Object> data = new HashMap<>();
-        data.put("total_size", pageInfo.getTotal());//总条数
-        data.put("total_page", pageInfo.getPages());//总页数
-        data.put("current_page", page);//当前页
-        data.put("users", pageInfo.getList());//数据
-        return BaseApiService.setResultSuccess(data);
-    }
-
-    //通过菜单id查询对应的表头信息
 }
