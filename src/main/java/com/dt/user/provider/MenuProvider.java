@@ -30,7 +30,7 @@ public class MenuProvider {
                 LEFT_OUTER_JOIN("system_user_role AS r  ON r.rid=ur.r_id");
                 LEFT_OUTER_JOIN("system_user_role_menu AS rm ON r.rid=rm.r_id");
                 LEFT_OUTER_JOIN("system_user_menu AS m  ON m.menu_id=rm.m_id");
-                WHERE("u.uid=" + user.getUid() + "and m.type=" + user.getType());
+                WHERE("u.uid=" + user.getUid() + " and m.type=" + user.getType());
                 GROUP_BY("m.menu_id");
                 ORDER_BY("m.`menu_order` asc");
             }

@@ -21,8 +21,9 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
-    public int delUserRole(Long rid, Long uid) {
-        return userRoleMapper.delUserRole(rid, uid);
+    public List<Long> getRoleIdList(Long uId) {
+        return userRoleMapper.getRoleIdList(uId);
     }
+
 
 }

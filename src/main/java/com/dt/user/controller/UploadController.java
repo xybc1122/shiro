@@ -88,7 +88,7 @@ public class UploadController {
                 String saveFilePath = Constants.SAVE_FILE_PATH;
                 // String contentType = file.getContentType();//图片||文件类型
                 String fileName = file.getOriginalFilename();//图片||文件名字
-                String uuId = UuIDUtils.uuId(fileName);
+                String uuId = UuIDUtils.fileUuId(fileName);
                 try {
                     FileUtils.uploadFile(file.getBytes(), saveFilePath, uuId);
                     msg = "上传成功~";

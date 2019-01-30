@@ -1,4 +1,5 @@
 package com.dt.user.mapper;
+
 import com.dt.user.dto.PageDto;
 import com.dt.user.model.Role;
 import com.dt.user.model.UserInfo;
@@ -16,6 +17,7 @@ public interface RoleMapper {
 
     /**
      * 查询所有的角色
+     *
      * @return
      */
     @Select("SELECT `rid`,`r_name`,`role_sign`FROM `system_user_role`")
@@ -25,7 +27,7 @@ public interface RoleMapper {
     /**
      * 查询一个角色下的所有用户跟 菜单
      *
-     * @param userDto
+     * @param
      * @return
      */
     @SelectProvider(type = RoleProvider.class, method = "findByRoleInfo")
