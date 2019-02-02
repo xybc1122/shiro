@@ -30,14 +30,6 @@ public interface UserMapper {
     List<UserInfo> getByUsers();
 
     /**
-     * 查找用户的角色
-     *
-     * @return
-     */
-    @SelectProvider(type = UserProvider.class, method = "findUserRole")
-    List<UserInfo> findByUserAndRole();
-
-    /**
      * 查找 账号管理信息
      */
     @SelectProvider(type = UserProvider.class, method = "findUsers")

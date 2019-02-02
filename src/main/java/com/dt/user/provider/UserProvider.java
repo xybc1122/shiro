@@ -15,12 +15,6 @@ import java.util.Date;
 public class UserProvider {
 
 
-    public String findUserRole() {
-
-
-        return null;
-    }
-
 
     public String findUsers(PageDto userDto) {
         return new SQL() {{
@@ -48,6 +42,10 @@ public class UserProvider {
     public String upUserInfo(Map<String, Object> userMap) {
         return new SQL() {{
             UPDATE("`system_user_info`");
+            if (userMap.get("name") != null && userMap.get("name") != "") {
+                String name = (String) userMap.get("name");
+                SET("name=" + "'" + name + "'");
+            }
             if (userMap.get("pwd") != null && userMap.get("pwd") != "") {
                 String pwd = (String) userMap.get("pwd");
                 String userName = (String) userMap.get("uName");

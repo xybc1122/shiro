@@ -1,6 +1,5 @@
 package com.dt.user.utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArrUtils {
@@ -35,7 +34,7 @@ public class ArrUtils {
             return false;
         }
         for (int i = 0; i < oneList.size(); i++) {
-            System.out.println(twoList.get(i).trim());
+            // System.out.println(twoList.get(i).trim());
             if (!(oneList.get(i)).equals(twoList.get(i).trim())) {
                 return false;
             }

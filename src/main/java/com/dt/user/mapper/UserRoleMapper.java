@@ -16,13 +16,10 @@ public interface UserRoleMapper {
     @InsertProvider(type = UserRoleProvider.class, method = "addUserRole")
     int addUserRole(@Param("userRoleList") List<UserRole> userRoleList);
 
+
     /**
-     * 通过一个用户ID查询所有角色id
-     *
-     * @return
+     * 移除角色
      */
-    @Select("SELECT `rid` FROM `system_user_role` AS r\n" +
-            "LEFT JOIN `system_user_role_user` AS ur ON ur.`r_id`=r.`rid`\n" +
-            "WHERE ur.`u_id`= #{uId}")
-    List<Long> getRoleIdList(@Param("uId") Long uId);
+    @Delete("DELETE FROM `system_user_role_user`WHERE r_id = #{rid} and u_id= #{uid}")
+    int delUserRole(@Param("rid") Long rid, @Param("uid") Long uid);
 }
