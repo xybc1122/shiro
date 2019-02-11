@@ -76,7 +76,7 @@ public class BaseRedisService {
      * @param key
      * @return
      */
-    public String getStirngKey(String key) {
+    public String getStringKey(String key) {
         if (key != null) {
             return this.ForValue().get(key);
         }

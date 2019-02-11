@@ -36,7 +36,7 @@ public class MenuController {
     @GetMapping("/token/menu")
     public ResponseBase checkMenuToken() {
         //获得redis token
-        String tokenRedis = redisService.getStirngKey("tokenMenu");
+        String tokenRedis = redisService.getStringKey("tokenMenu");
         //如果是空 说明还没更新
         if (StringUtils.isEmpty(tokenRedis)){
             return BaseApiService.setResultError("数据没更新");

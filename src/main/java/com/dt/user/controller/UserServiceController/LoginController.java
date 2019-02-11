@@ -60,7 +60,7 @@ public class LoginController extends BaseApiService {
     @PostMapping("/ajaxLogin")
     public ResponseBase login(@RequestBody PageDto userDto, HttpServletRequest request) {
         String userKey = userDto.getUserName() + "error";
-        String strRedis = redisService.getStirngKey(userKey);
+        String strRedis = redisService.getStringKey(userKey);
         //如果不等于null
         if (StringUtils.isNotEmpty(strRedis)) {
             Long ttlDate = redisService.getTtl(userKey);
