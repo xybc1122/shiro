@@ -4,7 +4,6 @@ package com.dt.user.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class UserInfo implements Serializable {
      * 修改时间
      */
     private Long upDate;
-    /**
+    /**effectiveDate
      * 用户有效时间
      */
     private Long effectiveDate;
@@ -96,6 +95,18 @@ public class UserInfo implements Serializable {
     //菜单type 分别 是菜单还是快捷按钮
 
     private Integer type;
+    /**
+     * 计算机名
+     */
+    private String computerName;
+
+    public String getComputerName() {
+        return computerName;
+    }
+
+    public void setComputerName(String computerName) {
+        this.computerName = computerName;
+    }
 
     public Integer getType() {
         return type;

@@ -8,6 +8,26 @@ public class PageDto extends UserInfo {
     private Integer pageSize;
 
     private boolean rememberMe; //记住我
+    //密码始终有效
+    private boolean pwdAlways;
+    //用户始终有效
+    private boolean uAlways;
+
+    public boolean isPwdAlways() {
+        return pwdAlways;
+    }
+
+    public void setPwdAlways(boolean pwdAlways) {
+        this.pwdAlways = pwdAlways;
+    }
+
+    public boolean isuAlways() {
+        return uAlways;
+    }
+
+    public void setuAlways(boolean uAlways) {
+        this.uAlways = uAlways;
+    }
 
     public Integer getCurrentPage() {
         return currentPage;

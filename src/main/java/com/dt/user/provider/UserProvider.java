@@ -15,7 +15,6 @@ import java.util.Date;
 public class UserProvider {
 
 
-
     public String findUsers(PageDto userDto) {
         return new SQL() {{
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
@@ -24,14 +23,47 @@ public class UserProvider {
             LEFT_OUTER_JOIN("system_user_role_user AS ur ON(ur.u_id=u.uid)");
             LEFT_OUTER_JOIN("system_user_role AS r ON(r.rid=ur.r_id)");
             LEFT_OUTER_JOIN("`hr_archives_employee` AS s ON(u.uid=s.u_id)");
+            //用户账号
             if (StringUtils.isNotBlank(userDto.getUserName())) {
                 WHERE("u.user_name=#{userName}");
             }
+            //用户名
             if (StringUtils.isNotBlank(userDto.getName())) {
                 WHERE("u.name=#{name}");
             }
+            //角色名字
             if (StringUtils.isNotBlank(userDto.getrName())) {
                 WHERE("r.r_name=#{rName}");
+            }
+            //密码有效期
+            if (userDto.getPwdStatus() != null) {
+                WHERE("u.pwd_status=#{pwdStatus}");
+                //始终有效
+            } else if (userDto.isPwdAlways()) {
+                WHERE("u.pwd_status=0");
+            }
+            //登陆时间
+            if (userDto.getLandingTime() != null) {
+                WHERE("u.landing_time=#{landingTime}");
+            }
+            //用户有效期间
+            if (userDto.getEffectiveDate() != null) {
+                WHERE("u.effective_date=#{effectiveDate}");
+                //始终有效
+            } else if (userDto.isuAlways()) {
+                WHERE("u.effective_date=0");
+            }
+            //计算机名
+            if (StringUtils.isNotBlank(userDto.getComputerName())) {
+                WHERE("u.computer_name=#{computerName}");
+            }
+            //用户状态
+            if (userDto.getAccountStatus() != null) {
+                WHERE("u.account_status=#{accountStatus}");
+            }
+            //用户手机
+            if (StringUtils.isNotBlank(userDto.getMobilePhone())) {
+                WHERE("s.mobile_phone=#{mobilePhone}");
             }
             WHERE("del_user=0");
             GROUP_BY("u.uid");

@@ -49,6 +49,9 @@ public class UserController {
      */
     @PostMapping("/show")
     public ResponseBase showUsers(@RequestBody PageDto pageDto) {
+        if (pageDto.getCurrentPage() == null || pageDto.getPageSize() == null) {
+            return BaseApiService.setResultError("分页参数失效");
+        }
         PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
         List<UserInfo> listUser = userService.findByUsers(pageDto);
         //获得一些信息
