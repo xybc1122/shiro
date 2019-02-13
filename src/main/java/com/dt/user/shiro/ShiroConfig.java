@@ -5,10 +5,7 @@ import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.SessionListener;
 import org.apache.shiro.session.mgt.SessionManager;
-import org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO;
-import org.apache.shiro.session.mgt.eis.JavaUuidSessionIdGenerator;
-import org.apache.shiro.session.mgt.eis.SessionDAO;
-import org.apache.shiro.session.mgt.eis.SessionIdGenerator;
+import org.apache.shiro.session.mgt.eis.*;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -103,14 +100,13 @@ public class ShiroConfig {
     @Bean
     public SessionDAO sessionDAO() {
         EnterpriseCacheSessionDAO enterpriseCacheSessionDAO = new EnterpriseCacheSessionDAO();
-        //使用ehCacheManager
-        //enterpriseCacheSessionDAO.setCacheManager(ehCacheManager());
         //设置session缓存的名字 默认为 shiro-activeSessionCache
         enterpriseCacheSessionDAO.setActiveSessionsCacheName("shiro-activeSessionCache");
         //sessionId生成器
         enterpriseCacheSessionDAO.setSessionIdGenerator(sessionIdGenerator());
         return enterpriseCacheSessionDAO;
     }
+
 
     /**
      * 配置保存sessionId的cookie
@@ -131,7 +127,7 @@ public class ShiroConfig {
         simpleCookie.setHttpOnly(true);
         simpleCookie.setPath("/");
         //maxAge=-1 表示浏览器关闭时失效此Cookie 30分钟
-        simpleCookie.setMaxAge(60 * 30);
+        simpleCookie.setMaxAge(60 * 60);
         return simpleCookie;
     }
 
@@ -155,7 +151,6 @@ public class ShiroConfig {
         simpleCookie.setMaxAge(60 * 60 * 24 * 7);
         return simpleCookie;
     }
-
     /**
      * 配置会话管理器，设定会话超时及保存
      *
@@ -298,6 +293,8 @@ public class ShiroConfig {
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager());
         return authorizationAttributeSourceAdvisor;
     }
+
+
 
 
 }

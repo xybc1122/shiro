@@ -6,8 +6,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 public class GetCookie {
+
     /**
-     * 获得cookie里面的token
+     * 获得cookie里面的RememberMe
      *
      * @param request
      * @return

@@ -49,7 +49,8 @@ public class UserInfo implements Serializable {
      * 修改时间
      */
     private Long upDate;
-    /**effectiveDate
+    /**
+     * effectiveDate
      * 用户有效时间
      */
     private Long effectiveDate;
@@ -87,6 +88,9 @@ public class UserInfo implements Serializable {
     private Long delDate;
     //恢复时记录的时间
     private Long restoreDate;
+    
+    //首次登陆是否修改密码
+    private Boolean isFirstLogin;
     /**
      * 用户ids
      */
@@ -99,6 +103,14 @@ public class UserInfo implements Serializable {
      * 计算机名
      */
     private String computerName;
+
+    public Boolean getFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        isFirstLogin = firstLogin;
+    }
 
     public String getComputerName() {
         return computerName;

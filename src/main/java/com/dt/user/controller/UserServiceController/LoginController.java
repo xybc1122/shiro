@@ -9,10 +9,12 @@ import com.dt.user.dto.PageDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
+import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -58,7 +60,7 @@ public class LoginController extends BaseApiService {
      */
     @ResponseBody
     @PostMapping("/ajaxLogin")
-    public ResponseBase login(@RequestBody PageDto userDto, HttpServletRequest request) {
+    public ResponseBase login(@RequestBody PageDto userDto) {
         String userKey = userDto.getUserName() + "error";
         String strRedis = redisService.getStringKey(userKey);
         //如果不等于null
@@ -88,6 +90,9 @@ public class LoginController extends BaseApiService {
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
+                //登陆保存session ID 到redis
+                Session session = currentUser.getSession();
+                redisService.setString("sId" + user.getUserName(), session.getId(), 60 * 60L);
                 //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
@@ -96,7 +101,7 @@ public class LoginController extends BaseApiService {
             } else {
                 return BaseApiService.setResultSuccess("已登陆");
             }
-        } catch (IncorrectCredentialsException ie) {
+        } catch (IncorrectCredentialsException | UnknownAccountException ie) {
             return setLockingTime(userDto);
 
         } catch (AuthenticationException ae) {

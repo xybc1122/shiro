@@ -27,7 +27,7 @@ public class DBExceptionHandler {
      */
     @ExceptionHandler(AuthorizationException.class)
     public Object handleAuthorizationException(AuthorizationException e, HttpServletRequest request) {
-        logger.error(e.getMessage(), e);
+        logger.error("没有权限操作");
         return BaseApiService.setResultError("没有权限操作");
     }
 }

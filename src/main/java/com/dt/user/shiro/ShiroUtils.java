@@ -1,11 +1,20 @@
 package com.dt.user.shiro;
 
+import com.dt.user.config.BaseApiService;
 import com.dt.user.model.UserInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 
+@Configuration
+public class ShiroUtils extends BaseApiService {
 
-public class ShiroUtils {
+    @Autowired
+    private SessionDAO sessionDAO;
 
     public static Subject getSubjct() {
 
@@ -17,8 +26,33 @@ public class ShiroUtils {
         return (UserInfo) object;
     }
 
-    public static Long getUserId() {
+    /**
+     * 踢出用户
+     *
+     * @param uName
+     */
+    public String kickOutUser(String uName) {
+        try {
+            //获得redis里面的session 会话
+            String redisSessionId = baseRedisService.getStringKey("sId" + uName);
+            if (StringUtils.isNotBlank(redisSessionId)) {
+                Session session = sessionDAO.readSession(redisSessionId);
+                //删除这个踢出session
+                if(session !=null){
+                    session.stop();
+                    sessionDAO.delete(session);
+                }
+                sessionDAO.delete(session);
+            }
+        }catch (Exception e){
+            return null;
+        }
+        return null;
+    }
 
+
+    //获得用户ID
+    public static Long getUserId() {
         return getUser().getUid();
     }
 

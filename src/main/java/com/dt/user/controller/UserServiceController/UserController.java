@@ -5,16 +5,20 @@ import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.PageDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.model.UserRole;
-import com.dt.user.service.StaffService;
+import com.dt.user.service.HrArchivesEmployeeService;
 import com.dt.user.service.UserRoleService;
 import com.dt.user.service.UserService;
+import com.dt.user.shiro.ShiroUtils;
 import com.dt.user.utils.DateUtils;
 import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.PageInfoUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,13 +32,15 @@ import java.util.*;
 public class UserController {
 
     @Autowired
+    private ShiroUtils shiroUtils;
+    @Autowired
     private UserService userService;
 
     @Autowired
-    private StaffService staffService;
+    private HrArchivesEmployeeService hrService;
 
     @Autowired
-    private UserRoleService userRoleSerivce;
+    private UserRoleService userRoleService;
 
     @RequestMapping("/index")
     public ResponseBase index() {
@@ -47,6 +53,8 @@ public class UserController {
      * @param pageDto
      * @return
      */
+    //shiro权限控制
+    @RequiresPermissions("sys:add")
     @PostMapping("/show")
     public ResponseBase showUsers(@RequestBody PageDto pageDto) {
         if (pageDto.getCurrentPage() == null || pageDto.getPageSize() == null) {
@@ -79,9 +87,27 @@ public class UserController {
     //shiro权限控制
     @RequiresPermissions("sys:up")
     @PostMapping("/upUserInfo")
+    @Transactional
     public ResponseBase userInfoUp(@RequestBody Map<String, Object> userMap) {
-        userService.upUser(userMap);
-        return BaseApiService.setResultSuccess();
+        //更新用户信息
+        try {
+            userService.upUser(userMap);
+            String uMobilePhone = (String) userMap.get("uMobilePhone");
+            if (StringUtils.isNotBlank(uMobilePhone)) {
+                //更新员工信息
+                hrService.upHrInfo(userMap);
+            }
+            //先判断是否为空
+            String pwd = (String) userMap.get("pwd");
+            //如果不是空 说明已经修改了密码
+            if (StringUtils.isNotBlank(pwd)) {
+                //踢出用户 如果是null  说明没有这个用户在线 //这里还有个问题要更新 记住我用户 踢不出去
+                shiroUtils.kickOutUser((String) userMap.get("uName"));
+            }
+            return BaseApiService.setResultSuccess("更新成功");
+        } catch (Exception e) {
+            return BaseApiService.setResultSuccess("更新失败");
+        }
     }
 
     /**
@@ -172,10 +198,16 @@ public class UserController {
             Boolean checkedUpPwd = (Boolean) userMap.get("checkedUpPwd");
             Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
-            LinkedHashMap staffValue = (LinkedHashMap) userMap.get("staffValue");
+            Integer staffValue = (Integer) userMap.get("staffValue");
             List<Integer> rolesId = (List<Integer>) userMap.get("rolesId");
             Long effectiveDate = (Long) userMap.get("effectiveDate");
             UserInfo userInfo = new UserInfo();
+            //首次登陆是否修改密码
+            if (checkedUpPwd) {
+                userInfo.setFirstLogin(true);
+            } else {
+                userInfo.setFirstLogin(false);
+            }
             userInfo.setUserName(userName);
             //md5盐值密码加密
             ByteSource salt = ByteSource.Util.bytes(userName);
@@ -203,20 +235,19 @@ public class UserController {
                     userInfo.setPwdStatus(DateUtils.getRearDate(Integer.parseInt(pwdAlwaysInput)));
                 }
             }
-            userInfo.setName(staffValue.get("employeeName").toString());
-            //更新员工信息
+            //新增用户
             userService.saveUserInfo(userInfo);
             Long uid = userInfo.getUid();
-            Long sid = Long.parseLong(staffValue.get("sId").toString());
+            Long sid = staffValue.longValue();
             //关联员工信息 更新
-            staffService.upStaffInfo(uid, sid);
+            hrService.bindHrInfo(uid, sid);
             //新增角色信息
             List<UserRole> urList = new ArrayList<>();
             UserRole userRole = new UserRole();
             userRole.setuId(uid);
             userRole.setrIds(rolesId);
             urList.add(userRole);
-            userRoleSerivce.addUserRole(urList);
+            userRoleService.addUserRole(urList);
             return BaseApiService.setResultSuccess("新增成功~");
         }
         return BaseApiService.setResultError("token失效");

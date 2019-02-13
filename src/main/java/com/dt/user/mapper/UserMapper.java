@@ -92,8 +92,8 @@ public interface UserMapper {
     /**
      * 新增一个用户
      */
-    @Insert("insert into system_user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,account_status,name) "
-            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{accountStatus},#{name})")
+    @Insert("insert into system_user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,account_status,name,is_first_login) "
+            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{accountStatus},#{name},#{isFirstLogin})")
     @Options(useGeneratedKeys = true, keyProperty = "uid", keyColumn = "uid")
     int saveUserInfo(UserInfo userInfo);
 }
