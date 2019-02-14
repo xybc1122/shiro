@@ -70,6 +70,8 @@ public class LoginController extends BaseApiService {
         }
         //获得shiro Subject对象
         Subject currentUser = SecurityUtils.getSubject();
+        //登陆保存session ID 到redis
+        Session session = currentUser.getSession();
         // dataUserJSON
         JSONObject dataUserJson;
         UserInfo user;
@@ -90,10 +92,8 @@ public class LoginController extends BaseApiService {
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
-                //登陆保存session ID 到redis
-                Session session = currentUser.getSession();
-                redisService.setString("sId" + user.getUserName(), session.getId(), 60 * 60L);
-                //登陆成功后 删除Map指定元素
+                redisService.setString("sId" + user.getUserName(), session.getId(), 60 * 60 * 24L);
+                //                //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
                 }

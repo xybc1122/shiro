@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 @RequestMapping("menu")
 public class MenuController {
+
     @Autowired
     private MenuService menuService;
 
@@ -48,7 +49,6 @@ public class MenuController {
 
     /**
      * 菜单修改接口
-     *
      * @return
      */
     @SuppressWarnings("unchecked")

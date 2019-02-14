@@ -127,7 +127,7 @@ public class ShiroConfig {
         simpleCookie.setHttpOnly(true);
         simpleCookie.setPath("/");
         //maxAge=-1 表示浏览器关闭时失效此Cookie 30分钟
-        simpleCookie.setMaxAge(60 * 60);
+        simpleCookie.setMaxAge(60 * 60 * 24);
         return simpleCookie;
     }
 
@@ -151,6 +151,7 @@ public class ShiroConfig {
         simpleCookie.setMaxAge(60 * 60 * 24 * 7);
         return simpleCookie;
     }
+
     /**
      * 配置会话管理器，设定会话超时及保存
      *
@@ -237,9 +238,11 @@ public class ShiroConfig {
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
-        //其他资源都需要认证  authc 表示需要认证才能进行访问
+        filterChainDefinitionMap.put("/websocket", "anon");
         // user表示配置记住我或认证通过可以访问的地址
         filterChainDefinitionMap.put("/**", "user");
+//        //其他资源都需要认证  authc 表示需要认证才能进行访问
+//        filterChainDefinitionMap.put("/**", "authc");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }
@@ -293,8 +296,6 @@ public class ShiroConfig {
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager());
         return authorizationAttributeSourceAdvisor;
     }
-
-
 
 
 }

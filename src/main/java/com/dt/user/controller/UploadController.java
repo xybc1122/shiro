@@ -41,11 +41,7 @@ public class UploadController {
     public ResponseBase downloadFile(HttpServletRequest
                                              request, HttpServletResponse response, @RequestBody Map<String, Object> fileMap) {
         String filePath = (String) fileMap.get("filePath");
-        try {
-            FileUtils.downloadFile(filePath, response, request);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        FileUtils.downloadFile(filePath, response, request);
         return null;
     }
 

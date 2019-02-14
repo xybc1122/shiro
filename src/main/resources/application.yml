@@ -22,11 +22,11 @@ spring:
   redis:
     database: 0
     #连接的地址
-    host: 120.79.153.77
+    host: 192.168.1.191
     #超时时间：单位ms
     timeout: 3000
     #端口号
-    port: 6379
+    port: 6380
     ##最大连接数：能够同时建立的“最大链接个数”
     pool:
       maxActive: 2000

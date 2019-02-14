@@ -1,13 +1,8 @@
 package com.dt.user.utils;
-
-import com.sun.deploy.net.URLEncoder;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URLEncoder;
 import java.util.Scanner;
 
 public class FileUtils {
@@ -97,7 +92,7 @@ public class FileUtils {
     /**
      * 下载文件
      */
-    public static void downloadFile(String path, HttpServletResponse response, HttpServletRequest request) throws IOException {
+    public static void downloadFile(String path, HttpServletResponse response, HttpServletRequest request){
         try (InputStream fis = new BufferedInputStream(new FileInputStream(path));
              OutputStream toClient = new BufferedOutputStream(response.getOutputStream())
         ) {

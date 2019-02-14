@@ -11,7 +11,7 @@ public class UserUploadProvider {
 
     public String findUpInfo(UserUpload upload) {
         return new SQL() {{
-            SELECT("`id`,`name`,`create_date`,`del_date`,`del_date_id`,`remark`,`file_path`,`write_file_path`,`status`");
+            SELECT("`id`,`uuid_name`,`name`,`create_date`,`del_date`,`del_date_id`,`remark`,`file_path`,`write_file_path`,`status`");
             FROM("system_user_upload");
             if (upload.getUid() != null) {
                 WHERE("uid=" + upload.getUid());

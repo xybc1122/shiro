@@ -41,13 +41,14 @@ public class ShiroUtils extends BaseApiService {
                 if(session !=null){
                     session.stop();
                     sessionDAO.delete(session);
+                    //删除缓存session Id
+                    baseRedisService.delData("sId" + uName);
                 }
-                sessionDAO.delete(session);
             }
         }catch (Exception e){
             return null;
         }
-        return null;
+        return "ok";
     }
 
 
@@ -57,7 +58,6 @@ public class ShiroUtils extends BaseApiService {
     }
 
     public static void logout() {
-
         getSubjct().logout();
     }
 

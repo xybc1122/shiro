@@ -23,6 +23,7 @@ public class RoleController {
 
     /**
      * 查询所有角色信息
+     *
      * @return
      */
     @GetMapping("/findByListRoles")
@@ -34,15 +35,19 @@ public class RoleController {
 
     /**
      * 查询一个角色下的所有用户跟菜单
+     *
      * @param pageDto
      * @return
      */
     @PostMapping("/getRoles")
     public ResponseBase getRoles(@RequestBody PageDto pageDto) {
-        PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
-        List<UserInfo> listRoles = roleService.findByRoleInfo(pageDto);
-        PageInfo<UserInfo> pageInfo = new PageInfo<>(listRoles);
-        Integer currentPage = pageDto.getCurrentPage();
-        return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
+        if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
+            PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
+            List<UserInfo> listRoles = roleService.findByRoleInfo(pageDto);
+            PageInfo<UserInfo> pageInfo = new PageInfo<>(listRoles);
+            Integer currentPage = pageDto.getCurrentPage();
+            return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
+        }
+        return BaseApiService.setResultError("分页参数错误");
     }
 }

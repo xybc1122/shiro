@@ -2,6 +2,7 @@ package com.dt.user.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.Serializable;
 import java.util.List;
@@ -88,7 +89,7 @@ public class UserInfo implements Serializable {
     private Long delDate;
     //恢复时记录的时间
     private Long restoreDate;
-    
+
     //首次登陆是否修改密码
     private Boolean isFirstLogin;
     /**
