@@ -200,7 +200,7 @@ public class UserController {
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
             Integer staffValue = (Integer) userMap.get("staffValue");
             List<Integer> rolesId = (List<Integer>) userMap.get("rolesId");
-            Long effectiveDate = (Long) userMap.get("effectiveDate");
+            //这里前端会传空字符串 或者 Long类型数据 要判断
             UserInfo userInfo = new UserInfo();
             //首次登陆是否修改密码
             if (checkedUpPwd) {
@@ -219,6 +219,7 @@ public class UserController {
             if (checkedUserAlways) {
                 userInfo.setEffectiveDate(0L);
             } else {
+                Long effectiveDate = (Long) userMap.get("effectiveDate");
                 //设置 用户有效时间
                 userInfo.setEffectiveDate(effectiveDate);
             }
@@ -226,14 +227,9 @@ public class UserController {
             if (checkedPwdAlways) {
                 userInfo.setPwdStatus(0L);
             } else {
-                //前台会传2个类型参数 根据判断转换 来设计用户 密码有效时间
-                if (userMap.get("pwdAlwaysInput") instanceof Integer) {
-                    Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
-                    userInfo.setPwdStatus(DateUtils.getRearDate(pwdAlwaysInput));
-                } else {
-                    String pwdAlwaysInput = (String) userMap.get("pwdAlwaysInput");
-                    userInfo.setPwdStatus(DateUtils.getRearDate(Integer.parseInt(pwdAlwaysInput)));
-                }
+                //前台会传2个类型参数 根据判断转换 来设计 用户 密码有效时间
+                Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
+                userInfo.setPwdStatus(DateUtils.getRearDate(pwdAlwaysInput));
             }
             //新增用户
             userService.saveUserInfo(userInfo);
