@@ -237,7 +237,7 @@ public class ShiroConfig {
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/api/ajaxLogin", "anon");
-        filterChainDefinitionMap.put("/api/websocket", "anon");
+        filterChainDefinitionMap.put("/websocket", "anon");
         // user表示配置记住我或认证通过可以访问的地址
         filterChainDefinitionMap.put("/**", "user");
 //        //其他资源都需要认证  authc 表示需要认证才能进行访问

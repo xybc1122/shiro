@@ -1785,22 +1785,14 @@ public class ConsumerServiceImpl implements ConsumerService {
      */
     private UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String saveFilePath, String uuIdName) {
         UserUpload upload = new UserUpload(id, new Date().getTime());
-        if (status != 0) {
-            if (status == 3) {
-                upload.setStatus(status);
-            }
-            if (status == 2) {
-                upload.setUuidName(uuIdName);
-                upload.setName(fileName);
-                upload.setFilePath(saveFilePath);
-                upload.setStatus(status);
-            }
-            if (status == 1) {
-                upload.setStatus(status);
-            }
-            upload.setRemark(msg);
-            userUploadService.upUploadInfo(upload);
+        if (status == 2) {
+            upload.setUuidName(uuIdName);
+            upload.setFilePath(saveFilePath);
         }
+        upload.setName(fileName);
+        upload.setStatus(status);
+        upload.setRemark(msg);
+        userUploadService.upUploadInfo(upload);
         return upload;
 
     }
