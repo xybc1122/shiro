@@ -647,8 +647,20 @@ public class ConsumerServiceImpl implements ConsumerService {
             int totalNumber = sheet.getRow(0).getPhysicalNumberOfCells(); //获取总列数
             //拿到数据库的表头 进行校验 !!!这里还可以优化 暂定
             List<String> head = getHeadInfo(siteId, tbId, null);
+            Row row;
+            Cell cell;
+            List<String> xlsListHead = new ArrayList<>();
+            for (int i = 0; i < 1; i++) {
+                row = sheet.getRow(i);
+                for (int j = 0; j < totalNumber; j++) {
+                    cell = row.getCell(j);
+                    //拿到数据表的表头
+                    xlsListHead.add(cell.toString().trim());
+                    System.out.println(cell.toString().trim());
+                }
+            }
             //对比表头
-            boolean isFlg = compareHeadXls(totalNumber, sheet, head);
+            boolean isFlg = compareHeadXls(xlsListHead, head);
             //必须在 setTiming.add 前设置id
             timing.setInfo(fileName, recordingId);
             //如果表头对比失败
@@ -656,7 +668,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                 //返回错误信息
                 return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", filePath, uuIdName);
             }
-            responseBase = saveXls(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing);
+            responseBase = saveXls(shopId, siteId, uid, recordingId, totalNumber, head, tbId, sheet, timing, xlsListHead);
             return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1, filePath, uuIdName);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -681,7 +693,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      */
     public ResponseBase saveXls(Long shopId, Long siteId, Long uid, Long
-            recordingId, int totalNumber, List<String> head, Integer tbId, Sheet sheet, Timing timing) {
+            recordingId, int totalNumber, List<String> head, Integer tbId, Sheet sheet, Timing timing, List<String> xlsListHead) {
         // 开始时间
         Long begin = new Date().getTime();
         Row row;
@@ -733,7 +745,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                 adStr = setStr(shopId, siteId, uid, recordingId);
                 for (int j = 0; j < totalNumber; j++) {
                     cell = row.getCell(j);
-                    adStr = setStrPojo(j, adStr, cell);
+                    adStr = setStrPojo(j, adStr, cell, head, xlsListHead);
                 }
                 strList.add(adStr);
                 //106 oar
@@ -921,66 +933,35 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * set pojo str
      */
-    public SalesAmazonAdStr setStrPojo(int j, SalesAmazonAdStr adStr, Cell cell) {
+    public SalesAmazonAdStr setStrPojo(int j, SalesAmazonAdStr adStr, Cell cell, List<String> head, List<String> xlsListHead) {
         String strAdStr;
-        switch (j) {
-            case 0:
-                adStr.setDate(lon(cell));
-                break;
-            case 2:
-                strAdStr = str(cell);
-                adStr.setCampaignName(strAdStr);
-                break;
-            case 3:
-                strAdStr = str(cell);
-                adStr.setAdGroupName(strAdStr);
-                break;
-            case 4:
-                strAdStr = str(cell);
-                adStr.setTargeting(strAdStr);
-                break;
-            case 5:
-                strAdStr = str(cell);
-                adStr.setMatchType(strAdStr);
-                break;
-            case 6:
-                strAdStr = str(cell);
-                adStr.setCustomerSearchTerm(strAdStr);
-                break;
-            case 7:
-                adStr.setImpressions(dou(cell));
-                break;
-            case 8:
-                adStr.setClicks(dou(cell));
-                break;
-            case 11:
-                adStr.setTotalSpend(dou(cell));
-                break;
-            case 12:
-                adStr.setSales(dou(cell));
-                break;
-            case 14:
-                adStr.setRoas(dou(cell));
-                break;
-            case 15:
-                adStr.setOrdersPlaced(dou(cell));
-                break;
-            case 16:
-                adStr.setTotalUnits(dou(cell));
-                break;
-            case 18:
-                adStr.setAdvertisedSkuUnitsOrdered(dou(cell));
-                break;
-            case 19:
-                adStr.setOtherSkuUnitsOrdered(dou(cell));
-                break;
-            case 20:
-                adStr.setAdvertisedSkuUnitsSales(dou(cell));
-                break;
-            case 21:
-                adStr.setOtherSkuUnitsSales(dou(cell));
-                break;
-        }
+        if (xlsListHead.get(j).equals(head.get(j))) adStr.setDate(lon(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) {
+            strAdStr = str(cell);
+            adStr.setCampaignName(strAdStr);
+        } else if (xlsListHead.get(j).equals(head.get(j))) {
+            strAdStr = str(cell);
+            adStr.setAdGroupName(strAdStr);
+        } else if (xlsListHead.get(j).equals(head.get(j))) {
+            strAdStr = str(cell);
+            adStr.setTargeting(strAdStr);
+        } else if (xlsListHead.get(j).equals(head.get(j))) {
+            strAdStr = str(cell);
+            adStr.setMatchType(strAdStr);
+        } else if (xlsListHead.get(j).equals(head.get(j))) {
+            strAdStr = str(cell);
+            adStr.setCustomerSearchTerm(strAdStr);
+        } else if (xlsListHead.get(j).equals(head.get(j))) adStr.setImpressions(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setClicks(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setTotalSpend(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setSales(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setRoas(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setOrdersPlaced(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setTotalUnits(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setAdvertisedSkuUnitsOrdered(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setOtherSkuUnitsOrdered(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setAdvertisedSkuUnitsSales(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setOtherSkuUnitsSales(dou(cell));
         return adStr;
     }
 
@@ -1140,18 +1121,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param sheet
      * @return
      */
-    public boolean compareHeadXls(int totalNumber, Sheet sheet, List<String> slqHead) {
-        Row row;
-        Cell cell;
-        List<String> twoList = new ArrayList<>();
-        for (int i = 0; i < 1; i++) {
-            row = sheet.getRow(i);
-            for (int j = 0; j < totalNumber; j++) {
-                cell = row.getCell(j);
-                twoList.add(cell.toString().trim());
-                System.out.println(cell.toString().trim());
-            }
-        }
+    public boolean compareHeadXls(List<String> xlsListHead, List<String> slqHead) {
         return ArrUtils.eqOrderList(slqHead, twoList);
     }
     //#######################Xls
