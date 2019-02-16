@@ -935,33 +935,33 @@ public class ConsumerServiceImpl implements ConsumerService {
      */
     public SalesAmazonAdStr setStrPojo(int j, SalesAmazonAdStr adStr, Cell cell, List<String> head, List<String> xlsListHead) {
         String strAdStr;
-        if (xlsListHead.get(j).equals(head.get(j))) adStr.setDate(lon(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) {
+        if (xlsListHead.get(j).equals(head.get(0))) adStr.setDate(lon(cell));
+        else if (xlsListHead.get(j).equals(head.get(2))) {
             strAdStr = str(cell);
             adStr.setCampaignName(strAdStr);
-        } else if (xlsListHead.get(j).equals(head.get(j))) {
+        } else if (xlsListHead.get(j).equals(head.get(3))) {
             strAdStr = str(cell);
             adStr.setAdGroupName(strAdStr);
-        } else if (xlsListHead.get(j).equals(head.get(j))) {
+        } else if (xlsListHead.get(j).equals(head.get(4))) {
             strAdStr = str(cell);
             adStr.setTargeting(strAdStr);
-        } else if (xlsListHead.get(j).equals(head.get(j))) {
+        } else if (xlsListHead.get(j).equals(head.get(5))) {
             strAdStr = str(cell);
             adStr.setMatchType(strAdStr);
-        } else if (xlsListHead.get(j).equals(head.get(j))) {
+        } else if (xlsListHead.get(j).equals(head.get(6))) {
             strAdStr = str(cell);
             adStr.setCustomerSearchTerm(strAdStr);
-        } else if (xlsListHead.get(j).equals(head.get(j))) adStr.setImpressions(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setClicks(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setTotalSpend(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setSales(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setRoas(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setOrdersPlaced(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setTotalUnits(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setAdvertisedSkuUnitsOrdered(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setOtherSkuUnitsOrdered(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setAdvertisedSkuUnitsSales(dou(cell));
-        else if (xlsListHead.get(j).equals(head.get(j))) adStr.setOtherSkuUnitsSales(dou(cell));
+        } else if (xlsListHead.get(j).equals(head.get(7))) adStr.setImpressions(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(8))) adStr.setClicks(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(11))) adStr.setTotalSpend(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(12))) adStr.setSales(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(14))) adStr.setRoas(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(15))) adStr.setOrdersPlaced(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(16))) adStr.setTotalUnits(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(18))) adStr.setAdvertisedSkuUnitsOrdered(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(19))) adStr.setOtherSkuUnitsOrdered(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(20))) adStr.setAdvertisedSkuUnitsSales(dou(cell));
+        else if (xlsListHead.get(j).equals(head.get(21))) adStr.setOtherSkuUnitsSales(dou(cell));
         return adStr;
     }
 
@@ -1122,7 +1122,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      */
     public boolean compareHeadXls(List<String> xlsListHead, List<String> slqHead) {
-        return ArrUtils.eqOrderList(slqHead, twoList);
+        return ArrUtils.eqOrderList(slqHead, xlsListHead);
     }
     //#######################Xls
 
