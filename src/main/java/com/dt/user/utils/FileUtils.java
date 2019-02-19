@@ -1,4 +1,5 @@
 package com.dt.user.utils;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -31,6 +32,22 @@ public class FileUtils {
                 out.close();
             }
         }
+    }
+
+    /**
+     * 封装获得编码格式 适用于TXT  CSV
+     *
+     * @param filePath
+     * @return
+     * @throws FileNotFoundException
+     * @throws UnsupportedEncodingException
+     */
+    public static InputStreamReader streamReader(String filePath) throws Exception {
+        String fileEncode = EncodingDetect.getJavaEncode(filePath);
+        if (fileEncode == null) {
+            throw new Exception("filePath加载文件路径不存在");
+        }
+        return new InputStreamReader(new FileInputStream(filePath), fileEncode);
     }
 
     /**
@@ -92,7 +109,7 @@ public class FileUtils {
     /**
      * 下载文件
      */
-    public static void downloadFile(String path, HttpServletResponse response, HttpServletRequest request){
+    public static void downloadFile(String path, HttpServletResponse response, HttpServletRequest request) {
         try (InputStream fis = new BufferedInputStream(new FileInputStream(path));
              OutputStream toClient = new BufferedOutputStream(response.getOutputStream())
         ) {

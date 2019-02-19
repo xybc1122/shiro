@@ -39,6 +39,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.Future;
 
+/**
+ * 文件处理数据接口
+ */
 @Service
 public class ConsumerServiceImpl implements ConsumerService {
 
@@ -142,7 +145,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + uuIdName;
-        try (InputStreamReader read = streamReader(filePath);
+        try (InputStreamReader read = FileUtils.streamReader(filePath);
              BufferedReader br = new BufferedReader(read)
         ) {
             //拿到数据库的表头 进行校验
@@ -284,7 +287,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             ws.schedule(intMap, currentCount, timSet, timing, ShiroUtils.getUserId());
         }
         //插入数据
-        timing.setMsg("正在导入数据库..........");
+        timing.setMsg(Constants.IMPORT_SQL);
         ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), ShiroUtils.getUserId());
         int countTrad = 0;
         if (safTradList != null) {
@@ -717,11 +720,11 @@ public class ConsumerServiceImpl implements ConsumerService {
             index++;
             //计算百分比
             int currentCount = timing.setAttributesTim(index);
-            ws.schedule(intMap, currentCount, timSet, timing, 1L);
+            ws.schedule(intMap, currentCount, timSet, timing, ShiroUtils.getUserId());
         }
         int saveCount = 0;
         //插入数据
-        timing.setMsg("正在导入数据库..........");
+        timing.setMsg(Constants.IMPORT_SQL);
         ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), ShiroUtils.getUserId());
         if (cprList != null) {
             if (cprList.size() > 0) {
@@ -1029,8 +1032,6 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * 对比xls 表头信息是否一致
      *
-     * @param totalNumber
-     * @param sheet
      * @return
      */
     public boolean compareHeadXls(List<String> xlsListHead, List<String> slqHead) {
@@ -1041,6 +1042,8 @@ public class ConsumerServiceImpl implements ConsumerService {
 
     //#######################Csv
     @Override
+    @Transactional
+    @Async("executor")
     public Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime) {
         future = new AsyncResult<>(threadCsv(uuIdName, saveFilePath, fileName, siteId, shopId, uid,
                 pId, recordingId, tbId, businessTime));
@@ -1087,7 +1090,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             //返回错误信息
             return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
         }
-        try (InputStreamReader isr = streamReader(filePath)) {
+        try (InputStreamReader isr = FileUtils.streamReader(filePath)) {
             csvReader = new CsvReader(isr);
             //设置文件总数
             timing.setFileCount(filePath);
@@ -1124,7 +1127,6 @@ public class ConsumerServiceImpl implements ConsumerService {
         int index = 0;
         FinancialSalesBalance fb;
         SalesAmazonFbaBusinessreport sfb;
-
         List<?> tList = new ArrayList<>();
         if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
             fsbList = ArrUtils.listT(tList);
@@ -1143,14 +1145,26 @@ public class ConsumerServiceImpl implements ConsumerService {
                 CrrUtils.inCreateNumberLong(count);
                 //85 == 财务上传ID | 104 运营上传
                 if (tbId == Constants.FINANCE_ID || tbId == Constants.FINANCE_ID_YY) {
-                    fb = saveFinance(setFsb(sId, seId, uid, pId.longValue(), recordingId), csvReader, sId, seId, csvHeadList, isImportHead, index);
+                    fb = setFsb(sId, seId, uid, pId.longValue(), recordingId);
+                    for (int j = 0; j < csvReader.getColumnCount(); j++) {
+                        fb = saveFinance(fb, csvReader, sId, seId, csvHeadList, isImportHead, j);
+                        if (fb == null) {
+                            break;
+                        }
+                    }
                     if (fb != null) {
                         fsbList.add(fb);
                     }
                 }
                 //108 == 业务上传ID
                 else if (tbId == Constants.BUSINESS_ID) {
-                    sfb = saveBusiness(setBusPort(sId, seId, uid, recordingId), csvReader, sId, seId, Long.parseLong(businessTime));
+                    sfb = setBusPort(sId, seId, uid, recordingId);
+                    for (int j = 0; j < csvReader.getColumnCount(); j++) {
+                        sfb = saveBusiness(sfb, csvReader, sId, seId, Long.parseLong(businessTime), csvHeadList, isImportHead, j);
+                        if (sfb == null) {
+                            break;
+                        }
+                    }
                     if (sfb != null) {
                         sfbList.add(sfb);
                     }
@@ -1159,11 +1173,11 @@ public class ConsumerServiceImpl implements ConsumerService {
             index++;
             //计算百分比
             int currentCount = timing.setAttributesTim(index);
-            ws.schedule(intMap, currentCount, timSet, timing, 1L);
+            ws.schedule(intMap, currentCount, timSet, timing, ShiroUtils.getUserId());
         }
         int number = 0;
         //插入数据
-        timing.setMsg("正在导入数据库..........");
+        timing.setMsg(Constants.IMPORT_SQL);
         ws.sendInfo(JSON.toJSONString(CrrUtils.inCreateSet(timSet, timing)), ShiroUtils.getUserId());
         //财务
         if (fsbList != null) {
@@ -1175,8 +1189,6 @@ public class ConsumerServiceImpl implements ConsumerService {
         //业务
         if (sfbList != null) {
             if (sfbList.size() > 0) {
-                //插入数据
-                timing.setMsg("正在导入数据库..........");
                 number = busService.AddSalesAmazonAdBusList(sfbList);
 
             }
@@ -1184,49 +1196,73 @@ public class ConsumerServiceImpl implements ConsumerService {
         if (number != 0) {
             return printCount(begin, timing, count.get(), index);
         }
-        return BaseApiService.setResultError("存入数据失败，请检查信息");
+        return BaseApiService.setResultError("存入数据失败,请检查信息/文件中所有文件的type 跟shuId 无效");
     }
 
     /**
      * 美国 业务存入对象
      */
     public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader csvReader, Long
-            sId, Long seId, Long businessTime) throws IOException {
+            sId, Long seId, Long businessTime, List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws IOException {
         sfb.setDate(businessTime);
-        String sAsin;
         if (seId.intValue() == 1 || seId.intValue() == 4 || seId.intValue() == 5 || seId.intValue() == 6
                 || seId.intValue() == 7 || seId.intValue() == 8 || seId.intValue() == 9) {
-            sfb.setfAsin(StrUtils.repString(csvReader.get(0)));
-            sAsin = StrUtils.repString(csvReader.get(1));
-            sfb.setsAsin(sAsin);
-            sfb.setpName(StrUtils.repString(csvReader.get(2)));
-            sfb.setSessionsVisit(StrUtils.replaceInteger(csvReader.get(3)));
-            sfb.setSessionsPer(StrUtils.repDouble(csvReader.get(4)));
-            sfb.setPageViews(StrUtils.replaceInteger(csvReader.get(5)));
-            sfb.setBuyBoxPer(StrUtils.repDouble(csvReader.get(7)));
-            sfb.setOrder(StrUtils.replaceInteger(csvReader.get(8)));
-            sfb.setOrderB2B(StrUtils.replaceInteger(csvReader.get(9)));
-            sfb.setSales(StrUtils.repDouble(csvReader.get(12)));
-            sfb.setSalesB2B(StrUtils.repDouble(csvReader.get(13)));
-            sfb.setOrderItems(StrUtils.replaceInteger(csvReader.get(14)));
-            sfb.setOrderItemsB2B(StrUtils.replaceInteger(csvReader.get(15)));
+            if (csvHeadList.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
+                sfb.setfAsin(StrUtils.repString(csvReader.get(j)));
+            else if (csvHeadList.get(j).equals(importHead.get(1).getImportTemplet()) && importHead.get(1).getOpenClose()) {
+                sfb.setsAsin(StrUtils.repString(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(2).getImportTemplet()) && importHead.get(2).getOpenClose()) {
+                sfb.setpName(StrUtils.repString(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(3).getImportTemplet()) && importHead.get(3).getOpenClose()) {
+                sfb.setSessionsVisit(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(4).getImportTemplet()) && importHead.get(4).getOpenClose()) {
+                sfb.setSessionsPer(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(5).getImportTemplet()) && importHead.get(5).getOpenClose()) {
+                sfb.setPageViews(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(6).getImportTemplet()) && importHead.get(6).getOpenClose()) {
+                sfb.setBuyBoxPer(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(7).getImportTemplet()) && importHead.get(7).getOpenClose()) {
+                sfb.setOrder(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(8).getImportTemplet()) && importHead.get(8).getOpenClose()) {
+                sfb.setOrderB2B(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(9).getImportTemplet()) && importHead.get(9).getOpenClose()) {
+                sfb.setSales(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(10).getImportTemplet()) && importHead.get(10).getOpenClose()) {
+                sfb.setSalesB2B(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(11).getImportTemplet()) && importHead.get(11).getOpenClose()) {
+                sfb.setOrderItems(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(12).getImportTemplet()) && importHead.get(12).getOpenClose()) {
+                sfb.setOrderItemsB2B(StrUtils.replaceInteger(csvReader.get(j)));
+            }
         } else {
-            sfb.setfAsin(StrUtils.repString(csvReader.get(0)));
-            sAsin = StrUtils.repString(csvReader.get(1));
-            sfb.setsAsin(sAsin);
-            sfb.setpName(StrUtils.repString(csvReader.get(2)));
-            sfb.setSessionsVisit(StrUtils.replaceInteger(csvReader.get(3)));
-            sfb.setSessionsPer(StrUtils.repDouble(csvReader.get(4)));
-            sfb.setPageViews(StrUtils.replaceInteger(csvReader.get(5)));
-            sfb.setBuyBoxPer(StrUtils.repDouble(csvReader.get(7)));
-            sfb.setOrder(StrUtils.replaceInteger(csvReader.get(8)));
-            sfb.setSales(StrUtils.repDouble(csvReader.get(10)));
-            sfb.setOrderItems(StrUtils.replaceInteger(csvReader.get(11)));
+            if (csvHeadList.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
+                sfb.setfAsin(StrUtils.repString(csvReader.get(j)));
+            else if (csvHeadList.get(j).equals(importHead.get(1).getImportTemplet()) && importHead.get(1).getOpenClose()) {
+                sfb.setsAsin(StrUtils.repString(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(2).getImportTemplet()) && importHead.get(2).getOpenClose()) {
+                sfb.setpName(StrUtils.repString(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(3).getImportTemplet()) && importHead.get(3).getOpenClose()) {
+                sfb.setSessionsVisit(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(4).getImportTemplet()) && importHead.get(4).getOpenClose()) {
+                sfb.setSessionsPer(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(5).getImportTemplet()) && importHead.get(5).getOpenClose()) {
+                sfb.setPageViews(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(6).getImportTemplet()) && importHead.get(6).getOpenClose()) {
+                sfb.setBuyBoxPer(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(7).getImportTemplet()) && importHead.get(7).getOpenClose()) {
+                sfb.setOrder(StrUtils.replaceInteger(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(8).getImportTemplet()) && importHead.get(8).getOpenClose()) {
+                sfb.setSales(StrUtils.repDouble(csvReader.get(j)));
+            } else if (csvHeadList.get(j).equals(importHead.get(9).getImportTemplet()) && importHead.get(9).getOpenClose()) {
+                sfb.setOrderItems(StrUtils.replaceInteger(csvReader.get(j)));
+            }
         }
-        Long skuId = skuService.getAsinSkuId(sId, seId, sAsin);
-        String result = skuList(skuId, csvReader, sAsin);
-        if (StringUtils.isEmpty(result)) {
-            return null;
+        if (j == csvReader.getColumnCount()) {
+            Long skuId = skuService.getAsinSkuId(sId, seId, sfb.getsAsin());
+            String result = skuList(skuId, csvReader, sfb.getfAsin());
+            if (StringUtils.isEmpty(result)) {
+                return null;
+            }
         }
         return sfb;
     }
@@ -1235,240 +1271,71 @@ public class ConsumerServiceImpl implements ConsumerService {
      * csv 财务存入对象
      */
     public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId,
-                                             List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> isImportHead, int i) throws
+                                             List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws
             IOException {
         //设置时间类型转换
-        DateUtils.setDate(fsb, seId, csvReader);
-        fsb.setSettlemenId(StrUtils.repString(csvReader.get(i)));
-        String type = StrUtils.repString(csvReader.get(2));
-        if (StringUtils.isEmpty(type)) {
-            fsb.setType(type);
-        } else if (!setType(type, seId, csvReader, fsb)) {
-            return null;
+        if (csvHeadList.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
+            DateUtils.setDate(fsb, seId, csvReader.get(j));
+        else if (csvHeadList.get(j).equals(importHead.get(1).getImportTemplet()) && importHead.get(1).getOpenClose()) {
+            fsb.setSettlemenId(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(2).getImportTemplet()) && importHead.get(2).getOpenClose()) {
+            String type = StrUtils.repString(csvReader.get(j));
+            if (StringUtils.isEmpty(type)) {
+                fsb.setType(type);
+            } else if (!setType(type, seId, csvReader, fsb)) {
+                return null;
+            }
+        } else if (csvHeadList.get(j).equals(importHead.get(3).getImportTemplet()) && importHead.get(3).getOpenClose())
+            fsb.setOrderId(StrUtils.repString(csvReader.get(j)));
+        else if (csvHeadList.get(j).equals(importHead.get(4).getImportTemplet()) && importHead.get(4).getOpenClose()) {
+            fsb.setSku(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(5).getImportTemplet()) && importHead.get(5).getOpenClose()) {
+            fsb.setDescription(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(6).getImportTemplet()) && importHead.get(6).getOpenClose()) {
+            fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(7).getImportTemplet()) && importHead.get(7).getOpenClose()) {
+            fsb.setMarketplace(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(8).getImportTemplet()) && importHead.get(8).getOpenClose()) {
+            fsb.setFulfillment(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(9).getImportTemplet()) && importHead.get(9).getOpenClose()) {
+            fsb.setCity(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(10).getImportTemplet()) && importHead.get(10).getOpenClose()) {
+            fsb.setState(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(11).getImportTemplet()) && importHead.get(11).getOpenClose()) {
+            fsb.setPostal(StrUtils.repString(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(12).getImportTemplet()) && importHead.get(12).getOpenClose()) {
+            fsb.setSales(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(13).getImportTemplet()) && importHead.get(13).getOpenClose()) {
+            fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(14).getImportTemplet()) && importHead.get(14).getOpenClose()) {
+            fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(15).getImportTemplet()) && importHead.get(15).getOpenClose()) {
+            fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(16).getImportTemplet()) && importHead.get(16).getOpenClose()) {
+            fsb.setSalesTax(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(17).getImportTemplet()) && importHead.get(17).getOpenClose()) {
+            fsb.setMarketplaceFacilitatorTax(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(18).getImportTemplet()) && importHead.get(18).getOpenClose()) {
+            fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(19).getImportTemplet()) && importHead.get(19).getOpenClose()) {
+            fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(20).getImportTemplet()) && importHead.get(20).getOpenClose()) {
+            fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(21).getImportTemplet()) && importHead.get(21).getOpenClose()) {
+            fsb.setOther(StrUtils.replaceDouble(csvReader.get(j)));
+        } else if (csvHeadList.get(j).equals(importHead.get(22).getImportTemplet()) && importHead.get(22).getOpenClose()) {
+            fsb.setTotal(StrUtils.replaceDouble(csvReader.get(j)));
         }
-        String skuName = null;
-        switch (seId.intValue()) {
-            case 1:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSalesTax(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setMarketplaceFacilitatorTax(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(20)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(21)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(22)));
-                break;
-            case 2:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(20)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(21)));
-                break;
-            case 3:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setSalesTax(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setLowValueGoods(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(20)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(21)));
-                break;
-            case 4:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(20)));
-                break;
-            case 5:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(20)));
-                break;
-            case 6:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(20)));
-                break;
-            case 7:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(20)));
-                break;
-            case 8:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(20)));
-                break;
-            case 9:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setPointFee(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setPromotionalRebates(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(19)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(20)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(21)));
-                break;
-            case 10:
-                fsb.setOrderId(StrUtils.repString(csvReader.get(3)));
-                skuName = StrUtils.repString(csvReader.get(4));
-                fsb.setSku(skuName);
-                fsb.setDescription(StrUtils.repString(csvReader.get(5)));
-                fsb.setoQuantity(StrUtils.replaceLong(csvReader.get(6)));
-                fsb.setMarketplace(StrUtils.repString(csvReader.get(7)));
-                fsb.setFulfillment(StrUtils.repString(csvReader.get(8)));
-                fsb.setCity(StrUtils.repString(csvReader.get(9)));
-                fsb.setState(StrUtils.repString(csvReader.get(10)));
-                fsb.setPostal(StrUtils.repString(csvReader.get(11)));
-                fsb.setSales(StrUtils.replaceDouble(csvReader.get(12)));
-                fsb.setShippingCredits(StrUtils.replaceDouble(csvReader.get(13)));
-                fsb.setGiftwrapCredits(StrUtils.replaceDouble(csvReader.get(14)));
-                fsb.setSellingFees(StrUtils.replaceDouble(csvReader.get(15)));
-                fsb.setFbaFee(StrUtils.replaceDouble(csvReader.get(16)));
-                fsb.setOtherTransactionFees(StrUtils.replaceDouble(csvReader.get(17)));
-                fsb.setOther(StrUtils.replaceDouble(csvReader.get(18)));
-                fsb.setTotal(StrUtils.replaceDouble(csvReader.get(19)));
-                break;
+        //这里最后执行
+        if ((j + 1) == csvReader.getColumnCount()) {
+            StrUtils.isService(fsb.getType(), fsb);
+            Long skuId = skuService.selSkuId(sId, seId, fsb.getSku());
+            String result = skuList(skuId, csvReader, fsb.getSku());
+            if (StringUtils.isEmpty(result)) {
+                return null;
+            }
+            fsb.setSkuId(skuId);
         }
-        StrUtils.isService(fsb.getType(), fsb);
-        Long skuId = skuService.selSkuId(sId, seId, skuName);
-        String result = skuList(skuId, csvReader, skuName);
-        if (StringUtils.isEmpty(result)) {
-            return null;
-        }
-        fsb.setSkuId(skuId);
         return fsb;
     }
 
@@ -1512,7 +1379,6 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * 通用设置CSV 没有sku/typeName导出文件
      *
-     * @param csvReader
      * @param skuId
      * @return
      */
@@ -1571,21 +1437,6 @@ public class ConsumerServiceImpl implements ConsumerService {
     //#######################Csv
 //##########################################################通用方法
 
-    /**
-     * 封装获得编码格式 适用于TXT  CSV
-     *
-     * @param filePath
-     * @return
-     * @throws FileNotFoundException
-     * @throws UnsupportedEncodingException
-     */
-    private InputStreamReader streamReader(String filePath) throws Exception {
-        String fileEncode = EncodingDetect.getJavaEncode(filePath);
-        if (fileEncode == null) {
-            throw new Exception("filePath加载文件路径不存在");
-        }
-        return new InputStreamReader(new FileInputStream(filePath), fileEncode);
-    }
 
     /**
      * 封装错误信息
@@ -1626,7 +1477,7 @@ public class ConsumerServiceImpl implements ConsumerService {
                     TxtUtils.writeFileTxt(noSkuList.get(), Constants.WRITE_SAVE_FILE_PATH, uuidName);
                 }
                 //上传成功 有些skuId 记录上传信息~
-                String msg = responseBase.getMsg() + "====>有" + sumErrorSku.get() + "个没有sku文件/数据库没有typeName";
+                String msg = responseBase.getMsg() + " ,有" + sumErrorSku.get() + "条没有skuId/没有type";
                 sumErrorSku.set(0);
                 return upUserUpload(2, recordingId, fileName, msg, saveFilePath, uuidName);
             }

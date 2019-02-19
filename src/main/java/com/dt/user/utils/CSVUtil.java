@@ -18,8 +18,8 @@ public class CSVUtil {
      */
     public static String startReadLine(String filePath, Long site, int tbId) {
         JSONObject readJson = new JSONObject();
-        try (InputStreamReader isr = new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8);
-             BufferedReader reader = new BufferedReader(isr)) {
+        try (InputStreamReader read = FileUtils.streamReader(filePath);
+             BufferedReader reader = new BufferedReader(read)) {
             //设置编码格式 ,日文解码shift_jis
             String line;
             int index = 1;

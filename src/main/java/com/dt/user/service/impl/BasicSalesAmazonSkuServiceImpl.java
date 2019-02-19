@@ -17,9 +17,9 @@ public class BasicSalesAmazonSkuServiceImpl implements BasicSalesAmazonSkuServic
         if (StringUtils.isEmpty(skuName)) {
             return 0L;
         }
-        BasicSalesAmazonSku basicSalesAmazonSku = basicSalesAmazonSkuMapper.getSkuId(sId, siteId, skuName);
-        if (basicSalesAmazonSku != null) {
-            return basicSalesAmazonSku.getSkuId();
+        Long skuId = basicSalesAmazonSkuMapper.getSkuId(sId, siteId, skuName);
+        if (skuId != null) {
+            return skuId;
         }
         return null;
     }
@@ -29,9 +29,9 @@ public class BasicSalesAmazonSkuServiceImpl implements BasicSalesAmazonSkuServic
         if (StringUtils.isEmpty(sAsin)) {
             return 0L;
         }
-        BasicSalesAmazonSku basicSalesAmazonSku = basicSalesAmazonSkuMapper.getAsinSkuId(sId, siteId, sAsin);
-        if (basicSalesAmazonSku != null) {
-            return basicSalesAmazonSku.getSkuId();
+        Long skuId = basicSalesAmazonSkuMapper.getAsinSkuId(sId, siteId, sAsin);
+        if (skuId != null) {
+            return skuId;
         }
         return null;
     }
