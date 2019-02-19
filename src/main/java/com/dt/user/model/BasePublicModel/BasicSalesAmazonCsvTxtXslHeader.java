@@ -24,10 +24,24 @@ public class BasicSalesAmazonCsvTxtXslHeader {
      * 标识ID
      */
     private Long id;
+
+    private Integer isImport;
     /**
      * 哪儿数据类型上传标识  1代表财务
      */
     private Integer tbId;
+    /**
+     * 开或者关
+     */
+    private Boolean openClose;
+
+    public Boolean getOpenClose() {
+        return openClose;
+    }
+
+    public void setOpenClose(Boolean openClose) {
+        this.openClose = openClose;
+    }
 
     public Integer getTbId() {
         return tbId;
@@ -115,5 +129,13 @@ public class BasicSalesAmazonCsvTxtXslHeader {
 
     public void setPosition(Integer position) {
         this.position = position;
+    }
+
+    public Integer getIsImport() {
+        return isImport;
+    }
+
+    public void setIsImport(Integer isImport) {
+        this.isImport = isImport;
     }
 }

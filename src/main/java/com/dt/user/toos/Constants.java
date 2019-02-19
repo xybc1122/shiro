@@ -1,18 +1,11 @@
 package com.dt.user.toos;
 
 public interface Constants {
-//    /**
-//     * 文件上传存放地址
-//     */
-//    String SAVE_FILE_PATH = "E:/filePath/";
     /**
      * Linux文件上传存放地址
      */
     String SAVE_FILE_PATH = "/usr/local/file/filePath/";
-//    /**
-//     * 文件写入存放地址
-//     */
-//    String WRITE_SAVE_FILE_PATH = "E:/filePathSkuNo/";
+
     /**
      * Linux文件写入存放地址
      */
@@ -104,6 +97,8 @@ public interface Constants {
      * 业务导入ID
      */
     int BUSINESS_ID = 108;
+
+    String IMPORT_SQL="正在导入数据库..........";
 
 
 }

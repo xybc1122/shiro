@@ -18,40 +18,39 @@ public class DateUtils {
      *
      * @param fsb
      * @param seId
-     * @param csvReader
      * @throws IOException
      */
-    public static void setDate(FinancialSalesBalance fsb, Long seId, CsvReader csvReader) throws IOException {
+    public static void setDate(FinancialSalesBalance fsb, Long seId, String time){
         switch (seId.intValue()) {
             case 1:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.USA_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.USA_TIME));
                 break;
             case 2:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.CANADA_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.CANADA_TIME));
                 break;
             case 3:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.AUSTRALIA_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.AUSTRALIA_TIME));
                 break;
             case 4:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.UNITED_KINGDOM_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.UNITED_KINGDOM_TIME));
                 break;
             case 5:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.GERMAN_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.GERMAN_TIME));
                 break;
             case 6:
-                fsb.setDate(DateUtils.getFranceTime(csvReader.get(0), Constants.FRANCE_TIME));
+                fsb.setDate(DateUtils.getFranceTime(time, Constants.FRANCE_TIME));
                 break;
             case 7:
-                fsb.setDate(DateUtils.getItalyTime(csvReader.get(0), Constants.ITALY_TIME));
+                fsb.setDate(DateUtils.getItalyTime(time, Constants.ITALY_TIME));
                 break;
             case 8:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.SPAIN_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.SPAIN_TIME));
                 break;
             case 9:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.JAPAN_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.JAPAN_TIME));
                 break;
             case 10:
-                fsb.setDate(DateUtils.getTime(csvReader.get(0), Constants.MEXICO_TIME));
+                fsb.setDate(DateUtils.getTime(time, Constants.MEXICO_TIME));
                 break;
         }
     }
