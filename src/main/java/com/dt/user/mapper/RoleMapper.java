@@ -32,4 +32,11 @@ public interface RoleMapper {
      */
     @SelectProvider(type = RoleProvider.class, method = "findByRoleInfo")
     List<UserInfo> findByRoleInfo(PageDto pageDto);
+
+
+    /**
+     * 通过角色名字去查询数据库是否有重复
+     */
+    @Select("select r_name from system_user_role where r_name=#{rName}")
+    String findByRoleName(@Param("rName") String rName);
 }

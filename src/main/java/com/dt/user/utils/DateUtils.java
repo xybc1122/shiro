@@ -1,12 +1,10 @@
 package com.dt.user.utils;
 
-import com.csvreader.CsvReader;
 import com.dt.user.model.FinancialSalesBalance;
 import com.dt.user.toos.Constants;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -83,6 +81,59 @@ public class DateUtils {
         return time;
     }
 
+    public static Long getXlsStrTime(String date, String pattern) {
+        if (StringUtils.isBlank(date)) {
+            return null;
+        }
+        String newDate = null;
+        Long time = null;
+        int janvIndex = date.indexOf("一月");
+        int fevrIndex = date.indexOf("二月");
+        int marsIndex = date.indexOf("三月");
+        int avrIndex = date.indexOf("四月");
+        int maiIndex = date.indexOf("五月");
+        int juinIndex = date.indexOf("六月");
+        int juilIndex = date.indexOf("七月");
+        int aoutIndex = date.indexOf("八月");
+        int septIndex = date.indexOf("九月");
+        int octIndex = date.indexOf("十月");
+        int novIndex = date.indexOf("十一月");
+        int dicIndex = date.indexOf("十二月");
+        if (janvIndex != -1) {
+            newDate = date.replace("一月", "01");
+        } else if (fevrIndex != -1) {
+            newDate = date.replace("二月", "02");
+        } else if (marsIndex != -1) {
+            newDate = date.replace("三月", "03");
+        } else if (avrIndex != -1) {
+            newDate = date.replace("四月", "04");
+        } else if (maiIndex != -1) {
+            newDate = date.replace("五月", "05");
+        } else if (juinIndex != -1) {
+            newDate = date.replace("六月", "06");
+        } else if (juilIndex != -1) {
+            newDate = date.replace("七月", "07");
+        } else if (aoutIndex != -1) {
+            newDate = date.replace("八月", "08");
+        } else if (septIndex != -1) {
+            newDate = date.replace("九月", "09");
+        } else if (octIndex != -1) {
+            newDate = date.replace("十月", "10");
+        }
+        if (novIndex != -1) {
+            newDate = date.replace("十一月", "11");
+        }
+        if (dicIndex != -1) {
+            newDate = date.replace("十二月", "12");
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+        try {
+            time = sdf.parse(newDate).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
+    }
     /**
      * 意大利日期转换
      *
@@ -201,9 +252,8 @@ public class DateUtils {
     }
 
     public static void main(String[] args) throws ParseException {
-        String stringDate = "31/10/2018 16:06:26 PDT";
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ENGLISH);
-        System.out.println(sdf.parse(stringDate).getTime());
+        String stringDate = "18-十二月-2019";
+        System.out.println(getXlsStrTime(stringDate,"dd-MM-yyyy"));
 //        System.out.println(DateUtils.getFranceTime(stringDate, Constants.FRANCE_TIME));
 
     }

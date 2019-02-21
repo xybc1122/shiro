@@ -62,6 +62,15 @@ public class CrrUtils {
         timingList.set(strList);
     }
 
+    //List添加数据
+    public static void inCreateListXls(ThreadLocal<List<List<?>>> timingList) {
+        List<List<?>> strList = timingList.get();
+        if (strList == null) {
+            strList = new ArrayList<>();
+        }
+        timingList.set(strList);
+    }
+
     /**
      * Integer 类型++
      *

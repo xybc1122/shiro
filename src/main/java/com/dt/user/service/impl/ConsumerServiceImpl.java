@@ -35,6 +35,7 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.crypto.Data;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.Future;
@@ -114,6 +115,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * 获取没有SKU的List集合
      */
     private ThreadLocal<List<List<String>>> noSkuList = new ThreadLocal<>();
+
     /**
      * 实时数据Set集合
      */
@@ -316,7 +318,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         if (countTrad > 0) {
             return printCount(begin, timing, count.get(), index);
         }
-        return BaseApiService.setResultError("数据存入异常,请检查错误信息");
+        return BaseApiService.setResultError("存入数据失败,请检查信息/文件中所有行的type 跟shuId 无效\"");
     }
 
     /**
@@ -618,6 +620,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1, filePath, uuIdName);
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            e.printStackTrace();
             String errorMsg = "数据存入失败====>请查找" + (numberCount.get() + 1) + "行错误信息" + e.getMessage();
             return errorResult(0, errorMsg, recordingId, fileName, timing, "exception", filePath, uuIdName);
         } finally {
@@ -681,12 +684,15 @@ public class ConsumerServiceImpl implements ConsumerService {
                 saCpr = setCpr(shopId, siteId, uid, recordingId);
                 for (int j = 0; j < totalNumber; j++) {
                     cell = row.getCell(j);
-                    saCpr = setCprPojo(j, saCpr, cell, isImportHead, xlsListHead);
+                    saCpr = setCprPojo(j, saCpr, cell, isImportHead, xlsListHead, totalNumber);
+                    if (saCpr == null) {
+                        //设置没有SKU的信息导入
+                        skuSetting(row, totalNumber, sqlHead);
+                        break;
+                    }
                 }
-                Long skuId = skuService.selSkuId(shopId, siteId, saCpr.getAdvertisedSku());
-                //设置没有SKU的信息导入
-                if (xslSkuList(skuId, saCpr, row, totalNumber, sqlHead) != null) {
-                    cprList.add((SalesAmazonAdCpr) xslSkuList(skuId, saCpr, row, totalNumber, sqlHead));
+                if (saCpr != null) {
+                    cprList.add(saCpr);
                 }
                 //107 str
             } else if (tbId == 107) {
@@ -701,17 +707,18 @@ public class ConsumerServiceImpl implements ConsumerService {
                 adOar = setOar(shopId, siteId, uid, recordingId);
                 for (int j = 0; j < totalNumber; j++) {
                     cell = row.getCell(j);
-                    adOar = setOarPojo(j, adOar, cell, isImportHead, xlsListHead);
+                    adOar = setOarPojo(j, adOar, cell, isImportHead, xlsListHead, totalNumber);
+                    if (adOar == null) {
+                        skuSetting(row, totalNumber, sqlHead);
+                        break;
+                    }
                 }
-                Long skuId = skuService.getAsinSkuId(shopId, siteId, adOar.getOtherAsin());
-                //设置没有SKU的信息导入
-                if (xslSkuList(skuId, adOar, row, totalNumber, sqlHead) != null) {
-                    oarList.add((SalesAmazonAdOar) xslSkuList(skuId, adOar, row, totalNumber, sqlHead));
+                if (adOar != null) {
+                    oarList.add(adOar);
                 }
             } else if (tbId == 125) {
                 adHl = setHl(shopId, siteId, uid, recordingId);
                 for (int j = 0; j < totalNumber; j++) {
-                    row = sheet.getRow(i);
                     cell = row.getCell(j);
                     adHl = setHlPojo(j, adHl, cell, isImportHead, xlsListHead);
                 }
@@ -749,75 +756,40 @@ public class ConsumerServiceImpl implements ConsumerService {
         if (saveCount > 0) {
             return printCount(begin, timing, count.get(), index);
         }
-        return BaseApiService.setResultError("数据存入异常,请检查错误信息");
+        return BaseApiService.setResultError("存入数据失败,请检查信息/文件中所有行的shuId 无效\"");
     }
-
-    /**
-     * xsl 获取没有SKU的文件List
-     *
-     * @param skuId
-     * @return
-     */
-    public Object xslSkuList(Long skuId, Object obj, Row row, int totalNumber, List<String> head) {
-        String strXsl;
-        if (obj instanceof SalesAmazonAdCpr) {
-            SalesAmazonAdCpr cpr = (SalesAmazonAdCpr) obj;
-            if (StringUtils.isNotEmpty(cpr.getAdvertisedSku())) {
-                strXsl = skuSetting(skuId, row, totalNumber, head);
-                if (strXsl == null) {
-                    return null;
-                }
-            }
-            cpr.setSkuId(skuId);
-            return cpr;
-        }
-        if (obj instanceof SalesAmazonAdOar) {
-            SalesAmazonAdOar oar = (SalesAmazonAdOar) obj;
-            if (StringUtils.isNotEmpty(oar.getOtherAsin())) {
-                strXsl = skuSetting(skuId, row, totalNumber, head);
-                if (strXsl == null) {
-                    return null;
-                }
-            }
-            oar.setSkuId(skuId);
-            return oar;
-        }
-        return null;
-    }
-
     /**
      * xls/sku设置
      *
-     * @param skuId
      * @return
      */
-    public String skuSetting(Long skuId, Row row, int totalNumber, List<String> head) {
-        if (skuId == null) {
-            CrrUtils.inCreateList(noSkuList);
-            //如果等于0 就先设置头
-            if (noSkuList.get().size() == 0) {
-                noSkuList.get().add(head);
-            }
-            //count --
-            CrrUtils.delCreateNumberLong(count);
-            //sumNoSku ++
-            CrrUtils.inCreateNumberInteger(sumErrorSku);
-            List<String> skuListNo = new ArrayList<>();
-            //拿到那一行信息
-            for (int i = 0; i < totalNumber; i++) {
-                skuListNo.add(row.getCell(i).toString());
-            }
-            noSkuList.get().add(skuListNo);
-            noSkuList.set(noSkuList.get());
-            return null;
+    public void skuSetting(Row row, int totalNumber, List<String> head) {
+        CrrUtils.inCreateList(noSkuList);
+        //如果等于0 就先设置头
+        if (noSkuList.get().size() == 0) {
+            noSkuList.get().add(head);
         }
-        return "success";
+        //count --
+        CrrUtils.delCreateNumberLong(count);
+        //sumNoSku ++
+        CrrUtils.inCreateNumberInteger(sumErrorSku);
+        List<String> skuListNo = new ArrayList<>();
+        //拿到那一行信息
+        for (int i = 0; i < totalNumber; i++) {
+            if (row.getCell(i) != null) {
+                skuListNo.add(row.getCell(i).toString());
+            } else {
+                skuListNo.add(null);
+            }
+        }
+        noSkuList.get().add(skuListNo);
+        noSkuList.set(noSkuList.get());
     }
 
     /**
      * set pojo cpr
      */
-    public SalesAmazonAdCpr setCprPojo(int j, SalesAmazonAdCpr saCpr, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead) {
+    public SalesAmazonAdCpr setCprPojo(int j, SalesAmazonAdCpr saCpr, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead, int totalNumber) {
         String strAdCpr;
         if (xlsListHead.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
             saCpr.setDate(lon(cell));
@@ -855,6 +827,8 @@ public class ConsumerServiceImpl implements ConsumerService {
             saCpr.setSameskuUnitsSales(dou(cell));
         else if (xlsListHead.get(j).equals(importHead.get(15).getImportTemplet()) && importHead.get(15).getOpenClose())
             saCpr.setOtherskuUnitsSales(dou(cell));
+        if (findBySkuId(j, totalNumber, saCpr) == null) return null;
+
         return saCpr;
     }
 
@@ -910,7 +884,7 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * set pojo oar
      */
-    public SalesAmazonAdOar setOarPojo(int j, SalesAmazonAdOar adOar, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead) {
+    public SalesAmazonAdOar setOarPojo(int j, SalesAmazonAdOar adOar, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead, int totalNumber) {
         String strAdOar;
         if (xlsListHead.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
             adOar.setDate(lon(cell));
@@ -939,9 +913,41 @@ public class ConsumerServiceImpl implements ConsumerService {
             adOar.setOtherAsinUnits(dou(cell));
         else if (xlsListHead.get(j).equals(importHead.get(9).getImportTemplet()) && importHead.get(9).getOpenClose())
             adOar.setOtherAsinUnitsOrdered(dou(cell));
-        else if (xlsListHead.get(j).equals(importHead.get(10).getImportTemplet()) && importHead.get(10).getOpenClose())
+        else if (xlsListHead.get(j).equals(importHead.get(10).getImportTemplet()) && importHead.get(10).getOpenClose()) {
             adOar.setOtherAsinUnitsOrderedSales(dou(cell));
+        }
+        if (findBySkuId(j, totalNumber, adOar) == null) return null;
         return adOar;
+    }
+
+    /**
+     * 封装查询
+     *
+     * @param j
+     * @param totalNumber
+     * @param obj
+     * @return
+     */
+    public String findBySkuId(int j, int totalNumber, Object obj) {
+        Long skuId;
+        if ((j + 1) == totalNumber) {
+            if (obj instanceof SalesAmazonAdOar) {
+                SalesAmazonAdOar saOar = (SalesAmazonAdOar) obj;
+                skuId = skuService.selSkuId(saOar.getShopId(), saOar.getSiteId(), saOar.getAdvertisedSku());
+                if (skuId == null) {
+                    return null;
+                }
+                saOar.setSkuId(skuId);
+            } else if (obj instanceof SalesAmazonAdCpr) {
+                SalesAmazonAdCpr saCpr = (SalesAmazonAdCpr) obj;
+                skuId = skuService.selSkuId(saCpr.getShopId(), saCpr.getSiteId(), saCpr.getAdvertisedSku());
+                if (skuId == null) {
+                    return null;
+                }
+                saCpr.setSkuId(skuId);
+            }
+        }
+        return "ok";
     }
 
     /**
@@ -1196,7 +1202,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         if (number != 0) {
             return printCount(begin, timing, count.get(), index);
         }
-        return BaseApiService.setResultError("存入数据失败,请检查信息/文件中所有文件的type 跟shuId 无效");
+        return BaseApiService.setResultError("存入数据失败,请检查信息/文件中所有行的type 跟shuId 无效");
     }
 
     /**

@@ -121,10 +121,17 @@ public class StrUtils {
      * @return
      */
     public static Long replaceLong(String number) {
+        Long l;
         if (StringUtils.isBlank(number)) {
             return null;
         }
-        return Long.parseLong(number);
+        try {
+            //如果有报错有catch
+            l = Long.parseLong(number);
+        } catch (Exception e) {
+            return DateUtils.getXlsStrTime(number, "yyyy-MM-dd");
+        }
+        return l;
     }
 
     /**

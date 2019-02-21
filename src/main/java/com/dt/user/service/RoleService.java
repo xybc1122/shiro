@@ -22,4 +22,10 @@ public interface RoleService {
      * @return
      */
     List<UserInfo> findByRoleInfo(PageDto pageDto);
+
+
+    /**
+     * 通过角色名字去查询数据库是否有重复
+     */
+    String findByRoleName(String rName);
 }
