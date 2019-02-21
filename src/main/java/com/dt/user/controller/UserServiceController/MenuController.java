@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 @RestController
-@RequestMapping("menu")
+@RequestMapping("/api/menu")
 public class MenuController {
 
     @Autowired

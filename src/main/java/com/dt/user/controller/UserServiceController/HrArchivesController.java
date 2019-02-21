@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/staff")
+@RequestMapping("/api/staff")
 public class HrArchivesController {
     @Autowired
     private HrArchivesEmployeeService hrService;
