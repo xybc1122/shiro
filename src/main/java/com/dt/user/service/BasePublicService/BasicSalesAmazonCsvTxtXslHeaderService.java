@@ -12,8 +12,7 @@ public interface BasicSalesAmazonCsvTxtXslHeaderService {
      * @param seId
      * @return
      */
-    List<String> headerList(Long seId, Integer tbId, Integer areaId,Long shopId);
-
+    List<String> headerList(Long seId, Integer tbId, Integer areaId, Long shopId);
 
     /**
      * 获得对象

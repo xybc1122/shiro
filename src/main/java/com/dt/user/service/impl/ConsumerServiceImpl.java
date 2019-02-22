@@ -758,6 +758,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         }
         return BaseApiService.setResultError("存入数据失败,请检查信息/文件中所有行的shuId 无效\"");
     }
+
     /**
      * xls/sku设置
      *
@@ -828,7 +829,6 @@ public class ConsumerServiceImpl implements ConsumerService {
         else if (xlsListHead.get(j).equals(importHead.get(15).getImportTemplet()) && importHead.get(15).getOpenClose())
             saCpr.setOtherskuUnitsSales(dou(cell));
         if (findBySkuId(j, totalNumber, saCpr) == null) return null;
-
         return saCpr;
     }
 
@@ -836,7 +836,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * set pojo str
      */
-    public SalesAmazonAdStr setStrPojo(int j, SalesAmazonAdStr adStr, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead) {
+    public SalesAmazonAdStr setStrPojo(int j, SalesAmazonAdStr adStr, Cell
+            cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead) {
         String strAdStr;
         //get的变量还能进行优化
         if (xlsListHead.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
@@ -884,7 +885,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * set pojo oar
      */
-    public SalesAmazonAdOar setOarPojo(int j, SalesAmazonAdOar adOar, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead, int totalNumber) {
+    public SalesAmazonAdOar setOarPojo(int j, SalesAmazonAdOar adOar, Cell
+            cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead, int totalNumber) {
         String strAdOar;
         if (xlsListHead.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
             adOar.setDate(lon(cell));
@@ -953,7 +955,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * set pojo hl
      */
-    public SalesAmazonAdHl setHlPojo(int j, SalesAmazonAdHl adHl, Cell cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead) {
+    public SalesAmazonAdHl setHlPojo(int j, SalesAmazonAdHl adHl, Cell
+            cell, List<BasicSalesAmazonCsvTxtXslHeader> importHead, List<String> xlsListHead) {
         String strAdHl;
 
         if (xlsListHead.get(j).equals(importHead.get(0).getImportTemplet()) && importHead.get(0).getOpenClose())
@@ -1050,7 +1053,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     @Override
     @Transactional
     @Async("executor")
-    public Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime) {
+    public Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Long
+            siteId, Long shopId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime) {
         future = new AsyncResult<>(threadCsv(uuIdName, saveFilePath, fileName, siteId, shopId, uid,
                 pId, recordingId, tbId, businessTime));
         return future;
@@ -1065,8 +1069,9 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param shopId
      * @return
      */
-    public ResponseBase threadCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
-            pId, Long recordingId, Integer tbId, String businessTime) {
+    public ResponseBase threadCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long
+            shopId, Long uid, Integer
+                                          pId, Long recordingId, Integer tbId, String businessTime) {
         ResponseBase responseCsv;
         List<String> csvHeadList;
         String filePath = saveFilePath + uuIdName;
@@ -1125,7 +1130,8 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      */
     public ResponseBase saveCsv(CsvReader csvReader, int row, Long sId, Long seId, Long uid, Integer pId, Long
-            recordingId, Integer tbId, String businessTime, Timing timing, List<String> csvHeadList) throws IOException {
+            recordingId, Integer tbId, String businessTime, Timing timing, List<String> csvHeadList) throws
+            IOException {
         List<FinancialSalesBalance> fsbList = null;
         List<SalesAmazonFbaBusinessreport> sfbList = null;
         // 开始时间
@@ -1208,8 +1214,11 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * 美国 业务存入对象
      */
-    public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader csvReader, Long
-            sId, Long seId, Long businessTime, List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws IOException {
+    public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader
+            csvReader, Long
+                                                             sId, Long seId, Long
+                                                             businessTime, List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws
+            IOException {
         sfb.setDate(businessTime);
         if (seId.intValue() == 1 || seId.intValue() == 4 || seId.intValue() == 5 || seId.intValue() == 6
                 || seId.intValue() == 7 || seId.intValue() == 8 || seId.intValue() == 9) {
@@ -1276,7 +1285,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * csv 财务存入对象
      */
-    public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId,
+    public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long
+            seId,
                                              List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws
             IOException {
         //设置时间类型转换
@@ -1452,7 +1462,8 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param fileName
      * @return
      */
-    private ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing timing, String status, String saveFilePath, String uuidName) {
+    private ResponseBase errorResult(Integer percentage, String msg, Long recordingId, String fileName, Timing
+            timing, String status, String saveFilePath, String uuidName) {
         timing.setInfo(status, percentage, msg);
         CrrUtils.inCreateSet(timSet, timing);
         return saveUserUploadInfo(BaseApiService.setResultError(msg), recordingId, fileName, null, 0, saveFilePath, uuidName);
@@ -1498,7 +1509,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * 封装通用更新方法
      */
-    private ResponseBase upUserUpload(int status, Long id, String fileName, String msg, String saveFilePath, String uuIdName) {
+    private ResponseBase upUserUpload(int status, Long id, String fileName, String msg, String
+            saveFilePath, String uuIdName) {
         UserUpload upload;
         switch (status) {
             case 0:
@@ -1526,7 +1538,8 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param status
      * @param msg
      */
-    private UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String saveFilePath, String uuIdName) {
+    private UserUpload recordInfo(Integer status, String msg, Long id, String fileName, String
+            saveFilePath, String uuIdName) {
         UserUpload upload = new UserUpload(id, new Date().getTime());
         if (status == 2) {
             upload.setUuidName(uuIdName);
