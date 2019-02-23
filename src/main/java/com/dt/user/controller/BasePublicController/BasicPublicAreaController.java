@@ -10,7 +10,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -34,7 +33,6 @@ public class BasicPublicAreaController {
             Integer currentPage = pageDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
-        basicPublicAreaList = basicPublicAreaService.findByListArea();
         return BaseApiService.setResultSuccess("分页无参数", basicPublicAreaList);
     }
 

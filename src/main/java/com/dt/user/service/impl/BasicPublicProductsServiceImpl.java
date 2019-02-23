@@ -21,21 +21,23 @@ public class BasicPublicProductsServiceImpl implements BasicPublicProductsServic
         //子目录
         List<BasicPublicProducts> childProductsList = new ArrayList<>();
         List<BasicPublicProducts> products = productsMapper.findByProductsInfo();
-        for (int i = 0; i < products.size(); i++) {
-            BasicPublicProducts publicProducts = products.get(i);
-            //如果是父目录
-            if (publicProducts.getIsParent() != null) {
-                if (publicProducts.getIsParent() == 1) {
-                    productsList.add(publicProducts);
-                } else {
-                    childProductsList.add(publicProducts);
+        if (products != null && products.size() > 0) {
+            for (int i = 0; i < products.size(); i++) {
+                BasicPublicProducts publicProducts = products.get(i);
+                //如果是父目录
+                if (publicProducts.getIsParent() != null) {
+                    if (publicProducts.getIsParent() == 1) {
+                        productsList.add(publicProducts);
+                    } else {
+                        childProductsList.add(publicProducts);
+                    }
                 }
             }
-        }
-        // 为一级目录设置子目录 getChild是递归调用的
-        if (productsList.size() > 0) {
-            for (BasicPublicProducts pro : productsList) {
-                pro.setChildMenus(getChild(pro.getProductsId(), childProductsList));
+            // 为一级目录设置子目录 getChild是递归调用的
+            if (productsList.size() > 0) {
+                for (BasicPublicProducts pro : productsList) {
+                    pro.setChildMenus(getChild(pro.getProductsId(), childProductsList));
+                }
             }
         }
         return productsList;

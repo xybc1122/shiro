@@ -10,6 +10,7 @@ import java.util.List;
 public interface BasicPublicCurrencyMapper {
     /**
      * 查询币别所有相关信息
+     *
      * @return
      */
     @Select("SELECT `currency_id`,`currency_number`,`currency_name`,`currency_eng_short`,\n" +

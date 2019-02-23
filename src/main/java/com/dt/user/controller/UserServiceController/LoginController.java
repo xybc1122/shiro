@@ -33,7 +33,6 @@ public class LoginController extends BaseApiService {
     @Autowired
     private ShiroSessionListener sessionListener;
 
-
     @Autowired
     private UserService userService;
 
