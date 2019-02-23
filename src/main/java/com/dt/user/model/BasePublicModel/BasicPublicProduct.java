@@ -9,31 +9,270 @@ public class BasicPublicProduct {
   private String productCode;
   private String productName;
   private String model;
-  private long unitId;
-  private long qtyPerBox;
-  private long itemTypId;
-  private long itemAttributeId;
+  private Long unitId;
+  private Integer qtyPerBox;
+  private Long itemTypId;
+  private Long itemAttributeId;
   private String productSku;
-  private long productsId;
-  private double lengthCm;
-  private double widthCm;
-  private double heightCm;
-  private double gwKg;
-  private double nwKg;
-  private double volumeM3;
-  private double lengthIn;
-  private double widthIn;
-  private double heightIn;
-  private double volumeCuft;
-  private long madeIn;
-  private long hsCodeId;
+  private Long productsId;
+  private Double lengthCm;
+  private Double widthCm;
+  private Double heightCm;
+  private Double gwKg;
+  private Double nwKg;
+  private Double volumeM3;
+  private Double lengthIn;
+  private Double widthIn;
+  private Double heightIn;
+  private Double volumeCuft;
+  private Long madeIn;
+  private Long hsCodeId;
   private String remark;
-  private long status;
-  private long createDate;
-  private long createIdUser;
-  private long modifyDate;
-  private long modifyIdUser;
-  private long auditDate;
-  private long auditIdUser;
+  private Integer status;
+  private Long createDate;
+  private Long createIdUser;
+  private Long modifyDate;
+  private Long modifyIdUser;
+  private Long auditDate;
+  private Long auditIdUser;
 
+  public Long getProductId() {
+    return productId;
+  }
+
+  public void setProductId(Long productId) {
+    this.productId = productId;
+  }
+
+  public String getProductCode() {
+    return productCode;
+  }
+
+  public void setProductCode(String productCode) {
+    this.productCode = productCode;
+  }
+
+  public String getProductName() {
+    return productName;
+  }
+
+  public void setProductName(String productName) {
+    this.productName = productName;
+  }
+
+  public String getModel() {
+    return model;
+  }
+
+  public void setModel(String model) {
+    this.model = model;
+  }
+
+  public Long getUnitId() {
+    return unitId;
+  }
+
+  public void setUnitId(Long unitId) {
+    this.unitId = unitId;
+  }
+
+  public Integer getQtyPerBox() {
+    return qtyPerBox;
+  }
+
+  public void setQtyPerBox(Integer qtyPerBox) {
+    this.qtyPerBox = qtyPerBox;
+  }
+
+  public Long getItemTypId() {
+    return itemTypId;
+  }
+
+  public void setItemTypId(Long itemTypId) {
+    this.itemTypId = itemTypId;
+  }
+
+  public Long getItemAttributeId() {
+    return itemAttributeId;
+  }
+
+  public void setItemAttributeId(Long itemAttributeId) {
+    this.itemAttributeId = itemAttributeId;
+  }
+
+  public String getProductSku() {
+    return productSku;
+  }
+
+  public void setProductSku(String productSku) {
+    this.productSku = productSku;
+  }
+
+  public Long getProductsId() {
+    return productsId;
+  }
+
+  public void setProductsId(Long productsId) {
+    this.productsId = productsId;
+  }
+
+  public Double getLengthCm() {
+    return lengthCm;
+  }
+
+  public void setLengthCm(Double lengthCm) {
+    this.lengthCm = lengthCm;
+  }
+
+  public Double getWidthCm() {
+    return widthCm;
+  }
+
+  public void setWidthCm(Double widthCm) {
+    this.widthCm = widthCm;
+  }
+
+  public Double getHeightCm() {
+    return heightCm;
+  }
+
+  public void setHeightCm(Double heightCm) {
+    this.heightCm = heightCm;
+  }
+
+  public Double getGwKg() {
+    return gwKg;
+  }
+
+  public void setGwKg(Double gwKg) {
+    this.gwKg = gwKg;
+  }
+
+  public Double getNwKg() {
+    return nwKg;
+  }
+
+  public void setNwKg(Double nwKg) {
+    this.nwKg = nwKg;
+  }
+
+  public Double getVolumeM3() {
+    return volumeM3;
+  }
+
+  public void setVolumeM3(Double volumeM3) {
+    this.volumeM3 = volumeM3;
+  }
+
+  public Double getLengthIn() {
+    return lengthIn;
+  }
+
+  public void setLengthIn(Double lengthIn) {
+    this.lengthIn = lengthIn;
+  }
+
+  public Double getWidthIn() {
+    return widthIn;
+  }
+
+  public void setWidthIn(Double widthIn) {
+    this.widthIn = widthIn;
+  }
+
+  public Double getHeightIn() {
+    return heightIn;
+  }
+
+  public void setHeightIn(Double heightIn) {
+    this.heightIn = heightIn;
+  }
+
+  public Double getVolumeCuft() {
+    return volumeCuft;
+  }
+
+  public void setVolumeCuft(Double volumeCuft) {
+    this.volumeCuft = volumeCuft;
+  }
+
+  public Long getMadeIn() {
+    return madeIn;
+  }
+
+  public void setMadeIn(Long madeIn) {
+    this.madeIn = madeIn;
+  }
+
+  public Long getHsCodeId() {
+    return hsCodeId;
+  }
+
+  public void setHsCodeId(Long hsCodeId) {
+    this.hsCodeId = hsCodeId;
+  }
+
+  public String getRemark() {
+    return remark;
+  }
+
+  public void setRemark(String remark) {
+    this.remark = remark;
+  }
+
+  public Integer getStatus() {
+    return status;
+  }
+
+  public void setStatus(Integer status) {
+    this.status = status;
+  }
+
+  public Long getCreateDate() {
+    return createDate;
+  }
+
+  public void setCreateDate(Long createDate) {
+    this.createDate = createDate;
+  }
+
+  public Long getCreateIdUser() {
+    return createIdUser;
+  }
+
+  public void setCreateIdUser(Long createIdUser) {
+    this.createIdUser = createIdUser;
+  }
+
+  public Long getModifyDate() {
+    return modifyDate;
+  }
+
+  public void setModifyDate(Long modifyDate) {
+    this.modifyDate = modifyDate;
+  }
+
+  public Long getModifyIdUser() {
+    return modifyIdUser;
+  }
+
+  public void setModifyIdUser(Long modifyIdUser) {
+    this.modifyIdUser = modifyIdUser;
+  }
+
+  public Long getAuditDate() {
+    return auditDate;
+  }
+
+  public void setAuditDate(Long auditDate) {
+    this.auditDate = auditDate;
+  }
+
+  public Long getAuditIdUser() {
+    return auditIdUser;
+  }
+
+  public void setAuditIdUser(Long auditIdUser) {
+    this.auditIdUser = auditIdUser;
+  }
 }
