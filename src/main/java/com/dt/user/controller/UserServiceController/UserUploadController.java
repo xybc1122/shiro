@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/upload")
+@RequestMapping("/api/upload")
 public class UserUploadController {
 
     @Autowired

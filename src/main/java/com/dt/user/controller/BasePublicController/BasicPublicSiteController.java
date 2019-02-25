@@ -14,7 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+<<<<<<< HEAD
 @RequestMapping("/site")
+=======
+@RequestMapping("/api/site")
+>>>>>>> 41d082e89a516b97518d23b46bc71518d90ba746
 public class BasicPublicSiteController {
 
     @Autowired
