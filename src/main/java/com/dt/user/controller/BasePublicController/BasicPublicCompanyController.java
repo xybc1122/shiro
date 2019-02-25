@@ -2,7 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.BasePublicModel.BasicPublicCompany;
 import com.dt.user.service.BasePublicService.BasicPublicCompanyService;
 import com.dt.user.utils.PageInfoUtils;
@@ -24,7 +24,7 @@ public class BasicPublicCompanyController {
      * @return
      */
     @PostMapping("/findByListCompany")
-    public ResponseBase findByListCompany(@RequestBody PageDto pageDto) {
+    public ResponseBase findByListCompany(@RequestBody UserDto pageDto) {
         if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
             PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
             List<BasicPublicCompany> basicPublicCompanyList = basicPublicCompanyService.findByListCompany();

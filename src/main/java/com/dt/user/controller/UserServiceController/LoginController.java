@@ -5,11 +5,10 @@ import com.dt.user.config.BaseApiService;
 import com.dt.user.config.BaseRedisService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.config.ShiroSessionListener;
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
-import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,7 +57,7 @@ public class LoginController extends BaseApiService {
      */
     @ResponseBody
     @PostMapping("/ajaxLogin")
-    public ResponseBase login(@RequestBody PageDto userDto) {
+    public ResponseBase login(@RequestBody UserDto userDto) {
         String userKey = userDto.getUserName() + "error";
         String strRedis = redisService.getStringKey(userKey);
         //如果不等于null
@@ -108,7 +106,7 @@ public class LoginController extends BaseApiService {
         }
     }
 
-    public ResponseBase setLockingTime(PageDto userDto) {
+    public ResponseBase setLockingTime(UserDto userDto) {
         int errorNumber = 0;
         errorNumber++;
         Long lockingTime = null;

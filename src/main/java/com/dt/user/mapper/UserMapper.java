@@ -1,6 +1,6 @@
 package com.dt.user.mapper;
 
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.provider.UserProvider;
 import org.apache.ibatis.annotations.*;
@@ -33,7 +33,7 @@ public interface UserMapper {
      * 查找 账号管理信息
      */
     @SelectProvider(type = UserProvider.class, method = "findUsers")
-    List<UserInfo> findByUsers(PageDto pageDto);
+    List<UserInfo> findByUsers(UserDto pageDto);
 
     /**
      * 更新登陆时间

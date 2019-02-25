@@ -20,18 +20,8 @@ public class BasicPublicSite {
      * 英文简称
      */
     private String siteEng;
-    /**
-     * 区域名称
-     */
-    private String areaName;
-    /**
-     * 币别名称
-     */
-    private String currencyName;
-    /**
-     * 币别英文简写
-     */
-    private String currencyEngShort;
+
+
     /**
      * URL
      */
@@ -76,22 +66,6 @@ public class BasicPublicSite {
      * 审核人
      */
     private Long auditIdUser;
-
-    public String getCurrencyName() {
-        return currencyName;
-    }
-
-    public void setCurrencyName(String currencyName) {
-        this.currencyName = currencyName;
-    }
-
-    public String getCurrencyEngShort() {
-        return currencyEngShort;
-    }
-
-    public void setCurrencyEngShort(String currencyEngShort) {
-        this.currencyEngShort = currencyEngShort;
-    }
 
     public Long getSiteId() {
         return siteId;
@@ -213,11 +187,4 @@ public class BasicPublicSite {
         this.auditIdUser = auditIdUser;
     }
 
-    public String getAreaName() {
-        return areaName;
-    }
-
-    public void setAreaName(String areaName) {
-        this.areaName = areaName;
-    }
 }

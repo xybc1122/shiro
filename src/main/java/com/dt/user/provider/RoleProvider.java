@@ -1,13 +1,13 @@
 package com.dt.user.provider;
 
 
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 
 public class RoleProvider {
 
-    public String findByRoleInfo(PageDto pageDto) {
+    public String findByRoleInfo(UserDto pageDto) {
         return new SQL() {{
             SELECT("r.rid,r.r_name,GROUP_CONCAT(DISTINCT u.user_name)AS userName,GROUP_CONCAT(DISTINCT u.uid)AS uIds " +
                     "FROM system_user_info AS u");

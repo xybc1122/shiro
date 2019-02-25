@@ -2,9 +2,10 @@ package com.dt.user.dto;
 
 import com.dt.user.model.UserInfo;
 
-public class PageDto extends UserInfo {
+public class UserDto extends UserInfo {
 
     private Integer currentPage;
+
     private Integer pageSize;
 
     private boolean rememberMe; //记住我
@@ -12,6 +13,7 @@ public class PageDto extends UserInfo {
     private boolean pwdAlways;
     //用户始终有效
     private boolean uAlways;
+
 
     public boolean isPwdAlways() {
         return pwdAlways;

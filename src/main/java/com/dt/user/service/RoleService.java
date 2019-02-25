@@ -3,7 +3,7 @@ package com.dt.user.service;
 
 
 
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.Role;
 import com.dt.user.model.UserInfo;
 
@@ -21,7 +21,7 @@ public interface RoleService {
      * @param pageDto
      * @return
      */
-    List<UserInfo> findByRoleInfo(PageDto pageDto);
+    List<UserInfo> findByRoleInfo(UserDto pageDto);
 
 
     /**

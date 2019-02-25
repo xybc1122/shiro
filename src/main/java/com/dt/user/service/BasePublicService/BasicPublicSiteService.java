@@ -1,5 +1,6 @@
 package com.dt.user.service.BasePublicService;
 
+import com.dt.user.dto.SiteDto;
 import com.dt.user.model.BasePublicModel.BasicPublicSite;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface BasicPublicSiteService {
      *
      * @return
      */
-    List<BasicPublicSite> findBySiteList();
+    List<BasicPublicSite> findBySiteList(SiteDto siteDto);
 
 
     /**

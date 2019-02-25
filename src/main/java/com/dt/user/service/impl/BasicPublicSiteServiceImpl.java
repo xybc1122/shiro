@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.SiteDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicSiteMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicSite;
 import com.dt.user.service.BasePublicService.BasicPublicSiteService;
@@ -15,8 +16,8 @@ public class BasicPublicSiteServiceImpl implements BasicPublicSiteService {
     private BasicPublicSiteMapper basicPublicSiteMapper;
 
     @Override
-    public List<BasicPublicSite> findBySiteList() {
-        return basicPublicSiteMapper.findBySiteList();
+    public List<BasicPublicSite> findBySiteList(SiteDto siteDto) {
+        return basicPublicSiteMapper.findBySiteList(siteDto);
     }
 
     @Override

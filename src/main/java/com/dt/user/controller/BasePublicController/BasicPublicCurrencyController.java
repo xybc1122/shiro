@@ -2,8 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
-import com.dt.user.model.BasePublicModel.BasicPublicCompany;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
 import com.dt.user.service.BasePublicService.BasicPublicCurrencyService;
 import com.dt.user.utils.PageInfoUtils;
@@ -26,7 +25,7 @@ public class BasicPublicCurrencyController {
      * @return
      */
     @PostMapping("/findByListCurrency")
-    public ResponseBase findByListCurrency(@RequestBody PageDto pageDto) {
+    public ResponseBase findByListCurrency(@RequestBody UserDto pageDto) {
         if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
             PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
             List<BasicPublicCurrency> basicPublicCurrencies = basicPublicCurrencyService.findByListCurrency();

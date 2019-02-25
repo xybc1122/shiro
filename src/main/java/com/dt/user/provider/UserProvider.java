@@ -1,8 +1,7 @@
 package com.dt.user.provider;
 
 
-import com.dt.user.dto.PageDto;
-import com.dt.user.utils.DateUtils;
+import com.dt.user.dto.UserDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -15,7 +14,7 @@ import java.util.Date;
 public class UserProvider {
 
 
-    public String findUsers(PageDto userDto) {
+    public String findUsers(UserDto userDto) {
         return new SQL() {{
             SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
                     "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.effective_date,u.pwd_status");
@@ -116,7 +115,7 @@ public class UserProvider {
     }
 
 
-    public String findByRoleInfo(PageDto userDto) {
+    public String findByRoleInfo(UserDto userDto) {
         return new SQL() {{
             SELECT(" r.r_name,GROUP_CONCAT(DISTINCT u.user_name)as userName,GROUP_CONCAT(DISTINCT m.name)as menuName FROM system_user_info AS u");
             INNER_JOIN("system_user_role_user AS ur ON ur.`u_id`=u.`uid`");

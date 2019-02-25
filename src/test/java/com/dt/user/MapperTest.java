@@ -1,6 +1,8 @@
 //package com.dt.user;
 //
 //
+//import com.dt.user.mapper.BasePublicMapper.BasicPublicCountryMapper;
+//import com.dt.user.model.BasePublicModel.BasicPublicCountry;
 //import com.dt.user.service.BasePublicService.BasicPublicProductsService;
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
@@ -13,11 +15,11 @@
 //@SpringBootTest
 //public class MapperTest {
 //    @Autowired
-//    private BasicPublicProductsService basicPublicProducts;
+//    private BasicPublicCountryMapper countryMapper;
 //
 //    @Test
 //    public void add() {
-//        basicPublicProducts.findByProductsInfo();
+////        countryMapper.findByUsers();
 //    }
 //
 //}

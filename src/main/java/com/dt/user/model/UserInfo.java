@@ -2,7 +2,6 @@ package com.dt.user.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.io.Serializable;
 import java.util.List;

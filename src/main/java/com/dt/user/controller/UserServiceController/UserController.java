@@ -2,7 +2,7 @@ package com.dt.user.controller.UserServiceController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.model.UserRole;
 import com.dt.user.service.HrArchivesEmployeeService;
@@ -17,8 +17,6 @@ import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.crypto.hash.SimpleHash;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +54,7 @@ public class UserController {
     //shiro权限控制
     @RequiresPermissions("sys:add")
     @PostMapping("/show")
-    public ResponseBase showUsers(@RequestBody PageDto pageDto) {
+    public ResponseBase showUsers(@RequestBody UserDto pageDto) {
         if (pageDto.getCurrentPage() == null || pageDto.getPageSize() == null) {
             return BaseApiService.setResultError("分页参数失效");
         }
@@ -164,7 +162,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/getDelUser")
-    public ResponseBase getDelUser(@RequestBody PageDto pageDto) {
+    public ResponseBase getDelUser(@RequestBody UserDto pageDto) {
         PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
         List<UserInfo> userDel = userService.findByDelUserInfo();
         PageInfo<UserInfo> pageInfo = new PageInfo<>(userDel);

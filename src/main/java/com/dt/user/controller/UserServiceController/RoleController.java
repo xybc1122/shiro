@@ -2,7 +2,7 @@ package com.dt.user.controller.UserServiceController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.Role;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.RoleService;
@@ -40,7 +40,7 @@ public class RoleController {
      * @return
      */
     @PostMapping("/getRoles")
-    public ResponseBase getRoles(@RequestBody PageDto pageDto) {
+    public ResponseBase getRoles(@RequestBody UserDto pageDto) {
         if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
             PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
             List<UserInfo> listRoles = roleService.findByRoleInfo(pageDto);

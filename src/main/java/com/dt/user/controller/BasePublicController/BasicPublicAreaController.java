@@ -2,7 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.BasePublicModel.BasicPublicArea;
 import com.dt.user.service.BasePublicService.BasicPublicAreaService;
 import com.dt.user.utils.PageInfoUtils;
@@ -24,7 +24,7 @@ public class BasicPublicAreaController {
      * @return
      */
     @PostMapping("/findByListRegion")
-    public ResponseBase findByListCompany(@RequestBody PageDto pageDto) {
+    public ResponseBase findByListCompany(@RequestBody UserDto pageDto) {
         List<BasicPublicArea> basicPublicAreaList;
         if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
             PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
@@ -33,7 +33,8 @@ public class BasicPublicAreaController {
             Integer currentPage = pageDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
-        return BaseApiService.setResultSuccess("分页无参数", basicPublicAreaList);
+        basicPublicAreaList = basicPublicAreaService.findByListArea();
+        return BaseApiService.setResultSuccess("分页无参数",basicPublicAreaList);
     }
 
 }

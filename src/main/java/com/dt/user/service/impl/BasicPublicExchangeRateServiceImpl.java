@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.ExchangeRateDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicExchangeRateMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicExchangeRate;
 import com.dt.user.service.BasePublicService.BasicPublicExchangeRateService;
@@ -15,7 +16,7 @@ public class BasicPublicExchangeRateServiceImpl implements BasicPublicExchangeRa
     private BasicPublicExchangeRateMapper rateMapper;
 
     @Override
-    public List<BasicPublicExchangeRate> getRateInfo() {
-        return rateMapper.getRateInfo();
+    public List<BasicPublicExchangeRate> getRateInfo(ExchangeRateDto rateDto) {
+        return rateMapper.getRateInfo(rateDto);
     }
 }

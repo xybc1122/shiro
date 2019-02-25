@@ -2,8 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
-import com.dt.user.model.BasePublicModel.BasicPublicShop;
+import com.dt.user.dto.SiteDto;
 import com.dt.user.model.BasePublicModel.BasicPublicSite;
 import com.dt.user.service.BasePublicService.BasicPublicSiteService;
 import com.dt.user.utils.PageInfoUtils;
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("site")
+@RequestMapping("/site")
 public class BasicPublicSiteController {
 
     @Autowired
@@ -27,12 +26,12 @@ public class BasicPublicSiteController {
      * @return
      */
     @PostMapping("/findByListSite")
-    public ResponseBase findByListSite(@RequestBody PageDto pageDto) {
-        if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
-            PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
-            List<BasicPublicSite> basicPublicSiteList = basicPublicSiteService.findBySiteList();
+    public ResponseBase findByListSite(@RequestBody SiteDto siteDto) {
+        if (siteDto.getCurrentPage() != null && siteDto.getPageSize() != null) {
+            PageHelper.startPage(siteDto.getCurrentPage(), siteDto.getPageSize());
+            List<BasicPublicSite> basicPublicSiteList = basicPublicSiteService.findBySiteList(siteDto);
             PageInfo<BasicPublicSite> pageInfo = new PageInfo<>(basicPublicSiteList);
-            Integer currentPage = pageDto.getCurrentPage();
+            Integer currentPage = siteDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
         return BaseApiService.setResultError("分页无参数");

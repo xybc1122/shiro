@@ -2,7 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.model.BasePublicModel.BasicPublicShop;
 import com.dt.user.service.BasePublicService.BasicPublicShopService;
 import com.dt.user.utils.PageInfoUtils;
@@ -25,7 +25,7 @@ public class BasicPublicShopController {
      * @return
      */
     @PostMapping("/findByListShop")
-    public ResponseBase findByListShop(@RequestBody PageDto pageDto) {
+    public ResponseBase findByListShop(@RequestBody UserDto pageDto) {
         if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
             PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
             List<BasicPublicShop> basicPublicShopList = basicPublicShopService.findByListShop();

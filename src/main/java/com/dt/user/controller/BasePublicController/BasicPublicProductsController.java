@@ -5,6 +5,7 @@ import com.dt.user.config.ResponseBase;
 import com.dt.user.model.BasePublicModel.BasicPublicProducts;
 import com.dt.user.service.BasePublicService.BasicPublicProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +22,7 @@ public class BasicPublicProductsController {
      *
      * @return
      */
-    @RequestMapping("/findByListProducts")
+    @GetMapping("/findByListProducts")
     public ResponseBase findByListProducts() {
         List<BasicPublicProducts> basicPublicSiteList = publicProductsService.findByProductsInfo();
         return BaseApiService.setResultSuccess(basicPublicSiteList);

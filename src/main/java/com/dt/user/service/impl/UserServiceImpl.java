@@ -1,7 +1,7 @@
 package com.dt.user.service.impl;
 
 
-import com.dt.user.dto.PageDto;
+import com.dt.user.dto.UserDto;
 import com.dt.user.mapper.UserMapper;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserInfo> findByUsers(PageDto pageDto) {
+    public List<UserInfo> findByUsers(UserDto pageDto) {
 
         return userMapper.findByUsers(pageDto);
     }
