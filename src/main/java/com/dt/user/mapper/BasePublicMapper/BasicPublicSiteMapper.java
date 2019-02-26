@@ -16,7 +16,7 @@ public interface BasicPublicSiteMapper {
      * 查询所有站点信息 //包含区域信息
      */
     @SelectProvider(type = BasicPublicSiteProvider.class, method = "findSite")
-    List<BasicPublicSite> findBySiteList(SiteDto siteDto);
+    List<SiteDto> findBySiteList(SiteDto siteDto);
 
     /**
      * 通过店铺id查询站点信息

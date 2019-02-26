@@ -1,4 +1,5 @@
-package com.sample;
+package com.dt.user.model.BasePublicModel;
+
 
 /**
  * 货运公司
@@ -10,7 +11,7 @@ public class BasicLogisticsmgtTransportCompany {
   private String transportCompanyName;
   private String transportCompanyFullName;
   private String contactPerson;
-  private String telphone;
+  private String telPhone;
   private String mobile;
   private String eMail;
   private String address;
@@ -64,12 +65,12 @@ public class BasicLogisticsmgtTransportCompany {
     this.contactPerson = contactPerson;
   }
 
-  public String getTelphone() {
-    return telphone;
+  public String getTelPhone() {
+    return telPhone;
   }
 
-  public void setTelphone(String telphone) {
-    this.telphone = telphone;
+  public void setTelPhone(String telPhone) {
+    this.telPhone = telPhone;
   }
 
   public String getMobile() {

@@ -1,11 +1,11 @@
 package com.dt.user.dto;
 
-import com.dt.user.model.BasePublicModel.BasicPublicExchangeRate;
+import com.dt.user.model.BasePublicModel.BasicPublicCompany;
 import com.dt.user.model.SystemLogStatus;
 
-public class ExchangeRateDto extends BasicPublicExchangeRate {
-
-
+public class CompanyDto extends BasicPublicCompany {
+    //状态对象
+    private SystemLogStatus systemLogStatus;
     /**
      * 当前页
      */
@@ -15,21 +15,6 @@ public class ExchangeRateDto extends BasicPublicExchangeRate {
      * 显示的页数
      */
     private Integer pageSize;
-    /**
-     * 币别名称
-     */
-    private String currencyName;
-
-    //状态对象
-    private SystemLogStatus systemLogStatus;
-
-
-    public String getCurrencyName() {
-        return currencyName;
-    }
-    public void setCurrencyName(String currencyName) {
-        this.currencyName = currencyName;
-    }
 
     public Integer getCurrentPage() {
         return currentPage;

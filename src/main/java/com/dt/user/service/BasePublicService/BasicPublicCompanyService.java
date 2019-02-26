@@ -1,7 +1,6 @@
 package com.dt.user.service.BasePublicService;
 
-import com.dt.user.model.BasePublicModel.BasicPublicCompany;
-
+import com.dt.user.dto.CompanyDto;
 import java.util.List;
 
 public interface BasicPublicCompanyService {
@@ -11,5 +10,5 @@ public interface BasicPublicCompanyService {
      * 查询公司所有相关信息
      * @return
      */
-    List<BasicPublicCompany> findByListCompany();
+    List<CompanyDto> findByListCompany();
 }

@@ -45,7 +45,7 @@ public interface UserMapper {
 
 
     /**
-     * 通过 id查询 用户 跟角色
+     * 通过 id查询 用户 跟角色  一对多
      */
     @Select("SELECT uid,user_name,`status`,`name` FROM system_user_info WHERE uid=#{uid}")
     @Results({

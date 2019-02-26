@@ -8,5 +8,5 @@ import java.util.List;
 public interface BasicPublicExchangeRateService {
 
     //查询汇率信息
-    List<BasicPublicExchangeRate> getRateInfo(ExchangeRateDto rateDto);
+    List<ExchangeRateDto> getRateInfo(ExchangeRateDto rateDto);
 }

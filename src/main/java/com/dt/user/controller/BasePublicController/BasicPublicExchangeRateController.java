@@ -3,7 +3,6 @@ package com.dt.user.controller.BasePublicController;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.ExchangeRateDto;
-import com.dt.user.model.BasePublicModel.BasicPublicExchangeRate;
 import com.dt.user.service.BasePublicService.BasicPublicExchangeRateService;
 import com.dt.user.utils.PageInfoUtils;
 import com.github.pagehelper.PageHelper;
@@ -26,8 +25,8 @@ public class BasicPublicExchangeRateController {
     public ResponseBase findByListRate(@RequestBody ExchangeRateDto rateDto) {
         if (rateDto.getCurrentPage() != null && rateDto.getPageSize() != null) {
             PageHelper.startPage(rateDto.getCurrentPage(), rateDto.getPageSize());
-            List<BasicPublicExchangeRate> basicPublicSiteList = rateService.getRateInfo(rateDto);
-            PageInfo<BasicPublicExchangeRate> pageInfo = new PageInfo<>(basicPublicSiteList);
+            List<ExchangeRateDto> basicPublicSiteList = rateService.getRateInfo(rateDto);
+            PageInfo<ExchangeRateDto> pageInfo = new PageInfo<>(basicPublicSiteList);
             Integer currentPage = rateDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }

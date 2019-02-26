@@ -4,65 +4,75 @@ import java.io.Serializable;
 
 public class TableHead implements Serializable {
 
-  private Long id;
-  private String headName;
-  private String menuId;
-  private String topType;
-  /**
-   * 菜单名称
-   */
-  private String name ;
-  /**
-   * 接收ids
-   */
-  private String ids;
-  public String getName() {
-    return name;
-  }
+    private Long id;
+    private String headName;
+    private String menuId;
+    private String topType;
+    private int isFixed;
+    /**
+     * 菜单名称
+     */
+    private String name;
+    /**
+     * 接收ids
+     */
+    private String ids;
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public String getIds() {
-    return ids;
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  public void setIds(String ids) {
-    this.ids = ids;
-  }
+    public String getIds() {
+        return ids;
+    }
 
-  public Long getId() {
-    return id;
-  }
+    public void setIds(String ids) {
+        this.ids = ids;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-
-  public String getHeadName() {
-    return headName;
-  }
-
-  public void setHeadName(String headName) {
-    this.headName = headName;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
 
-  public String getMenuId() {
-    return menuId;
-  }
+    public String getHeadName() {
+        return headName;
+    }
 
-  public void setMenuId(String menuId) {
-    this.menuId = menuId;
-  }
+    public void setHeadName(String headName) {
+        this.headName = headName;
+    }
 
-  public String getTopType() {
-    return topType;
-  }
 
-  public void setTopType(String topType) {
-    this.topType = topType;
-  }
+    public String getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(String menuId) {
+        this.menuId = menuId;
+    }
+
+    public String getTopType() {
+        return topType;
+    }
+
+    public void setTopType(String topType) {
+        this.topType = topType;
+    }
+
+    public int getIsFixed() {
+        return isFixed;
+    }
+
+    public void setIsFixed(int isFixed) {
+        this.isFixed = isFixed;
+    }
 }

@@ -10,13 +10,13 @@ public class BasicPublicProductProvider {
     public String findProduct(ProductDto productDto) {
         return new SQL() {{
             SELECT("p.`product_id`,p.`product_code`,p.`product_name`,p.`model`,\n" +
-                    "  p.`qty_per_box`,p.`product_sku`,p.`products_id`,\n" +
-                    "  p.`length_cm`,p.`width_cm`,p.`height_cm`,\n" +
-                    "  p.`gw_kg`,p.`nw_kg`,p.`volume_m3`,p.`length_in`,\n" +
-                    "  p.`width_in`,p.`height_in`,p.`volume_cuft`,p.`made_in`,\n" +
-                    "  p.`hs_code_id`,p.`remark`,p.`status`,\n" +
-                    "  p.`create_date`,p.`create_id_user`,p.`modify_date`,p.`modify_id_user`,p.`audit_date`,p.`audit_id_user`,\n" +
-                    "  ia.item_attribute_name,it.item_typ_name,ps.products_name,hc.hs_code, u.unit_name,\n" +
+                    " p.`qty_per_box`,p.`product_sku`,p.`products_id`,\n" +
+                    " p.`length_cm`,p.`width_cm`,p.`height_cm`,\n" +
+                    " p.`gw_kg`,p.`nw_kg`,p.`volume_m3`,p.`length_in`,\n" +
+                    " p.`width_in`,p.`height_in`,p.`volume_cuft`,p.`made_in`,\n" +
+                    " p.`hs_code_id`,p.`remark`,p.`status`,\n" +
+                    " p.`create_date`,p.`create_id_user`,p.`modify_date`,p.`modify_id_user`,p.`audit_date`,p.`audit_id_user`,\n" +
+                    " ia.item_attribute_name,it.item_typ_name,ps.products_name,hc.hs_code, u.unit_name\n" +
                     "FROM `basic_public_product` AS p");
             LEFT_OUTER_JOIN("`basic_public_measurement_unit` AS u ON u.unit_id=p.`unit_id`");
             LEFT_OUTER_JOIN("`basic_public_item_attribute` AS ia ON ia.item_attribute_id = p.`item_attribute_id`");

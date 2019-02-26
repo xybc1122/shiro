@@ -16,7 +16,7 @@ public class BasicPublicExchangeRateServiceImpl implements BasicPublicExchangeRa
     private BasicPublicExchangeRateMapper rateMapper;
 
     @Override
-    public List<BasicPublicExchangeRate> getRateInfo(ExchangeRateDto rateDto) {
+    public List<ExchangeRateDto> getRateInfo(ExchangeRateDto rateDto) {
         return rateMapper.getRateInfo(rateDto);
     }
 }

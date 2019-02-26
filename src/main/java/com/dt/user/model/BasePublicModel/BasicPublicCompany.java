@@ -1,9 +1,10 @@
 package com.dt.user.model.BasePublicModel;
 
+
 /**
  * 公司表
  */
-public class BasicPublicCompany {
+public class BasicPublicCompany{
     /**
      * 公司ID
      */
@@ -11,23 +12,23 @@ public class BasicPublicCompany {
     /**
      * 公司编号
      */
-    private Integer companyNumber;
+    private Integer number;
     /**
      * 公司全称
      */
-    private String companyFullName;
+    private String fullName;
     /**
-     *公司全称英文
+     * 公司全称英文
      */
-    private String companyFullNameEng;
+    private String fullNameEng;
     /**
      * 公司简称
      */
-    private String companyShortName;
+    private String shortName;
     /**
      * 公司简称英文
      */
-    private String companyShortNameEng;
+    private String shortNameEng;
     /**
      * 信用代码
      */
@@ -58,85 +59,52 @@ public class BasicPublicCompany {
      */
     private String telPhone;
     /**
-     * 备注
+     * 状态ID
      */
-    private String remark;
-    /**
-     * 状态
-     */
-    private Integer status;
-    /**
-     * 创建时间
-     */
-    private Long createDate;
-    /**
-     * 创建人
-     */
-    private Long createIdUser;
-    /**
-     * 修改日期
-     */
-    private Long modifyDate;
-    /**
-     * 修改人
-     */
-    private Long modifyIdUser;
-    /**
-     * 审核时间
-     */
-    private Long auditDate;
-    /**
-     * 审核人
-     */
-    private Long auditIdUser;
+    private Long statusId;
 
+    public Long getStatusId() {
+        return statusId;
+    }
 
-    public Integer getCompanyId() {
-        return companyId;
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
 
     public void setCompanyId(Integer companyId) {
         this.companyId = companyId;
     }
 
-    public Integer getCompanyNumber() {
-        return companyNumber;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setCompanyNumber(Integer companyNumber) {
-        this.companyNumber = companyNumber;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
-    public String getCompanyFullName() {
-        return companyFullName;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setCompanyFullName(String companyFullName) {
-        this.companyFullName = companyFullName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
-    public String getCompanyFullNameEng() {
-        return companyFullNameEng;
+    public String getFullNameEng() {
+        return fullNameEng;
     }
 
-    public void setCompanyFullNameEng(String companyFullNameEng) {
-        this.companyFullNameEng = companyFullNameEng;
+    public void setFullNameEng(String fullNameEng) {
+        this.fullNameEng = fullNameEng;
     }
 
-    public String getCompanyShortName() {
-        return companyShortName;
+    public String getShortNameEng() {
+        return shortNameEng;
     }
 
-    public void setCompanyShortName(String companyShortName) {
-        this.companyShortName = companyShortName;
-    }
-
-    public String getCompanyShortNameEng() {
-        return companyShortNameEng;
-    }
-
-    public void setCompanyShortNameEng(String companyShortNameEng) {
-        this.companyShortNameEng = companyShortNameEng;
+    public void setShortNameEng(String shortNameEng) {
+        this.shortNameEng = shortNameEng;
     }
 
     public String getCreditCode() {
@@ -195,67 +163,16 @@ public class BasicPublicCompany {
         this.telPhone = telPhone;
     }
 
-    public String getRemark() {
-        return remark;
+    public Integer getCompanyId() {
+        return companyId;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public String getShortName() {
+        return shortName;
     }
 
-    public Integer getStatus() {
-        return status;
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getCreateIdUser() {
-        return createIdUser;
-    }
-
-    public void setCreateIdUser(Long createIdUser) {
-        this.createIdUser = createIdUser;
-    }
-
-    public Long getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Long modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Long getModifyIdUser() {
-        return modifyIdUser;
-    }
-
-    public void setModifyIdUser(Long modifyIdUser) {
-        this.modifyIdUser = modifyIdUser;
-    }
-
-    public Long getAuditDate() {
-        return auditDate;
-    }
-
-    public void setAuditDate(Long auditDate) {
-        this.auditDate = auditDate;
-    }
-
-    public Long getAuditIdUser() {
-        return auditIdUser;
-    }
-
-    public void setAuditIdUser(Long auditIdUser) {
-        this.auditIdUser = auditIdUser;
-    }
 }

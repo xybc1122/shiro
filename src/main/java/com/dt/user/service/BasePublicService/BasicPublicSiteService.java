@@ -13,7 +13,7 @@ public interface BasicPublicSiteService {
      *
      * @return
      */
-    List<BasicPublicSite> findBySiteList(SiteDto siteDto);
+    List<SiteDto> findBySiteList(SiteDto siteDto);
 
 
     /**

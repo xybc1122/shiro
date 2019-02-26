@@ -47,7 +47,7 @@ public class BasicPublicShop {
     /**
      * 创建人
      */
-    private Long createIdUser;
+    private String createUser;
     /**
      * 修改日期
      */
@@ -55,7 +55,7 @@ public class BasicPublicShop {
     /**
      * 修改人
      */
-    private Long modifyIdUser;
+    private String modifyUser;
     /**
      * 审核时间
      */
@@ -63,7 +63,7 @@ public class BasicPublicShop {
     /**
      * 审核人
      */
-    private Long auditIdUser;
+    private String auditUser;
 
     public String getPlatformTypeName() {
         return platformTypeName;
@@ -145,28 +145,12 @@ public class BasicPublicShop {
         this.createDate = createDate;
     }
 
-    public Long getCreateIdUser() {
-        return createIdUser;
-    }
-
-    public void setCreateIdUser(Long createIdUser) {
-        this.createIdUser = createIdUser;
-    }
-
     public Long getModifyDate() {
         return modifyDate;
     }
 
     public void setModifyDate(Long modifyDate) {
         this.modifyDate = modifyDate;
-    }
-
-    public Long getModifyIdUser() {
-        return modifyIdUser;
-    }
-
-    public void setModifyIdUser(Long modifyIdUser) {
-        this.modifyIdUser = modifyIdUser;
     }
 
     public Long getAuditDate() {
@@ -177,11 +161,27 @@ public class BasicPublicShop {
         this.auditDate = auditDate;
     }
 
-    public Long getAuditIdUser() {
-        return auditIdUser;
+    public String getCreateUser() {
+        return createUser;
     }
 
-    public void setAuditIdUser(Long auditIdUser) {
-        this.auditIdUser = auditIdUser;
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
+    }
+
+    public String getModifyUser() {
+        return modifyUser;
+    }
+
+    public void setModifyUser(String modifyUser) {
+        this.modifyUser = modifyUser;
+    }
+
+    public String getAuditUser() {
+        return auditUser;
+    }
+
+    public void setAuditUser(String auditUser) {
+        this.auditUser = auditUser;
     }
 }

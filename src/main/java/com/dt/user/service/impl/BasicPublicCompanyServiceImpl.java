@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.CompanyDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicCompanyMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicCompany;
 import com.dt.user.service.BasePublicService.BasicPublicCompanyService;
@@ -14,7 +15,7 @@ public class BasicPublicCompanyServiceImpl implements BasicPublicCompanyService 
     private BasicPublicCompanyMapper basicPublicCompanyMapper;
 
     @Override
-    public List<BasicPublicCompany> findByListCompany() {
+    public List<CompanyDto> findByListCompany() {
         return basicPublicCompanyMapper.findByListCompany();
     }
 }

@@ -57,9 +57,11 @@ public class TableHeadImpl implements TableHeadService {
                 //切割变成数组
                 String[] menu_id = head.getMenuId().trim().split(",");
                 for (int i = 0; i < menu_id.length; i++) {
-                    int menuId = Integer.parseInt(menu_id[i]);
-                    if (mId == menuId) {
-                        headNew.add(head);
+                    if (StringUtils.isNotBlank(menu_id[i])) {
+                        int menuId = Integer.parseInt(menu_id[i]);
+                        if (mId == menuId) {
+                            headNew.add(head);
+                        }
                     }
                 }
             }

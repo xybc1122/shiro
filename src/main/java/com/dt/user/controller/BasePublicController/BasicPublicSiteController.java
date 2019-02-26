@@ -29,8 +29,8 @@ public class BasicPublicSiteController {
     public ResponseBase findByListSite(@RequestBody SiteDto siteDto) {
         if (siteDto.getCurrentPage() != null && siteDto.getPageSize() != null) {
             PageHelper.startPage(siteDto.getCurrentPage(), siteDto.getPageSize());
-            List<BasicPublicSite> basicPublicSiteList = basicPublicSiteService.findBySiteList(siteDto);
-            PageInfo<BasicPublicSite> pageInfo = new PageInfo<>(basicPublicSiteList);
+            List<SiteDto> basicPublicSiteList = basicPublicSiteService.findBySiteList(siteDto);
+            PageInfo<SiteDto> pageInfo = new PageInfo<>(basicPublicSiteList);
             Integer currentPage = siteDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }

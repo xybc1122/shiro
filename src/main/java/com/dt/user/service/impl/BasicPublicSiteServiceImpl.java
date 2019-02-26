@@ -16,7 +16,7 @@ public class BasicPublicSiteServiceImpl implements BasicPublicSiteService {
     private BasicPublicSiteMapper basicPublicSiteMapper;
 
     @Override
-    public List<BasicPublicSite> findBySiteList(SiteDto siteDto) {
+    public List<SiteDto> findBySiteList(SiteDto siteDto) {
         return basicPublicSiteMapper.findBySiteList(siteDto);
     }
 
