@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/war")
+@RequestMapping("/api/war")
 public class BasicPublicWarehouseController {
     @Autowired
     private BasicPublicWarehouseService warehouseService;

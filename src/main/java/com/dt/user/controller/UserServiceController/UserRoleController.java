@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/ur")
+@RequestMapping("/api/ur")
 @RestController
 public class UserRoleController {
 
