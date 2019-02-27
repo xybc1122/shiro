@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.CurrencyDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicCurrencyMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
 import com.dt.user.service.BasePublicService.BasicPublicCurrencyService;
@@ -13,7 +14,7 @@ public class BasicPublicCurrencyServiceImpl implements BasicPublicCurrencyServic
     private BasicPublicCurrencyMapper basicPublicCurrencyMapper;
 
     @Override
-    public List<BasicPublicCurrency> findByListCurrency() {
+    public List<CurrencyDto> findByListCurrency() {
         return basicPublicCurrencyMapper.findByListCurrency();
     }
 }

@@ -1,86 +1,35 @@
 package com.dt.user.model.BasePublicModel;
 
 /**
- * 站点类
+ * 站点表
  */
 public class BasicPublicSite {
-    /**
-     * 站点ID
-     */
-    private Long siteId;
-    /**
-     * 站点编号
-     */
-    private Long siteNumber;
-    /**
-     * 站点名称
-     */
-    private String siteName;
-    /**
-     * 英文简称
-     */
-    private String siteEng;
+
+  private Integer siteId;
+  private Integer number;
+  private String siteName;
+  private String siteNameEng;
+  private String siteShortNameEng;
+  private String url;
+  private Double vat;
+  private Long principal;
+  private Long statusId;
 
 
-    /**
-     * URL
-     */
-    private String url;
-    /**
-     * VAT税率
-     */
-    private String vat;
-    /**
-     * 负责人
-     */
-    private String principal;
-    /**
-     * 备注
-     */
-    private String remark;
-    /**
-     * 状态
-     */
-    private Integer status;
-    /**
-     * 创建时间
-     */
-    private Long createDate;
-    /**
-     * 创建人
-     */
-    private Long createIdUser;
-    /**
-     * 修改日期
-     */
-    private Long modifyDate;
-    /**
-     * 修改人
-     */
-    private Long modifyIdUser;
-    /**
-     * 审核时间
-     */
-    private Long auditDate;
-    /**
-     * 审核人
-     */
-    private Long auditIdUser;
-
-    public Long getSiteId() {
+    public Integer getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(Long siteId) {
+    public void setSiteId(Integer siteId) {
         this.siteId = siteId;
     }
 
-    public Long getSiteNumber() {
-        return siteNumber;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setSiteNumber(Long siteNumber) {
-        this.siteNumber = siteNumber;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public String getSiteName() {
@@ -91,12 +40,20 @@ public class BasicPublicSite {
         this.siteName = siteName;
     }
 
-    public String getSiteEng() {
-        return siteEng;
+    public String getSiteNameEng() {
+        return siteNameEng;
     }
 
-    public void setSiteEng(String siteEng) {
-        this.siteEng = siteEng;
+    public void setSiteNameEng(String siteNameEng) {
+        this.siteNameEng = siteNameEng;
+    }
+
+    public String getSiteShortNameEng() {
+        return siteShortNameEng;
+    }
+
+    public void setSiteShortNameEng(String siteShortNameEng) {
+        this.siteShortNameEng = siteShortNameEng;
     }
 
     public String getUrl() {
@@ -107,84 +64,27 @@ public class BasicPublicSite {
         this.url = url;
     }
 
-    public String getVat() {
+    public Double getVat() {
         return vat;
     }
 
-    public void setVat(String vat) {
+    public void setVat(Double vat) {
         this.vat = vat;
     }
 
-    public String getPrincipal() {
+    public Long getPrincipal() {
         return principal;
     }
 
-    public void setPrincipal(String principal) {
+    public void setPrincipal(Long principal) {
         this.principal = principal;
     }
 
-    public String getRemark() {
-        return remark;
+    public Long getStatusId() {
+        return statusId;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getCreateIdUser() {
-        return createIdUser;
-    }
-
-    public void setCreateIdUser(Long createIdUser) {
-        this.createIdUser = createIdUser;
-    }
-
-    public Long getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Long modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Long getModifyIdUser() {
-        return modifyIdUser;
-    }
-
-    public void setModifyIdUser(Long modifyIdUser) {
-        this.modifyIdUser = modifyIdUser;
-    }
-
-    public Long getAuditDate() {
-        return auditDate;
-    }
-
-    public void setAuditDate(Long auditDate) {
-        this.auditDate = auditDate;
-    }
-
-    public Long getAuditIdUser() {
-        return auditIdUser;
-    }
-
-    public void setAuditIdUser(Long auditIdUser) {
-        this.auditIdUser = auditIdUser;
-    }
-
 }

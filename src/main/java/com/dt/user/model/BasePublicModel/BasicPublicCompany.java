@@ -4,7 +4,7 @@ package com.dt.user.model.BasePublicModel;
 /**
  * 公司表
  */
-public class BasicPublicCompany{
+public class BasicPublicCompany {
     /**
      * 公司ID
      */
@@ -16,19 +16,19 @@ public class BasicPublicCompany{
     /**
      * 公司全称
      */
-    private String fullName;
+    private String companyName;
     /**
      * 公司全称英文
      */
-    private String fullNameEng;
+    private String companyNameEng;
     /**
      * 公司简称
      */
-    private String shortName;
+    private String companyShortName;
     /**
      * 公司简称英文
      */
-    private String shortNameEng;
+    private String companyShortNameEng;
     /**
      * 信用代码
      */
@@ -48,11 +48,11 @@ public class BasicPublicCompany{
     /**
      * 公司地址
      */
-    private String address;
+    private String companyAddress;
     /**
      * 公司地址英文
      */
-    private String addressEng;
+    private String companyAddressEng;
 
     /**
      * 公司电话
@@ -62,13 +62,21 @@ public class BasicPublicCompany{
      * 状态ID
      */
     private Long statusId;
+    /**
+     * 公司短代码
+     */
+    private String companyShortCode;
 
-    public Long getStatusId() {
-        return statusId;
+    public String getCompanyShortCode() {
+        return companyShortCode;
     }
 
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
+    public void setCompanyShortCode(String companyShortCode) {
+        this.companyShortCode = companyShortCode;
+    }
+
+    public Integer getCompanyId() {
+        return companyId;
     }
 
     public void setCompanyId(Integer companyId) {
@@ -83,28 +91,36 @@ public class BasicPublicCompany{
         this.number = number;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
-    public String getFullNameEng() {
-        return fullNameEng;
+    public String getCompanyNameEng() {
+        return companyNameEng;
     }
 
-    public void setFullNameEng(String fullNameEng) {
-        this.fullNameEng = fullNameEng;
+    public void setCompanyNameEng(String companyNameEng) {
+        this.companyNameEng = companyNameEng;
     }
 
-    public String getShortNameEng() {
-        return shortNameEng;
+    public String getCompanyShortName() {
+        return companyShortName;
     }
 
-    public void setShortNameEng(String shortNameEng) {
-        this.shortNameEng = shortNameEng;
+    public void setCompanyShortName(String companyShortName) {
+        this.companyShortName = companyShortName;
+    }
+
+    public String getCompanyShortNameEng() {
+        return companyShortNameEng;
+    }
+
+    public void setCompanyShortNameEng(String companyShortNameEng) {
+        this.companyShortNameEng = companyShortNameEng;
     }
 
     public String getCreditCode() {
@@ -139,20 +155,20 @@ public class BasicPublicCompany{
         this.accountType = accountType;
     }
 
-    public String getAddress() {
-        return address;
+    public String getCompanyAddress() {
+        return companyAddress;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setCompanyAddress(String companyAddress) {
+        this.companyAddress = companyAddress;
     }
 
-    public String getAddressEng() {
-        return addressEng;
+    public String getCompanyAddressEng() {
+        return companyAddressEng;
     }
 
-    public void setAddressEng(String addressEng) {
-        this.addressEng = addressEng;
+    public void setCompanyAddressEng(String companyAddressEng) {
+        this.companyAddressEng = companyAddressEng;
     }
 
     public String getTelPhone() {
@@ -163,16 +179,11 @@ public class BasicPublicCompany{
         this.telPhone = telPhone;
     }
 
-    public Integer getCompanyId() {
-        return companyId;
+    public Long getStatusId() {
+        return statusId;
     }
 
-    public String getShortName() {
-        return shortName;
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
-
-    public void setShortName(String shortName) {
-        this.shortName = shortName;
-    }
-
 }

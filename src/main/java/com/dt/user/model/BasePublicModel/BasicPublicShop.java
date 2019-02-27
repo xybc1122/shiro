@@ -11,7 +11,7 @@ public class BasicPublicShop {
     /**
      * 店铺编号
      */
-    private Long shopNumber;
+    private Long number;
     /**
      * 店铺名称
      */
@@ -19,11 +19,11 @@ public class BasicPublicShop {
     /**
      * 店铺英文
      */
-    private String shopEng;
+    private String shopNameEng;
     /**
      * 公司名称
      */
-    private String companyFullName;
+    private String companyName;
     /**
      *平台名称
      */
@@ -33,45 +33,13 @@ public class BasicPublicShop {
      */
     private String principal;
     /**
-     * 备注
+     * 短代码
      */
-    private String remark;
+    private String shopShortCode;
     /**
-     * 状态
+     * 状态ID
      */
-    private Integer status;
-    /**
-     * 创建时间
-     */
-    private Long createDate;
-    /**
-     * 创建人
-     */
-    private String createUser;
-    /**
-     * 修改日期
-     */
-    private Long modifyDate;
-    /**
-     * 修改人
-     */
-    private String modifyUser;
-    /**
-     * 审核时间
-     */
-    private Long auditDate;
-    /**
-     * 审核人
-     */
-    private String auditUser;
-
-    public String getPlatformTypeName() {
-        return platformTypeName;
-    }
-
-    public void setPlatformTypeName(String platformTypeName) {
-        this.platformTypeName = platformTypeName;
-    }
+    private Long statusId;
 
     public Long getShopId() {
         return shopId;
@@ -81,12 +49,12 @@ public class BasicPublicShop {
         this.shopId = shopId;
     }
 
-    public Long getShopNumber() {
-        return shopNumber;
+    public Long getNumber() {
+        return number;
     }
 
-    public void setShopNumber(Long shopNumber) {
-        this.shopNumber = shopNumber;
+    public void setNumber(Long number) {
+        this.number = number;
     }
 
     public String getShopName() {
@@ -97,20 +65,28 @@ public class BasicPublicShop {
         this.shopName = shopName;
     }
 
-    public String getShopEng() {
-        return shopEng;
+    public String getShopNameEng() {
+        return shopNameEng;
     }
 
-    public void setShopEng(String shopEng) {
-        this.shopEng = shopEng;
+    public void setShopNameEng(String shopNameEng) {
+        this.shopNameEng = shopNameEng;
     }
 
-    public String getCompanyFullName() {
-        return companyFullName;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setCompanyFullName(String companyFullName) {
-        this.companyFullName = companyFullName;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public String getPlatformTypeName() {
+        return platformTypeName;
+    }
+
+    public void setPlatformTypeName(String platformTypeName) {
+        this.platformTypeName = platformTypeName;
     }
 
     public String getPrincipal() {
@@ -121,67 +97,19 @@ public class BasicPublicShop {
         this.principal = principal;
     }
 
-    public String getRemark() {
-        return remark;
+    public String getShopShortCode() {
+        return shopShortCode;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setShopShortCode(String shopShortCode) {
+        this.shopShortCode = shopShortCode;
     }
 
-    public Integer getStatus() {
-        return status;
+    public Long getStatusId() {
+        return statusId;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Long modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Long getAuditDate() {
-        return auditDate;
-    }
-
-    public void setAuditDate(Long auditDate) {
-        this.auditDate = auditDate;
-    }
-
-    public String getCreateUser() {
-        return createUser;
-    }
-
-    public void setCreateUser(String createUser) {
-        this.createUser = createUser;
-    }
-
-    public String getModifyUser() {
-        return modifyUser;
-    }
-
-    public void setModifyUser(String modifyUser) {
-        this.modifyUser = modifyUser;
-    }
-
-    public String getAuditUser() {
-        return auditUser;
-    }
-
-    public void setAuditUser(String auditUser) {
-        this.auditUser = auditUser;
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
 }

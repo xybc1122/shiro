@@ -14,9 +14,21 @@ public class TableHead implements Serializable {
      */
     private String name;
     /**
+     * 输入框类型
+     */
+    private String inputType;
+    /**
      * 接收ids
      */
     private String ids;
+
+    public String getInputType() {
+        return inputType;
+    }
+
+    public void setInputType(String inputType) {
+        this.inputType = inputType;
+    }
 
     public String getName() {
         return name;

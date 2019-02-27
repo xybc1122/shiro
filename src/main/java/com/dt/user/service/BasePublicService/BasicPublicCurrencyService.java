@@ -1,6 +1,6 @@
 package com.dt.user.service.BasePublicService;
 
-import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
+import com.dt.user.dto.CurrencyDto;
 import java.util.List;
 
 public interface BasicPublicCurrencyService {
@@ -10,5 +10,5 @@ public interface BasicPublicCurrencyService {
      *
      * @return
      */
-    List<BasicPublicCurrency> findByListCurrency();
+    List<CurrencyDto> findByListCurrency();
 }

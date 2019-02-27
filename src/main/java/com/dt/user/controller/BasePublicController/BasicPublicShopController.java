@@ -2,6 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.dto.ShopDto;
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.BasePublicModel.BasicPublicShop;
 import com.dt.user.service.BasePublicService.BasicPublicShopService;
@@ -25,12 +26,12 @@ public class BasicPublicShopController {
      * @return
      */
     @PostMapping("/findByListShop")
-    public ResponseBase findByListShop(@RequestBody UserDto pageDto) {
-        if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
-            PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
-            List<BasicPublicShop> basicPublicShopList = basicPublicShopService.findByListShop();
-            PageInfo<BasicPublicShop> pageInfo = new PageInfo<>(basicPublicShopList);
-            Integer currentPage = pageDto.getCurrentPage();
+    public ResponseBase findByListShop(@RequestBody ShopDto shopDto) {
+        if (shopDto.getCurrentPage() != null && shopDto.getPageSize() != null) {
+            PageHelper.startPage(shopDto.getCurrentPage(), shopDto.getPageSize());
+            List<ShopDto> basicPublicShopList = basicPublicShopService.findByListShop();
+            PageInfo<ShopDto> pageInfo = new PageInfo<>(basicPublicShopList);
+            Integer currentPage = shopDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
         return BaseApiService.setResultError("分页无参数");

@@ -14,6 +14,7 @@ public interface BasicPublicExchangeRateMapper {
     //查询汇率信息
     @SelectProvider(type = BasicPublicExchangeRateProvider.class, method = "findRate")
     @Results({
+            //数据库字段映射 //数据库字段映射 column数据库字段 property Java 字段
             @Result(column = "status_id", property = "systemLogStatus",
                     one = @One(
                             select = "com.dt.user.mapper.SystemLogStatusMapper.findSysStatusInfo",

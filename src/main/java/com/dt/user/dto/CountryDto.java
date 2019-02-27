@@ -1,6 +1,7 @@
 package com.dt.user.dto;
 
 import com.dt.user.model.BasePublicModel.BasicPublicCountry;
+import com.dt.user.model.SystemLogStatus;
 
 public class CountryDto extends BasicPublicCountry {
     /**
@@ -24,6 +25,30 @@ public class CountryDto extends BasicPublicCountry {
      * 显示的页数
      */
     private Integer pageSize;
+
+
+    //状态对象
+    private SystemLogStatus systemLogStatus;
+    /**
+     * 语言名称
+     */
+    private String languageName;
+
+    public String getLanguageName() {
+        return languageName;
+    }
+
+    public void setLanguageName(String languageName) {
+        this.languageName = languageName;
+    }
+
+    public SystemLogStatus getSystemLogStatus() {
+        return systemLogStatus;
+    }
+
+    public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
+        this.systemLogStatus = systemLogStatus;
+    }
 
     public Integer getCurrentPage() {
         return currentPage;

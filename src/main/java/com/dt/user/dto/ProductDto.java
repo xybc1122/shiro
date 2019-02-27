@@ -23,7 +23,6 @@ public class ProductDto extends BasicPublicProduct {
     /**
      * 物料属性名称
      */
-
     private String itemAttributeName;
     /**
      * 类目名称

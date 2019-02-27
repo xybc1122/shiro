@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.ShopDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicShopMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicShop;
 import com.dt.user.service.BasePublicService.BasicPublicShopService;
@@ -14,7 +15,7 @@ public class BasicPublicShopServiceImpl implements BasicPublicShopService {
     private BasicPublicShopMapper basicPublicShopMapper;
 
     @Override
-    public List<BasicPublicShop> findByListShop() {
+    public List<ShopDto> findByListShop() {
 
         return basicPublicShopMapper.findByListShop();
     }

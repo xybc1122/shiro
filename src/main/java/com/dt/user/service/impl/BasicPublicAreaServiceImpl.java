@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.AreaDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicAreaMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicArea;
 import com.dt.user.service.BasePublicService.BasicPublicAreaService;
@@ -15,7 +16,7 @@ public class BasicPublicAreaServiceImpl implements BasicPublicAreaService {
     private BasicPublicAreaMapper basicPublicAreaMapper;
 
     @Override
-    public List<BasicPublicArea> findByListArea() {
+    public List<AreaDto> findByListArea() {
         return basicPublicAreaMapper.findByListArea();
     }
 }

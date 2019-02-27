@@ -11,8 +11,8 @@ public interface BasicPublicCompanyMapper {
     /**
      * 查询公司所有相关信息
      */
-    @Select("SELECT `company_id`,`number`,`full_name`,`full_name_eng`,`short_name`,\n" +
-            "`short_name_eng`,`credit_code`,`bank_of_deposit`,`bank_account`,`account_type`,`address`,`address_eng`,\n" +
+    @Select("SELECT `company_id`,`number`,`company_name`,`company_name_eng`,`company_short_name`,\n" +
+            "`company_short_name_eng`,`credit_code`,company_short_code,`bank_of_deposit`,`bank_account`,`account_type`,`company_address`,`company_address_eng`,\n" +
             "`tel_phone`,status_id\n" +
             "FROM `basic_public_company`")
     @Results({

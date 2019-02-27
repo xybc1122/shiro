@@ -9,62 +9,67 @@ public class BasicPublicCountryProvider {
 
     public String findCountry(CountryDto countryDto) {
         return new SQL() {{
-            SELECT("c.country_id,c.country_eng,c.country_name,p.province_name," +
-                    "pc.city_name,pcc.`county_name` FROM `basic_public_country` AS c");
+            SELECT("c.country_id,c.number,c.country_name,c.country_name_eng,c.status_id," +
+                    "c.country_short_name_eng,c.vat,p.province_name," +
+                    "pc.city_name,pcc.`county_name`,l.language_name FROM `basic_public_country` AS c");
             LEFT_OUTER_JOIN("`basic_public_province` AS p ON p.`country_id`=c.`country_id`");
             LEFT_OUTER_JOIN("`basic_public_province_city`AS pc ON pc.province_number=p.`province_number`");
             LEFT_OUTER_JOIN("`basic_public_province_city_county`AS pcc ON pcc.city_number=pc.`city_number`");
+            LEFT_OUTER_JOIN("`basic_public_language`AS l ON l.language_id=c.`language_id`");
+            if (countryDto.getSystemLogStatus() != null) {
+                LEFT_OUTER_JOIN("`system_log_status` AS ls ON ls.status_id=c.`status_id`");
+                //备注
+                if (StringUtils.isNotBlank(countryDto.getSystemLogStatus().getRemark())) {
+                    WHERE("ls.remark=#{systemLogStatus.remark}");
+                }
+                //状态
+                if (countryDto.getSystemLogStatus().getStatus() != null) {
+                    WHERE("ls.status=#{systemLogStatus.status}");
+                }
+                //创建时间
+                if (countryDto.getSystemLogStatus().getCreateDate() != null) {
+                    WHERE("ls.create_date=#{systemLogStatus.createDate}");
+                }
+                //创建人
+                if (countryDto.getSystemLogStatus().getCreateUser() != null) {
+                    WHERE("ls.create_user=#{systemLogStatus.createUser}");
+                }
+                //修改日期
+                if (countryDto.getSystemLogStatus().getModifyDate() != null) {
+                    WHERE("ls.modify_date=#{systemLogStatus.modifyDate}");
+                }
+                //修改人
+                if (countryDto.getSystemLogStatus().getModifyUser() != null) {
+                    WHERE("ls.modify_user=#{systemLogStatus.modifyUser}");
+                }
+                //审核时间
+                if (countryDto.getSystemLogStatus().getAuditDate() != null) {
+                    WHERE("ls.audit_date=#{systemLogStatus.auditDate}");
+                }
+                //审核人
+                if (countryDto.getSystemLogStatus().getAuditUser() != null) {
+                    WHERE("ls.audit_user=#{systemLogStatus.auditUser}");
+                }
+            }
             //国家名称
             if (StringUtils.isNotBlank(countryDto.getCountryName())) {
                 WHERE("c.country_name=#{countryName}");
             }
             //国家编号
-            if (countryDto.getCountryNumber() != null) {
-                WHERE("c.country_number=#{countryNumber}");
+            if (countryDto.getNumber() != null) {
+                WHERE("c.number=#{number}");
             }
             //国家英文
-            if (StringUtils.isNotBlank(countryDto.getCountryEng())) {
-                WHERE("c.country_eng=#{countryEng}");
+            if (StringUtils.isNotBlank(countryDto.getCountryNameEng())) {
+                WHERE("c.country_name_eng=#{countryNameEng}");
             }
             //国家英文简写
-            if (StringUtils.isNotBlank(countryDto.getCountryShortEng())) {
-                WHERE("c.country_short_eng=#{countryShortEng}");
+            if (StringUtils.isNotBlank(countryDto.getCountryShortNameEng())) {
+                WHERE("c.country_short_name_eng=#{countryShortNameEng}");
             }
             //VAT税率
             if (countryDto.getVat() != null) {
                 WHERE("c.vat=#{vat}");
-            }
-            //备注
-            if (StringUtils.isNotBlank(countryDto.getRemark())) {
-                WHERE("c.remark=#{remark}");
-            }
-            //状态
-            if (countryDto.getStatus() != null) {
-                WHERE("c.status=#{status}");
-            }
-            //创建时间
-            if (countryDto.getCreateDate() != null) {
-                WHERE("c.create_date=#{createDate}");
-            }
-            //创建人
-            if (countryDto.getCreateIdUser() != null) {
-                WHERE("c.create_id_user=#{createIdUser}");
-            }
-            //修改日期
-            if (countryDto.getModifyDate() != null) {
-                WHERE("c.modify_date=#{modifyDate}");
-            }
-            //修改人
-            if (countryDto.getModifyIdUser() != null) {
-                WHERE("c.modify_id_user=#{modifyIdUser}");
-            }
-            //审核时间
-            if (countryDto.getAuditDate() != null) {
-                WHERE("c.audit_date=#{auditDate}");
-            }
-            //审核人
-            if (countryDto.getAuditIdUser() != null) {
-                WHERE("c.audit_id_user=#{auditIdUser}");
             }
             //洲名字
             if (StringUtils.isNotBlank(countryDto.getProvinceName())) {
@@ -77,6 +82,10 @@ public class BasicPublicCountryProvider {
             //县名字
             if (StringUtils.isNotBlank(countryDto.getCountyName())) {
                 WHERE("pcc.`county_name`=#{countyName}");
+            }
+            //语言
+            if (StringUtils.isNotBlank(countryDto.getLanguageName())) {
+                WHERE("l.`language_name`=#{languageName}");
             }
         }}.toString();
     }

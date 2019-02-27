@@ -8,23 +8,62 @@ public class BasicPublicSiteProvider {
 
     public String findSite(SiteDto siteDto) {
         return new SQL() {{
-            SELECT("s.`site_id`,s.`site_number`,s.`site_name`,s.`site_eng`,s.`url`,s.`vat`," +
-                    "s.`principal`,s.`remark`,s.`status`,s.`create_date`,s.`create_id_user`,s.`modify_date`," +
-                    "s.`modify_id_user`,s.`audit_date`,s.`audit_id_user`," +
-                    "c.`currency_name`,c.`currency_eng_short`,a.`area_name`FROM `basic_public_site` AS s");
-            LEFT_OUTER_JOIN("`basic_public_currency` AS c ON c.`currency_id`=s.`currency_id`");
+            SELECT("s.`site_id`,s.`number`,s.`site_name`,s.`site_name_eng`,s.`site_short_name_eng`,s.`url`,s.`vat`," +
+                    "s.`principal`,s.status_id, c.`country_name`, cu.currency_name,cu.currency_short_name_eng,a.`area_name`,GROUP_CONCAT(e.employee_name) as employee_name FROM `basic_public_site` AS s");
+            LEFT_OUTER_JOIN("`basic_public_country` AS c ON c.`country_id`=s.`country_id`");
             LEFT_OUTER_JOIN("`basic_public_area` AS a ON a.`area_id`=s.`area_id`");
+            LEFT_OUTER_JOIN("`hr_archives_employee` AS e ON e.`pt_id`=s.`principal`");
+            LEFT_OUTER_JOIN("`basic_public_currency` AS cu ON cu.`currency_id`=s.country_id");
+            if (siteDto.getSystemLogStatus() != null) {
+                LEFT_OUTER_JOIN("`system_log_status` AS ls ON ls.status_id=s.`status_id`");
+                //备注
+                if (StringUtils.isNotBlank(siteDto.getSystemLogStatus().getRemark())) {
+                    WHERE("ls.remark=#{systemLogStatus.remark}");
+                }
+                //状态
+                if (siteDto.getSystemLogStatus().getStatus() != null) {
+                    WHERE("ls.status=#{systemLogStatus.status}");
+                }
+                //创建时间
+                if (siteDto.getSystemLogStatus().getCreateDate() != null) {
+                    WHERE("ls.create_date=#{systemLogStatus.createDate}");
+                }
+                //创建人
+                if (siteDto.getSystemLogStatus().getCreateUser() != null) {
+                    WHERE("ls.create_user=#{systemLogStatus.createUser}");
+                }
+                //修改日期
+                if (siteDto.getSystemLogStatus().getModifyDate() != null) {
+                    WHERE("ls.modify_date=#{systemLogStatus.modifyDate}");
+                }
+                //修改人
+                if (siteDto.getSystemLogStatus().getModifyUser() != null) {
+                    WHERE("ls.modify_user=#{systemLogStatus.modifyUser}");
+                }
+                //审核时间
+                if (siteDto.getSystemLogStatus().getAuditDate() != null) {
+                    WHERE("ls.audit_date=#{systemLogStatus.auditDate}");
+                }
+                //审核人
+                if (siteDto.getSystemLogStatus().getAuditUser() != null) {
+                    WHERE("ls.audit_user=#{systemLogStatus.auditUser}");
+                }
+            }
             //站点编号
-            if (siteDto.getSiteNumber() != null) {
-                WHERE("s.site_number=#{siteNumber}");
+            if (siteDto.getNumber() != null) {
+                WHERE("s.number=#{number}");
             }
             //站点名称
             if (StringUtils.isNotBlank(siteDto.getSiteName())) {
                 WHERE("s.site_name=#{siteName}");
             }
-            //英文简称
-            if (StringUtils.isNotBlank(siteDto.getSiteEng())) {
-                WHERE("s.site_eng=#{siteEng}");
+            //站点英文名称
+            if (StringUtils.isNotBlank(siteDto.getSiteNameEng())) {
+                WHERE("s.site_name_eng=#{siteNameEng}");
+            }
+            //站点英文简称
+            if (StringUtils.isNotBlank(siteDto.getSiteShortNameEng())) {
+                WHERE("s.site_short_name_eng=#{siteShortNameEng}");
             }
             //URL
             if (StringUtils.isNotBlank(siteDto.getUrl())) {
@@ -34,50 +73,27 @@ public class BasicPublicSiteProvider {
             if (siteDto.getVat() != null) {
                 WHERE("s.vat=#{vat}");
             }
-            //备注
-            if (StringUtils.isNotBlank(siteDto.getRemark())) {
-                WHERE("s.remark=#{remark}");
-            }
-            //状态
-            if (siteDto.getStatus() != null) {
-                WHERE("s.status=#{status}");
-            }
-            //创建时间
-            if (siteDto.getCreateDate() != null) {
-                WHERE("s.create_date=#{createDate}");
-            }
-            //创建人
-            if (siteDto.getCreateIdUser() != null) {
-                WHERE("s.create_id_user=#{createIdUser}");
-            }
-            //修改日期
-            if (siteDto.getModifyDate() != null) {
-                WHERE("s.modify_date=#{modifyDate}");
-            }
-            //修改人
-            if (siteDto.getModifyIdUser() != null) {
-                WHERE("s.modify_id_user=#{modifyIdUser}");
-            }
-            //审核时间
-            if (siteDto.getAuditDate() != null) {
-                WHERE("s.audit_date=#{auditDate}");
-            }
-            //审核人
-            if (siteDto.getAuditIdUser() != null) {
-                WHERE("s.audit_id_user=#{auditIdUser}");
+            //币别英文名称
+            if (StringUtils.isNotBlank(siteDto.getCurrencyShortNameEng())) {
+                WHERE("cu.currency_short_name_eng=#{currencyShortNameEng}");
             }
             //币别名称
             if (StringUtils.isNotBlank(siteDto.getCurrencyName())) {
-                WHERE("c.currency_name=#{currencyName}");
-            }
-            //币别英文简写
-            if (StringUtils.isNotBlank(siteDto.getCurrencyEngShort())) {
-                WHERE("c.currency_eng_short=#{currencyEngShort}");
+                WHERE("cu.currency_name=#{currencyName}");
             }
            //区域名称
             if (StringUtils.isNotBlank(siteDto.getAreaName())) {
                 WHERE("a.`area_name`=#{areaName}");
             }
+            //国家名称
+            if(StringUtils.isNotBlank(siteDto.getCountryName())) {
+                WHERE("c.`country_name`=#{countryName}");
+            }
+            //负责人
+            if(StringUtils.isNotBlank(siteDto.getEmployeeName())) {
+                WHERE("e.`employee_name`=#{employeeName}");
+            }
+            GROUP_BY("s.`site_id`");
         }}.toString();
     }
 

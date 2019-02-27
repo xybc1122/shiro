@@ -15,7 +15,7 @@ public interface TableHeadMapper {
      *
      * @return
      */
-    @Select("SELECT t.id,t.head_name,t.`top_type`,t.top_order,t.is_fixed FROM `system_user_table_head` AS t\n" +
+    @Select("SELECT t.id,t.head_name,t.`top_type`,t.top_order,t.is_fixed ,t.input_type FROM `system_user_table_head` AS t\n" +
             "LEFT JOIN `system_user_menu_field` AS mf ON mf.field_id= t.`id`\n" +
             "WHERE  mf.m_id = #{mId} ORDER BY top_order")
     List<TableHead> findByHeader(@Param("mId") Long mId);

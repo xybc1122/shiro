@@ -1,7 +1,7 @@
 package com.dt.user.model.BasePublicModel;
 
 /**
- * 币别类
+ * 币别表
  */
 public class BasicPublicCurrency {
   /**
@@ -11,7 +11,7 @@ public class BasicPublicCurrency {
   /**
    * 币别编号
    */
-  private Long currencyNumber;
+  private Long number;
   /**
    * 币别名称
    */
@@ -19,39 +19,12 @@ public class BasicPublicCurrency {
   /**
    * 币别英文简写
    */
-  private String currencyEngShort;
+  private String currencyShortNameEng;
   /**
-   * 备注
+   * 币别符号
    */
-  private String remark;
-  /**
-   * 状态
-   */
-  private Integer status;
-  /**
-   * 创建时间
-   */
-  private Long createDate;
-  /**
-   * 创建人
-   */
-  private Long createIdUser;
-  /**
-   * 修改日期
-   */
-  private Long modifyDate;
-  /**
-   * 修改人
-   */
-  private Long modifyIdUser;
-  /**
-   * 审核时间
-   */
-  private Long auditDate;
-  /**
-   * 审核人
-   */
-  private Long auditIdUser;
+  private String currencySymbol;
+  private Long statusId;
 
   public Long getCurrencyId() {
     return currencyId;
@@ -61,12 +34,12 @@ public class BasicPublicCurrency {
     this.currencyId = currencyId;
   }
 
-  public Long getCurrencyNumber() {
-    return currencyNumber;
+  public Long getNumber() {
+    return number;
   }
 
-  public void setCurrencyNumber(Long currencyNumber) {
-    this.currencyNumber = currencyNumber;
+  public void setNumber(Long number) {
+    this.number = number;
   }
 
   public String getCurrencyName() {
@@ -77,75 +50,27 @@ public class BasicPublicCurrency {
     this.currencyName = currencyName;
   }
 
-  public String getCurrencyEngShort() {
-    return currencyEngShort;
+  public String getCurrencyShortNameEng() {
+    return currencyShortNameEng;
   }
 
-  public void setCurrencyEngShort(String currencyEngShort) {
-    this.currencyEngShort = currencyEngShort;
+  public void setCurrencyShortNameEng(String currencyShortNameEng) {
+    this.currencyShortNameEng = currencyShortNameEng;
   }
 
-  public String getRemark() {
-    return remark;
+  public String getCurrencySymbol() {
+    return currencySymbol;
   }
 
-  public void setRemark(String remark) {
-    this.remark = remark;
+  public void setCurrencySymbol(String currencySymbol) {
+    this.currencySymbol = currencySymbol;
   }
 
-  public Integer getStatus() {
-    return status;
+  public Long getStatusId() {
+    return statusId;
   }
 
-  public void setStatus(Integer status) {
-    this.status = status;
-  }
-
-  public Long getCreateDate() {
-    return createDate;
-  }
-
-  public void setCreateDate(Long createDate) {
-    this.createDate = createDate;
-  }
-
-  public Long getCreateIdUser() {
-    return createIdUser;
-  }
-
-  public void setCreateIdUser(Long createIdUser) {
-    this.createIdUser = createIdUser;
-  }
-
-  public Long getModifyDate() {
-    return modifyDate;
-  }
-
-  public void setModifyDate(Long modifyDate) {
-    this.modifyDate = modifyDate;
-  }
-
-  public Long getModifyIdUser() {
-    return modifyIdUser;
-  }
-
-  public void setModifyIdUser(Long modifyIdUser) {
-    this.modifyIdUser = modifyIdUser;
-  }
-
-  public Long getAuditDate() {
-    return auditDate;
-  }
-
-  public void setAuditDate(Long auditDate) {
-    this.auditDate = auditDate;
-  }
-
-  public Long getAuditIdUser() {
-    return auditIdUser;
-  }
-
-  public void setAuditIdUser(Long auditIdUser) {
-    this.auditIdUser = auditIdUser;
+  public void setStatusId(Long statusId) {
+    this.statusId = statusId;
   }
 }

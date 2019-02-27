@@ -8,7 +8,7 @@ public class BasicPublicExchangeRateProvider {
 
     public String findRate(ExchangeRateDto rateDto) {
         return new SQL() {{
-            SELECT("r.exchange_rate_id, c.name,\n" +
+            SELECT("r.exchange_rate_id, c.currency_name,\n" +
                     "r.`to_rmb`,r.`to_usd`,r.`effective_date`,r.status_id\n" +
                     "FROM `basic_public_exchange_rate` AS r");
             LEFT_OUTER_JOIN("`basic_public_currency` AS c ON c.currency_id=r.`currency_id`");
@@ -28,7 +28,7 @@ public class BasicPublicExchangeRateProvider {
                 }
                 //创建人
                 if (rateDto.getSystemLogStatus().getCreateUser() != null) {
-                    WHERE("ls.create_id_user=#{systemLogStatus.createUser}");
+                    WHERE("ls.create_user=#{systemLogStatus.createUser}");
                 }
                 //修改日期
                 if (rateDto.getSystemLogStatus().getModifyDate() != null) {
@@ -36,7 +36,7 @@ public class BasicPublicExchangeRateProvider {
                 }
                 //修改人
                 if (rateDto.getSystemLogStatus().getModifyUser() != null) {
-                    WHERE("ls.modify_id_user=#{systemLogStatus.modifyUser}");
+                    WHERE("ls.modify_user=#{systemLogStatus.modifyUser}");
                 }
                 //审核时间
                 if (rateDto.getSystemLogStatus().getAuditDate() != null) {
@@ -44,12 +44,12 @@ public class BasicPublicExchangeRateProvider {
                 }
                 //审核人
                 if (rateDto.getSystemLogStatus().getAuditUser() != null) {
-                    WHERE("ls.audit_id_user=#{systemLogStatus.auditUser}");
+                    WHERE("ls.audit_user=#{systemLogStatus.auditUser}");
                 }
             }
             //币别名称
             if (StringUtils.isNotBlank(rateDto.getCurrencyName())) {
-                WHERE("c.name=#{currencyName}");
+                WHERE("c.currency_name=#{currencyName}");
             }
             //兑人民币汇率
             if (rateDto.getToRmb() != null) {
@@ -66,5 +66,9 @@ public class BasicPublicExchangeRateProvider {
         }}.toString();
     }
 
+    public void s(ExchangeRateDto rateDto) {
+        SQL s = new SQL();
 
+
+    }
 }

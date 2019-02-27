@@ -2,6 +2,7 @@ package com.dt.user.controller.BasePublicController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.dto.CurrencyDto;
 import com.dt.user.dto.UserDto;
 import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
 import com.dt.user.service.BasePublicService.BasicPublicCurrencyService;
@@ -25,12 +26,12 @@ public class BasicPublicCurrencyController {
      * @return
      */
     @PostMapping("/findByListCurrency")
-    public ResponseBase findByListCurrency(@RequestBody UserDto pageDto) {
-        if (pageDto.getCurrentPage() != null && pageDto.getPageSize() != null) {
-            PageHelper.startPage(pageDto.getCurrentPage(), pageDto.getPageSize());
-            List<BasicPublicCurrency> basicPublicCurrencies = basicPublicCurrencyService.findByListCurrency();
-            PageInfo<BasicPublicCurrency> pageInfo = new PageInfo<>(basicPublicCurrencies);
-            Integer currentPage = pageDto.getCurrentPage();
+    public ResponseBase findByListCurrency(@RequestBody CurrencyDto currencyDto) {
+        if (currencyDto.getCurrentPage() != null && currencyDto.getPageSize() != null) {
+            PageHelper.startPage(currencyDto.getCurrentPage(), currencyDto.getPageSize());
+            List<CurrencyDto> basicPublicCurrencies = basicPublicCurrencyService.findByListCurrency();
+            PageInfo<CurrencyDto> pageInfo = new PageInfo<>(basicPublicCurrencies);
+            Integer currentPage = currencyDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));
         }
         return BaseApiService.setResultError("分页无参数");

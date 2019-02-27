@@ -1,8 +1,9 @@
 package com.dt.user.mapper.BasePublicMapper;
 
+import com.dt.user.dto.CurrencyDto;
 import com.dt.user.model.BasePublicModel.BasicPublicCurrency;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.mapping.FetchType;
 
 import java.util.List;
 
@@ -13,9 +14,17 @@ public interface BasicPublicCurrencyMapper {
      *
      * @return
      */
-    @Select("SELECT `currency_id`,`currency_number`,`currency_name`,`currency_eng_short`,\n" +
-            "`remark`,`status`,`create_date`,`create_id_user`,`modify_date`,\n" +
-            "`modify_id_user`,`audit_date`,`audit_id_user`\n" +
+    @Select("SELECT\n" +
+            "`currency_id`,`number`,`currency_name`,\n" +
+            "`currency_short_name_eng`,`currency_symbol`,`status_id`\n" +
             "FROM `basic_public_currency`")
-    List<BasicPublicCurrency> findByListCurrency();
+    @Results({
+            @Result(column = "status_id", property = "systemLogStatus",
+                    one = @One(
+                            select = "com.dt.user.mapper.SystemLogStatusMapper.findSysStatusInfo",
+                            fetchType = FetchType.EAGER
+                    )
+            )
+    })
+    List<CurrencyDto> findByListCurrency();
 }
