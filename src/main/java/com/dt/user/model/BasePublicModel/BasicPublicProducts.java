@@ -1,28 +1,43 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.SystemLogStatus;
+
+import javax.persistence.Table;
 import java.util.List;
 
 /**
  * 产品类目
  */
+@Table(name = "basic_public_products")
 public class BasicPublicProducts {
 
     private Long productsId;
-    private Long productsNumber;
+    private Long number;
     private String productsName;
     private Long parentProductsId;
     private String productsPath;
     private Long isParent;
-    private String remark;
-    private Integer status;
-    private Long createDate;
-    private Long createIdUser;
-    private Long modifyDate;
-    private Long modifyIdUser;
-    private Long auditDate;
-    private Long auditIdUser;
+    private Long statusId;
+    //状态对象
+    private SystemLogStatus systemLogStatus;
+
+    public SystemLogStatus getSystemLogStatus() {
+        return systemLogStatus;
+    }
+
+    public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
+        this.systemLogStatus = systemLogStatus;
+    }
     // 子目录
     private List<BasicPublicProducts> childMenus;
+
+    public Long getNumber() {
+        return number;
+    }
+
+    public void setNumber(Long number) {
+        this.number = number;
+    }
 
     public List<BasicPublicProducts> getChildMenus() {
         return childMenus;
@@ -40,13 +55,6 @@ public class BasicPublicProducts {
         this.productsId = productsId;
     }
 
-    public Long getProductsNumber() {
-        return productsNumber;
-    }
-
-    public void setProductsNumber(Long productsNumber) {
-        this.productsNumber = productsNumber;
-    }
 
     public String getProductsName() {
         return productsName;
@@ -80,67 +88,11 @@ public class BasicPublicProducts {
         this.isParent = isParent;
     }
 
-    public String getRemark() {
-        return remark;
+    public Long getStatusId() {
+        return statusId;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getCreateIdUser() {
-        return createIdUser;
-    }
-
-    public void setCreateIdUser(Long createIdUser) {
-        this.createIdUser = createIdUser;
-    }
-
-    public Long getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Long modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Long getModifyIdUser() {
-        return modifyIdUser;
-    }
-
-    public void setModifyIdUser(Long modifyIdUser) {
-        this.modifyIdUser = modifyIdUser;
-    }
-
-    public Long getAuditDate() {
-        return auditDate;
-    }
-
-    public void setAuditDate(Long auditDate) {
-        this.auditDate = auditDate;
-    }
-
-    public Long getAuditIdUser() {
-        return auditIdUser;
-    }
-
-    public void setAuditIdUser(Long auditIdUser) {
-        this.auditIdUser = auditIdUser;
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
 }

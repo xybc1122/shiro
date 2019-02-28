@@ -14,15 +14,48 @@ public class BasicPublicProductProvider {
                     " p.`length_cm`,p.`width_cm`,p.`height_cm`,\n" +
                     " p.`gw_kg`,p.`nw_kg`,p.`volume_m3`,p.`length_in`,\n" +
                     " p.`width_in`,p.`height_in`,p.`volume_cuft`,p.`made_in`,\n" +
-                    " p.`hs_code_id`,p.`remark`,p.`status`,\n" +
-                    " p.`create_date`,p.`create_id_user`,p.`modify_date`,p.`modify_id_user`,p.`audit_date`,p.`audit_id_user`,\n" +
-                    " ia.item_attribute_name,it.item_typ_name,ps.products_name,hc.hs_code, u.unit_name\n" +
+                    " p.`hs_code_id`,p.`status_id`,ia.item_attribute_name,it.item_typ_name,ps.products_name,hc.hs_code, u.unit_name\n" +
                     "FROM `basic_public_product` AS p");
             LEFT_OUTER_JOIN("`basic_public_measurement_unit` AS u ON u.unit_id=p.`unit_id`");
             LEFT_OUTER_JOIN("`basic_public_item_attribute` AS ia ON ia.item_attribute_id = p.`item_attribute_id`");
             LEFT_OUTER_JOIN("`basic_public_item_type` AS it ON it.`item_typ_id` = p.`item_typ_id`");
             LEFT_OUTER_JOIN("`basic_public_products` AS ps ON ps.`products_id`=p.`products_id`");
             LEFT_OUTER_JOIN("`basic_export_hs_code` AS hc ON hc.`hs_code_id`=p.`hs_code_id`");
+            if (productDto.getSystemLogStatus() != null) {
+                LEFT_OUTER_JOIN("`system_log_status` AS ls ON ls.status_id=p.`status_id`");
+                //备注
+                if (StringUtils.isNotBlank(productDto.getSystemLogStatus().getRemark())) {
+                    WHERE("ls.remark=#{systemLogStatus.remark}");
+                }
+                //状态
+                if (productDto.getSystemLogStatus().getStatus() != null) {
+                    WHERE("ls.status=#{systemLogStatus.status}");
+                }
+                //创建时间
+                if (productDto.getSystemLogStatus().getCreateDate() != null) {
+                    WHERE("ls.create_date=#{systemLogStatus.createDate}");
+                }
+                //创建人
+                if (productDto.getSystemLogStatus().getCreateUser() != null) {
+                    WHERE("ls.create_user=#{systemLogStatus.createUser}");
+                }
+                //修改日期
+                if (productDto.getSystemLogStatus().getModifyDate() != null) {
+                    WHERE("ls.modify_date=#{systemLogStatus.modifyDate}");
+                }
+                //修改人
+                if (productDto.getSystemLogStatus().getModifyUser() != null) {
+                    WHERE("ls.modify_user=#{systemLogStatus.modifyUser}");
+                }
+                //审核时间
+                if (productDto.getSystemLogStatus().getAuditDate() != null) {
+                    WHERE("ls.audit_date=#{systemLogStatus.auditDate}");
+                }
+                //审核人
+                if (productDto.getSystemLogStatus().getAuditUser() != null) {
+                    WHERE("ls.audit_user=#{systemLogStatus.auditUser}");
+                }
+            }
             //产品代码
             if (StringUtils.isNotBlank(productDto.getProductCode())) {
                 WHERE("p.product_code=#{productCode}");
@@ -107,38 +140,6 @@ public class BasicPublicProductProvider {
             //  HS Code
             if (StringUtils.isNotBlank(productDto.getHsCode())) {
                 WHERE("hc.hs_code=#{hsCode}");
-            }
-            //备注
-            if (StringUtils.isNotBlank(productDto.getRemark())) {
-                WHERE("p.remark=#{remark}");
-            }
-            //状态
-            if (productDto.getStatus() != null) {
-                WHERE("p.status=#{status}");
-            }
-            //创建时间
-            if (productDto.getCreateDate() != null) {
-                WHERE("p.create_date=#{createDate}");
-            }
-            //创建人
-            if (productDto.getCreateIdUser() != null) {
-                WHERE("p.create_id_user=#{createIdUser}");
-            }
-            //修改日期
-            if (productDto.getModifyDate() != null) {
-                WHERE("p.modify_date=#{modifyDate}");
-            }
-            //修改人
-            if (productDto.getModifyIdUser() != null) {
-                WHERE("p.modify_id_user=#{modifyIdUser}");
-            }
-            //审核时间
-            if (productDto.getAuditDate() != null) {
-                WHERE("p.audit_date=#{auditDate}");
-            }
-            //审核人
-            if (productDto.getAuditIdUser() != null) {
-                WHERE("p.audit_id_user=#{auditIdUser}");
             }
         }}.toString();
     }

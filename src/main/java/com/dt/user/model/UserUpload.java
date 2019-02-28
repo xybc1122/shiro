@@ -48,11 +48,11 @@ public class UserUpload {
     /**
      * 店铺ID
      */
-    private Long shopId;
+    private Integer shopId;
     /**
      * 站点ID
      */
-    private Long siteId;
+    private Integer siteId;
 
     /**
      * payId
@@ -79,7 +79,7 @@ public class UserUpload {
      */
     private String businessTime;
 
-    public UserUpload(Long uid, String name, Long createDate, Long delDate, Long delDateId, String filePath, String writeFilePath, String remark, Integer status, Long shopId, Long siteId, Integer pId, Integer tbId, Long recordingId, Integer areaId, String businessTime) {
+    public UserUpload(Long uid, String name, Long createDate, Long delDate, Long delDateId, String filePath, String writeFilePath, String remark, Integer status, Integer shopId, Integer siteId, Integer pId, Integer tbId, Long recordingId, Integer areaId, String businessTime) {
         this.uid = uid;
         this.name = name;
         this.createDate = createDate;
@@ -217,23 +217,6 @@ public class UserUpload {
     public void setStatus(Integer status) {
         this.status = status;
     }
-
-    public Long getShopId() {
-        return shopId;
-    }
-
-    public void setShopId(Long shopId) {
-        this.shopId = shopId;
-    }
-
-    public Long getSiteId() {
-        return siteId;
-    }
-
-    public void setSiteId(Long siteId) {
-        this.siteId = siteId;
-    }
-
     public Integer getTbId() {
         return tbId;
     }
@@ -248,5 +231,21 @@ public class UserUpload {
 
     public void setRecordingId(Long recordingId) {
         this.recordingId = recordingId;
+    }
+
+    public Integer getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(Integer shopId) {
+        this.shopId = shopId;
+    }
+
+    public Integer getSiteId() {
+        return siteId;
+    }
+
+    public void setSiteId(Integer siteId) {
+        this.siteId = siteId;
     }
 }

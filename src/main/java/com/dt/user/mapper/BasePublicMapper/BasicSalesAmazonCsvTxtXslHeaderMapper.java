@@ -17,7 +17,7 @@ public interface BasicSalesAmazonCsvTxtXslHeaderMapper {
      * @return
      */
     @SelectProvider(type = BasicSalesAmazonCsvTxtXslHeaderProvider.class, method = "findHeadInfo")
-    List<String> headerList(@Param("seId") Long seId, @Param("tbId") Integer tbId, @Param("areaId") Integer areaId, @Param("shopId") Long shopId);
+    List<String> headerList(@Param("seId") Integer seId, @Param("tbId") Integer tbId, @Param("areaId") Integer areaId, @Param("shopId") Integer shopId);
 
     /**
      * 获得对象
@@ -28,6 +28,6 @@ public interface BasicSalesAmazonCsvTxtXslHeaderMapper {
      * @return
      */
     @SelectProvider(type = BasicSalesAmazonCsvTxtXslHeaderProvider.class, method = "getHead")
-    List<BasicSalesAmazonCsvTxtXslHeader> sqlHead(@Param("seId") Long seId, @Param("tbId") Integer tbId,
-                                                  @Param("areaId") Integer areaId, @Param("shopId") Long shopId);
+    List<BasicSalesAmazonCsvTxtXslHeader> sqlHead(@Param("seId") Integer seId, @Param("tbId") Integer tbId,
+                                                  @Param("areaId") Integer areaId, @Param("shopId") Integer shopId);
 }

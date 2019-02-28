@@ -7,10 +7,10 @@ import java.util.Map;
 public class BasicSalesAmazonCsvTxtXslHeaderProvider {
 
     public String findHeadInfo(Map<String, Object> mapHead) {
-        Long seId = (Long) mapHead.get("seId");
+        Integer seId = (Integer) mapHead.get("seId");
         Integer tbId = (Integer) mapHead.get("tbId");
         Integer areaId = (Integer) mapHead.get("areaId");
-        Long shopId = (Long) mapHead.get("shopId");
+        Integer shopId = (Integer) mapHead.get("shopId");
         return new SQL() {{
             SELECT("import_templet");
             FROM("`basic_sales_amazon_csv_txt_xsl_header`");
@@ -36,10 +36,10 @@ public class BasicSalesAmazonCsvTxtXslHeaderProvider {
      * @return
      */
     public String getHead(Map<String, Object> mapHead) {
-        Long seId = (Long) mapHead.get("seId");
+        Integer seId = (Integer) mapHead.get("seId");
         Integer tbId = (Integer) mapHead.get("tbId");
         Integer areaId = (Integer) mapHead.get("areaId");
-        Long shopId = (Long) mapHead.get("shopId");
+        Integer shopId = (Integer) mapHead.get("shopId");
         return new SQL() {{
             SELECT("import_templet,open_close");
             FROM("`basic_sales_amazon_csv_txt_xsl_header`");

@@ -18,7 +18,7 @@ public interface BasicSalesAmazonSkuMapper {
     @Select("SELECT `sku_id`\n" +
             "FROM `basic_public_sku`\n" +
             "WHERE shop_id=#{sId} AND site_id=#{siteId} AND sku=#{skuName} LIMIT 0,1")
-    Long getSkuId(@Param("sId") Long sId, @Param("siteId") Long siteId, @Param("skuName") String skuName);
+    Long getSkuId(@Param("sId") Integer sId, @Param("siteId") Integer siteId, @Param("skuName") String skuName);
 
 
     /**
@@ -30,5 +30,5 @@ public interface BasicSalesAmazonSkuMapper {
     @Select("SELECT `sku_id`\n" +
             "FROM `basic_public_sku`\n" +
             "WHERE shop_id=#{sId} AND site_id=#{siteId} AND s_asin=#{sAsin} LIMIT 0,1")
-    Long getAsinSkuId(@Param("sId") Long sId, @Param("siteId") Long siteId, @Param("sAsin") String sAsin);
+    Long getAsinSkuId(@Param("sId") Integer sId, @Param("siteId") Integer siteId, @Param("sAsin") String sAsin);
 }

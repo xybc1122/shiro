@@ -1,6 +1,7 @@
 package com.dt.user.dto;
 
 import com.dt.user.model.BasePublicModel.BasicPublicProduct;
+import com.dt.user.model.SystemLogStatus;
 
 public class ProductDto extends BasicPublicProduct {
     /**
@@ -32,6 +33,9 @@ public class ProductDto extends BasicPublicProduct {
      * HS Code
      */
     private String hsCode;
+
+    //状态对象
+    private SystemLogStatus systemLogStatus;
 
     public String getHsCode() {
         return hsCode;
@@ -87,5 +91,13 @@ public class ProductDto extends BasicPublicProduct {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public SystemLogStatus getSystemLogStatus() {
+        return systemLogStatus;
+    }
+
+    public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
+        this.systemLogStatus = systemLogStatus;
     }
 }

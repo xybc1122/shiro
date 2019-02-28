@@ -26,7 +26,7 @@ public class BasicPublicSiteServiceImpl implements BasicPublicSiteService {
     }
 
     @Override
-    public Long getSiteId(String url) {
+    public Integer getSiteId(String url) {
         return basicPublicSiteMapper.getSiteId(url);
     }
 }

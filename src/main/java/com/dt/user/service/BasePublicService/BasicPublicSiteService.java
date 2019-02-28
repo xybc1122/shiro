@@ -27,5 +27,5 @@ public interface BasicPublicSiteService {
      * 洲 业务
      * 通过url 去查询site ID
      */
-    Long getSiteId(String url);
+    Integer getSiteId(String url);
 }

@@ -12,7 +12,7 @@ public interface BasicSalesAmazonCsvTxtXslHeaderService {
      * @param seId
      * @return
      */
-    List<String> headerList(Long seId, Integer tbId, Integer areaId,Long shopId);
+    List<String> headerList(Integer seId, Integer tbId, Integer areaId,Integer shopId);
 
 
     /**
@@ -23,5 +23,5 @@ public interface BasicSalesAmazonCsvTxtXslHeaderService {
      * @param areaId
      * @return
      */
-    List<BasicSalesAmazonCsvTxtXslHeader> sqlHead(Long seId, Integer tbId, Integer areaId, Long shopId);
+    List<BasicSalesAmazonCsvTxtXslHeader> sqlHead(Integer seId, Integer tbId, Integer areaId, Integer shopId);
 }

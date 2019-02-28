@@ -20,7 +20,7 @@ public class SalesAmazonFbaTradeReportServiceImpl implements SalesAmazonFbaTrade
     }
 
     @Override
-    public SalesAmazonFbaTradeReport getReport(Long sId, String oId) {
+    public SalesAmazonFbaTradeReport getReport(Integer sId, String oId) {
         return tradeReportMapper.getReport(sId, oId);
     }
 }

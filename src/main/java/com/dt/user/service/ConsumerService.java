@@ -17,7 +17,7 @@ public interface ConsumerService {
      * @param aId
      * @return
      */
-    Future<ResponseBase> importTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long
+    Future<ResponseBase> importTxt(String uuIdName, String saveFilePath, String fileName, Integer shopId, Long uid, Long
             recordingId, Integer tbId, Integer aId);
 
     /**
@@ -33,7 +33,7 @@ public interface ConsumerService {
      * @param tbId
      * @return
      */
-    Future<ResponseBase> importXls(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
+    Future<ResponseBase> importXls(String uuIdName, String saveFilePath, String fileName, Integer siteId, Integer shopId, Long uid, Long
             recordingId, Integer tbId);
 
 
@@ -51,6 +51,6 @@ public interface ConsumerService {
      * @param businessTime
      * @return
      */
-    Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
+    Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Integer siteId, Integer shopId, Long uid, Integer
             pId, Long recordingId, Integer tbId, String businessTime);
 }

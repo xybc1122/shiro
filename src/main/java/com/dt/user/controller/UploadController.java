@@ -198,11 +198,11 @@ public class UploadController {
         upload.setFilePath(saveFilePath);
         //站点ID
         if (siteId != null) {
-            upload.setSiteId(siteId.longValue());
+            upload.setSiteId(siteId);
         }
         //店铺ID
         if (shopId != null) {
-            upload.setShopId(shopId.longValue());
+            upload.setShopId(shopId);
         }
         //区域ID
         upload.setAreaId(aId);

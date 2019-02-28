@@ -15,5 +15,5 @@ public interface BasicPublicAmazonTypeMapper {
     @Select("SELECT `order_type_name`\n" +
             "FROM `basic_sales_amazon_type`\n" +
             "WHERE site_id =#{site_id} AND order_type=#{type}\n")
-    String getTypeName(@Param("site_id") Long site_id, @Param("type") String type);
+    String getTypeName(@Param("site_id") Integer site_id, @Param("type") String type);
 }

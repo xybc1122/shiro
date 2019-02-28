@@ -9,8 +9,8 @@ public class SalesAmazonFbaRefund {
   private Long id;
   private Long date;
   private Long purchaseDate;
-  private Long shopId;
-  private Long siteId;
+  private Integer shopId;
+  private Integer siteId;
   private String orderId;
   private String sku;
   private String sAsin;
@@ -39,7 +39,7 @@ public class SalesAmazonFbaRefund {
 
   }
 
-  public SalesAmazonFbaRefund(Long shopId, Long createDate, Long createIdUser, Long recordingId) {
+  public SalesAmazonFbaRefund(Integer shopId, Long createDate, Long createIdUser, Long recordingId) {
     this.shopId = shopId;
     this.createDate = createDate;
     this.createIdUser = createIdUser;
@@ -78,19 +78,19 @@ public class SalesAmazonFbaRefund {
     this.purchaseDate = purchaseDate;
   }
 
-  public Long getShopId() {
+  public Integer getShopId() {
     return shopId;
   }
 
-  public void setShopId(Long shopId) {
+  public void setShopId(Integer shopId) {
     this.shopId = shopId;
   }
 
-  public Long getSiteId() {
+  public Integer getSiteId() {
     return siteId;
   }
 
-  public void setSiteId(Long siteId) {
+  public void setSiteId(Integer siteId) {
     this.siteId = siteId;
   }
 

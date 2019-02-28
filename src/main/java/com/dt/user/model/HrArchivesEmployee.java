@@ -21,7 +21,7 @@ public class HrArchivesEmployee implements Serializable {
     /**
      * 员工编号
      */
-    private String employeeNumber;
+    private String number;
     /**
      * 员工姓名
      */
@@ -79,12 +79,13 @@ public class HrArchivesEmployee implements Serializable {
         this.ptId = ptId;
     }
 
-    public String getEmployeeNumber() {
-        return employeeNumber;
+
+    public String getNumber() {
+        return number;
     }
 
-    public void setEmployeeNumber(String employeeNumber) {
-        this.employeeNumber = employeeNumber;
+    public void setNumber(String number) {
+        this.number = number;
     }
 
     public String getEmployeeName() {

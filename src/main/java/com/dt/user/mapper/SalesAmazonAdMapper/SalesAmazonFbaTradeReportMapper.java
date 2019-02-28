@@ -30,5 +30,5 @@ public interface SalesAmazonFbaTradeReportMapper {
     @Select("SELECT`date`,`site_id`\n" +
             "FROM `sales_amazon_fba_trade_report`\n" +
             "WHERE shop_id = #{sId} AND amazon_order_id=#{oId} LIMIT 0,1")
-    SalesAmazonFbaTradeReport getReport(@Param("sId") Long sId, @Param("oId") String oId);
+    SalesAmazonFbaTradeReport getReport(@Param("sId") Integer sId, @Param("oId") String oId);
 }

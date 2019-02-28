@@ -3,7 +3,6 @@ package com.dt.user.controller.BasePublicController;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.CountryDto;
-import com.dt.user.model.BasePublicModel.BasicPublicExchangeRate;
 import com.dt.user.service.BasePublicService.BasicPublicCountryService;
 import com.dt.user.utils.PageInfoUtils;
 import com.github.pagehelper.PageHelper;

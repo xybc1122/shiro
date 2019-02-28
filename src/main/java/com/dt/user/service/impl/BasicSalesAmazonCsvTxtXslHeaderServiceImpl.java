@@ -14,12 +14,12 @@ public class BasicSalesAmazonCsvTxtXslHeaderServiceImpl implements BasicSalesAma
     private BasicSalesAmazonCsvTxtXslHeaderMapper headerMapper;
 
     @Override
-    public List<String> headerList(Long seId, Integer tbId, Integer areaId, Long shopId) {
+    public List<String> headerList(Integer seId, Integer tbId, Integer areaId, Integer shopId) {
         return headerMapper.headerList(seId, tbId, areaId,shopId);
     }
 
     @Override
-    public List<BasicSalesAmazonCsvTxtXslHeader> sqlHead(Long seId, Integer tbId, Integer areaId, Long shopId) {
+    public List<BasicSalesAmazonCsvTxtXslHeader> sqlHead(Integer seId, Integer tbId, Integer areaId, Integer shopId) {
         return headerMapper.sqlHead(seId, tbId, areaId, shopId);
     }
 }

@@ -6,7 +6,6 @@ import com.dt.user.service.TableHeadService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,29 @@ public class TableHeadImpl implements TableHeadService {
 
     @Override
     public List<TableHead> findByMenuIdHeadList(Long menuId) {
+        List<TableHead> head = tableHeadMapper.findByHeader(menuId);
+        for (TableHead h : head) {
+            int orderIndex = h.getTopOrder().indexOf(",");
+            int menuIdIndex = h.getMenuId().indexOf(",");
+            //如果有,号的说明是有顺序的 并且两个都要不等于- 1的
+            if (orderIndex != -1 && menuIdIndex != -1) {
+                String[] strOrder = h.getTopOrder().split(",");
+                String[] strMenuId = h.getMenuId().split(",");
+                //判断下两个长度是否一样 进入
+                if (strOrder.length == strMenuId.length) {
+                    for (int i = 0; i < strOrder.length; i++) {
+                        Long mId = Long.parseLong(strMenuId[i]);
+                        if (mId.equals(menuId)) {
+                            h.setTopOrder(strOrder[i]);
+                            break;
+                        }
+                    }
+                }
+            }
+            h.setMenuId(null);
+        }
         //接收数据库传来的对象
-
-        return tableHeadMapper.findByHeader(menuId);
+        return head;
     }
 
     @Override

@@ -138,12 +138,12 @@ public class ConsumerServiceImpl implements ConsumerService {
     @Override
     @Transactional
     @Async("executor")
-    public Future<ResponseBase> importTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long recordingId, Integer tbId, Integer aId) {
+    public Future<ResponseBase> importTxt(String uuIdName, String saveFilePath, String fileName, Integer shopId, Long uid, Long recordingId, Integer tbId, Integer aId) {
         future = new AsyncResult<>(threadTxt(uuIdName, saveFilePath, fileName, shopId, uid, recordingId, tbId, aId));
         return future;
     }
 
-    private ResponseBase threadTxt(String uuIdName, String saveFilePath, String fileName, Long shopId, Long uid, Long recordingId, Integer tbId, Integer aId) {
+    private ResponseBase threadTxt(String uuIdName, String saveFilePath, String fileName, Integer shopId, Long uid, Long recordingId, Integer tbId, Integer aId) {
         Timing timing = new Timing();
         ResponseBase responseCsv;
         String filePath = saveFilePath + uuIdName;
@@ -180,7 +180,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         }
     }
 
-    private ResponseBase saveTxt(BufferedReader br, Long shopId, Long uid, Long
+    private ResponseBase saveTxt(BufferedReader br, Integer shopId, Long uid, Long
             recordingId, List<String> txtHeadList, Timing timing, Integer tbId, Integer aId) throws IOException {
         // 开始时间
         Long begin = new Date().getTime();
@@ -414,7 +414,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @return
      * @throws IOException
      */
-    public SalesAmazonFbaRefund saveAmazonFbaRefund(int i, SalesAmazonFbaRefund sft, String[] j, Long sId, Integer aId,
+    public SalesAmazonFbaRefund saveAmazonFbaRefund(int i, SalesAmazonFbaRefund sft, String[] j, Integer sId, Integer aId,
                                                     List<String> txtHeadList, List<BasicSalesAmazonCsvTxtXslHeader> isImportHead) {
         if (txtHeadList.get(i).equals(isImportHead.get(0).getImportTemplet()) && isImportHead.get(0).getOpenClose())
             sft.setDate(DateUtils.getTime(j[i], Constants.ORDER_RETURN));
@@ -482,7 +482,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @throws IOException
      */
     public SalesAmazonFbaTradeReport saveTradeReport(int i, SalesAmazonFbaTradeReport sft, String[] j,
-                                                     Long sId, List<String> txtHeadList, List<BasicSalesAmazonCsvTxtXslHeader> isImportHead) {
+                                                     Integer sId, List<String> txtHeadList, List<BasicSalesAmazonCsvTxtXslHeader> isImportHead) {
         if (txtHeadList.get(i).equals(isImportHead.get(0).getImportTemplet()) && isImportHead.get(0).getOpenClose())
             sft.setAmazonOrderId(StrUtils.repString(j[i]));
         else if (txtHeadList.get(i).equals(isImportHead.get(1).getImportTemplet()) && isImportHead.get(1).getOpenClose())
@@ -499,7 +499,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             String siteUrl = StrUtils.repString(j[i]);
             sft.setSalesChannel(siteUrl);
             //查询 获得site Id
-            Long siteId = siteService.getSiteId(siteUrl);
+            Integer siteId = siteService.getSiteId(siteUrl);
             if (siteId == null) {
                 return null;
             }
@@ -571,14 +571,14 @@ public class ConsumerServiceImpl implements ConsumerService {
     @Override
     @Transactional
     @Async("executor")
-    public Future<ResponseBase> importXls(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long recordingId, Integer tbId) {
+    public Future<ResponseBase> importXls(String uuIdName, String saveFilePath, String fileName, Integer siteId, Integer shopId, Long uid, Long recordingId, Integer tbId) {
         future = new AsyncResult<>(threadXls(uuIdName, saveFilePath, fileName, siteId, shopId, uid,
                 recordingId, tbId));
         return future;
     }
 
 
-    public ResponseBase threadXls(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Long
+    public ResponseBase threadXls(String uuIdName, String saveFilePath, String fileName, Integer siteId, Integer shopId, Long uid, Long
             recordingId, Integer tbId) {
         Timing timing = new Timing();
         String filePath = saveFilePath + uuIdName;
@@ -641,7 +641,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param sheet
      * @return
      */
-    public ResponseBase saveXls(Long shopId, Long siteId, Long uid, Long
+    public ResponseBase saveXls(Integer shopId, Integer siteId, Long uid, Long
             recordingId, int totalNumber, List<String> sqlHead, Integer tbId, Sheet sheet, Timing timing, List<String> xlsListHead) {
         // 开始时间
         Long begin = new Date().getTime();
@@ -1050,7 +1050,7 @@ public class ConsumerServiceImpl implements ConsumerService {
     @Override
     @Transactional
     @Async("executor")
-    public Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime) {
+    public Future<ResponseBase> importCsv(String uuIdName, String saveFilePath, String fileName, Integer siteId, Integer shopId, Long uid, Integer pId, Long recordingId, Integer tbId, String businessTime) {
         future = new AsyncResult<>(threadCsv(uuIdName, saveFilePath, fileName, siteId, shopId, uid,
                 pId, recordingId, tbId, businessTime));
         return future;
@@ -1065,7 +1065,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param shopId
      * @return
      */
-    public ResponseBase threadCsv(String uuIdName, String saveFilePath, String fileName, Long siteId, Long shopId, Long uid, Integer
+    public ResponseBase threadCsv(String uuIdName, String saveFilePath, String fileName, Integer siteId, Integer shopId, Long uid, Integer
             pId, Long recordingId, Integer tbId, String businessTime) {
         ResponseBase responseCsv;
         List<String> csvHeadList;
@@ -1124,7 +1124,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param uid
      * @return
      */
-    public ResponseBase saveCsv(CsvReader csvReader, int row, Long sId, Long seId, Long uid, Integer pId, Long
+    public ResponseBase saveCsv(CsvReader csvReader, int row, Integer sId, Integer seId, Long uid, Integer pId, Long
             recordingId, Integer tbId, String businessTime, Timing timing, List<String> csvHeadList) throws IOException {
         List<FinancialSalesBalance> fsbList = null;
         List<SalesAmazonFbaBusinessreport> sfbList = null;
@@ -1208,8 +1208,8 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * 美国 业务存入对象
      */
-    public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader csvReader, Long
-            sId, Long seId, Long businessTime, List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws IOException {
+    public SalesAmazonFbaBusinessreport saveBusiness(SalesAmazonFbaBusinessreport sfb, CsvReader csvReader, Integer
+            sId, Integer seId, Long businessTime, List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws IOException {
         sfb.setDate(businessTime);
         if (seId.intValue() == 1 || seId.intValue() == 4 || seId.intValue() == 5 || seId.intValue() == 6
                 || seId.intValue() == 7 || seId.intValue() == 8 || seId.intValue() == 9) {
@@ -1276,7 +1276,7 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * csv 财务存入对象
      */
-    public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Long sId, Long seId,
+    public FinancialSalesBalance saveFinance(FinancialSalesBalance fsb, CsvReader csvReader, Integer sId, Integer seId,
                                              List<String> csvHeadList, List<BasicSalesAmazonCsvTxtXslHeader> importHead, int j) throws
             IOException {
         //设置时间类型转换
@@ -1410,7 +1410,7 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * csv 设置TypeName
      */
-    public boolean setType(String type, Long seId, CsvReader csvReader, FinancialSalesBalance fsb) {
+    public boolean setType(String type, Integer seId, CsvReader csvReader, FinancialSalesBalance fsb) {
         String typeName;
         try {
             typeName = orderTypeName(type, seId, csvReader);
@@ -1430,7 +1430,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param csvReader
      * @return
      */
-    public String orderTypeName(String type, Long seId, CsvReader csvReader) throws IOException {
+    public String orderTypeName(String type, Integer seId, CsvReader csvReader) throws IOException {
         String typeName = typeMapper.getTypeName(seId, type);
         //如果数据库查询出来为空
         if (StringUtils.isEmpty(typeName)) {
@@ -1562,7 +1562,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param tbId
      * @return
      */
-    public List<String> getHeadInfo(Long seId, int tbId, Integer areaId, Long shopId) {
+    public List<String> getHeadInfo(Integer seId, int tbId, Integer areaId, Integer shopId) {
         //85 tbId 跟 104 tbId头信息一致
         if (tbId == Constants.FINANCE_ID_YY) {
             return headService.headerList(seId, Constants.FINANCE_ID, areaId, shopId);
@@ -1576,7 +1576,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      * @param sku
      * @param asin
      */
-    public boolean skuEqAsin(String sku, String asin, Long sId, Long seId, Object obj) {
+    public boolean skuEqAsin(String sku, String asin, Integer sId, Integer seId, Object obj) {
         if (StringUtils.isNotEmpty(sku) && StringUtils.isNotEmpty(asin)) {
             //查询skuId
             Long skuId = skuService.selSkuId(sId, seId, sku);
@@ -1630,70 +1630,70 @@ public class ConsumerServiceImpl implements ConsumerService {
     /**
      * 期末库存通用对象
      */
-    public SalesAmazonFbaInventoryEnd setEnd(Long sId, Long uid, Long recordingId) {
+    public SalesAmazonFbaInventoryEnd setEnd(Integer sId, Long uid, Long recordingId) {
         return new SalesAmazonFbaInventoryEnd(sId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * 接收库存通用对象
      */
-    public SalesAmazonFbaReceivestock setReceives(Long sId, Long uid, Long recordingId) {
+    public SalesAmazonFbaReceivestock setReceives(Integer sId, Long uid, Long recordingId) {
         return new SalesAmazonFbaReceivestock(sId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * 退货报告通用对象
      */
-    public SalesAmazonFbaRefund setRefund(Long sId, Long uid, Long recordingId) {
+    public SalesAmazonFbaRefund setRefund(Integer sId, Long uid, Long recordingId) {
         return new SalesAmazonFbaRefund(sId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * 订单报告通用对象
      */
-    public SalesAmazonFbaTradeReport setTraPort(Long sId, Long uid, Long recordingId) {
+    public SalesAmazonFbaTradeReport setTraPort(Integer sId, Long uid, Long recordingId) {
         return new SalesAmazonFbaTradeReport(sId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * 业务报告通用对象
      */
-    public SalesAmazonFbaBusinessreport setBusPort(Long sId, Long seId, Long uid, Long recordingId) {
+    public SalesAmazonFbaBusinessreport setBusPort(Integer sId, Integer seId, Long uid, Long recordingId) {
         return new SalesAmazonFbaBusinessreport(sId, seId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * 财务设置通用对象
      */
-    public FinancialSalesBalance setFsb(Long sId, Long seId, Long uid, Long pId, Long recordingId) {
+    public FinancialSalesBalance setFsb(Integer sId, Integer seId, Long uid, Long pId, Long recordingId) {
         return new FinancialSalesBalance(sId, seId, pId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * H1设置通用对象
      */
-    public SalesAmazonAdHl setHl(Long sId, Long seId, Long uid, Long recordingId) {
+    public SalesAmazonAdHl setHl(Integer sId, Integer seId, Long uid, Long recordingId) {
         return new SalesAmazonAdHl(sId, seId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * Cpr设置通用对象
      */
-    public SalesAmazonAdCpr setCpr(Long sId, Long seId, Long uid, Long recordingId) {
+    public SalesAmazonAdCpr setCpr(Integer sId, Integer seId, Long uid, Long recordingId) {
         return new SalesAmazonAdCpr(sId, seId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * Oar设置通用对象
      */
-    public SalesAmazonAdOar setOar(Long sId, Long seId, Long uid, Long recordingId) {
+    public SalesAmazonAdOar setOar(Integer sId, Integer seId, Long uid, Long recordingId) {
         return new SalesAmazonAdOar(sId, seId, new Date().getTime(), uid, recordingId);
     }
 
     /**
      * Str设置通用对象
      */
-    public SalesAmazonAdStr setStr(Long sId, Long seId, Long uid, Long recordingId) {
+    public SalesAmazonAdStr setStr(Integer sId, Integer seId, Long uid, Long recordingId) {
         return new SalesAmazonAdStr(sId, seId, new Date().getTime(), uid, recordingId);
     }
 

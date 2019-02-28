@@ -16,7 +16,7 @@ public class CSVUtil {
      *
      * @param filePath 文件路径
      */
-    public static String startReadLine(String filePath, Long site, int tbId) {
+    public static String startReadLine(String filePath, Integer site, int tbId) {
         JSONObject readJson = new JSONObject();
         try (InputStreamReader read = FileUtils.streamReader(filePath);
              BufferedReader reader = new BufferedReader(read)) {

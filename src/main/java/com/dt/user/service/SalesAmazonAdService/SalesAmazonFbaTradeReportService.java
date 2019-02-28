@@ -16,5 +16,5 @@ public interface SalesAmazonFbaTradeReportService {
     /**
      * 通过站点店铺ID 跟订单号 查询 下单时间 站点 ID
      */
-    SalesAmazonFbaTradeReport getReport(Long sId,String oId);
+    SalesAmazonFbaTradeReport getReport(Integer sId,String oId);
 }

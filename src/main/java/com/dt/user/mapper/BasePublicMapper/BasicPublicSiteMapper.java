@@ -45,6 +45,6 @@ public interface BasicPublicSiteMapper {
      */
     @Select("SELECT `site_id` FROM `basic_public_site`" +
             "WHERE url=#{url}")
-    Long getSiteId(@Param("url") String url);
+    Integer getSiteId(@Param("url") String url);
 
 }

@@ -18,8 +18,8 @@ public class DateUtils {
      * @param seId
      * @throws IOException
      */
-    public static void setDate(FinancialSalesBalance fsb, Long seId, String time){
-        switch (seId.intValue()) {
+    public static void setDate(FinancialSalesBalance fsb, Integer seId, String time){
+        switch (seId) {
             case 1:
                 fsb.setDate(DateUtils.getTime(time, Constants.USA_TIME));
                 break;

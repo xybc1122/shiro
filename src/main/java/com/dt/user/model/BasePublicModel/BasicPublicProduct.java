@@ -27,14 +27,11 @@ public class BasicPublicProduct {
     private Double volumeCuft;
     private String madeIn;
     private Long hsCodeId;
-    private String remark;
-    private Integer status;
-    private Long createDate;
-    private Long createIdUser;
-    private Long modifyDate;
-    private Long modifyIdUser;
-    private Long auditDate;
-    private Long auditIdUser;
+    /**
+     * 状态ID
+     */
+    private Long statusId;
+
 
     public Long getProductId() {
         return productId;
@@ -212,67 +209,11 @@ public class BasicPublicProduct {
         this.hsCodeId = hsCodeId;
     }
 
-    public String getRemark() {
-        return remark;
+    public Long getStatusId() {
+        return statusId;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getCreateIdUser() {
-        return createIdUser;
-    }
-
-    public void setCreateIdUser(Long createIdUser) {
-        this.createIdUser = createIdUser;
-    }
-
-    public Long getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Long modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Long getModifyIdUser() {
-        return modifyIdUser;
-    }
-
-    public void setModifyIdUser(Long modifyIdUser) {
-        this.modifyIdUser = modifyIdUser;
-    }
-
-    public Long getAuditDate() {
-        return auditDate;
-    }
-
-    public void setAuditDate(Long auditDate) {
-        this.auditDate = auditDate;
-    }
-
-    public Long getAuditIdUser() {
-        return auditIdUser;
-    }
-
-    public void setAuditIdUser(Long auditIdUser) {
-        this.auditIdUser = auditIdUser;
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
     }
 }

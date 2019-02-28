@@ -10,8 +10,8 @@ public class SalesAmazonFbaTradeReport {
     private String merchantOrderId;
     private Long date;
     private Long lastUpdatedDate;
-    private Long shopId;
-    private Long siteId;
+    private Integer shopId;
+    private Integer siteId;
     private String orderStatus;
     private String fulfillmentChannel;
     private String salesChannel;
@@ -57,7 +57,7 @@ public class SalesAmazonFbaTradeReport {
 
     }
 
-    public SalesAmazonFbaTradeReport(Long shopId, Long createDate, Long createIdUser, Long recordingId) {
+    public SalesAmazonFbaTradeReport(Integer shopId, Long createDate, Long createIdUser, Long recordingId) {
         this.shopId = shopId;
         this.createDate = createDate;
         this.createIdUser = createIdUser;
@@ -128,19 +128,19 @@ public class SalesAmazonFbaTradeReport {
         this.lastUpdatedDate = lastUpdatedDate;
     }
 
-    public Long getShopId() {
+    public Integer getShopId() {
         return shopId;
     }
 
-    public void setShopId(Long shopId) {
+    public void setShopId(Integer shopId) {
         this.shopId = shopId;
     }
 
-    public Long getSiteId() {
+    public Integer getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(Long siteId) {
+    public void setSiteId(Integer siteId) {
         this.siteId = siteId;
     }
 

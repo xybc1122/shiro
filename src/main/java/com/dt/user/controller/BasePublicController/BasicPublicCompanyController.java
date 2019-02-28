@@ -3,8 +3,6 @@ package com.dt.user.controller.BasePublicController;
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
 import com.dt.user.dto.CompanyDto;
-import com.dt.user.dto.UserDto;
-import com.dt.user.model.BasePublicModel.BasicPublicCompany;
 import com.dt.user.service.BasePublicService.BasicPublicCompanyService;
 import com.dt.user.utils.PageInfoUtils;
 import com.github.pagehelper.PageHelper;
@@ -17,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/company")
 public class BasicPublicCompanyController {
+
     @Autowired
     private BasicPublicCompanyService basicPublicCompanyService;
 
@@ -35,6 +34,4 @@ public class BasicPublicCompanyController {
         }
         return BaseApiService.setResultError("分页无参数");
     }
-
-
 }

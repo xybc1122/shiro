@@ -8,6 +8,7 @@ public class TableHead implements Serializable {
     private String headName;
     private String menuId;
     private String topType;
+    private String topOrder;
     private int isFixed;
     /**
      * 菜单名称
@@ -21,6 +22,15 @@ public class TableHead implements Serializable {
      * 接收ids
      */
     private String ids;
+
+
+    public String getTopOrder() {
+        return topOrder;
+    }
+
+    public void setTopOrder(String topOrder) {
+        this.topOrder = topOrder;
+    }
 
     public String getInputType() {
         return inputType;

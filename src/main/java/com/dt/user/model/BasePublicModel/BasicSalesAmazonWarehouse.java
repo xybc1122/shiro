@@ -7,7 +7,7 @@ public class BasicSalesAmazonWarehouse {
 
     private Integer amazonWarehouseId;
     private Long amazonWarehouseNumber;
-    private Long siteId;
+    private Integer siteId;
     private String warehouseCode;
     private String country;
     private String location;
@@ -39,11 +39,11 @@ public class BasicSalesAmazonWarehouse {
         this.amazonWarehouseNumber = amazonWarehouseNumber;
     }
 
-    public Long getSiteId() {
+    public Integer getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(Long siteId) {
+    public void setSiteId(Integer siteId) {
         this.siteId = siteId;
     }
 

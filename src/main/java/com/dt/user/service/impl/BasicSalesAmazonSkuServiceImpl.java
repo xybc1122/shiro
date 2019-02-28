@@ -13,7 +13,7 @@ public class BasicSalesAmazonSkuServiceImpl implements BasicSalesAmazonSkuServic
     private BasicSalesAmazonSkuMapper basicSalesAmazonSkuMapper;
 
     @Override
-    public Long selSkuId(Long sId, Long siteId, String skuName) {
+    public Long selSkuId(Integer sId, Integer siteId, String skuName) {
         if (StringUtils.isEmpty(skuName)) {
             return 0L;
         }
@@ -25,7 +25,7 @@ public class BasicSalesAmazonSkuServiceImpl implements BasicSalesAmazonSkuServic
     }
 
     @Override
-    public Long getAsinSkuId(Long sId, Long siteId, String sAsin) {
+    public Long getAsinSkuId(Integer sId, Integer siteId, String sAsin) {
         if (StringUtils.isEmpty(sAsin)) {
             return 0L;
         }

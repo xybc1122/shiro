@@ -24,15 +24,15 @@ public class UserProvider {
             LEFT_OUTER_JOIN("`hr_archives_employee` AS s ON(u.uid=s.u_id)");
             //用户账号
             if (StringUtils.isNotBlank(userDto.getUserName())) {
-                WHERE("u.user_name=#{userName}");
+                WHERE("POSITION('"+userDto.getUserName()+"' IN u.`user_name`)");
             }
             //用户名
             if (StringUtils.isNotBlank(userDto.getName())) {
-                WHERE("u.name=#{name}");
+                WHERE("POSITION('"+userDto.getName()+"' IN u.`name`)");
             }
             //角色名字
             if (StringUtils.isNotBlank(userDto.getrName())) {
-                WHERE("r.r_name=#{rName}");
+                WHERE("POSITION('"+userDto.getrName()+"' IN r.r_name)");
             }
             //密码有效期
             if (userDto.getPwdStatus() != null) {
@@ -54,7 +54,7 @@ public class UserProvider {
             }
             //计算机名
             if (StringUtils.isNotBlank(userDto.getComputerName())) {
-                WHERE("u.computer_name=#{computerName}");
+                WHERE("POSITION('"+userDto.getComputerName()+"' IN u.computer_name)");
             }
             //用户状态
             if (userDto.getAccountStatus() != null) {
@@ -62,7 +62,7 @@ public class UserProvider {
             }
             //用户手机
             if (StringUtils.isNotBlank(userDto.getMobilePhone())) {
-                WHERE("s.mobile_phone=#{mobilePhone}");
+                WHERE("POSITION('"+userDto.getMobilePhone()+"' IN s.mobile_phone)");
             }
             WHERE("del_user=0");
             GROUP_BY("u.uid");

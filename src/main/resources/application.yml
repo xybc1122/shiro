@@ -53,6 +53,11 @@ mybatis:
     #打印sql 方便调试
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   #mapper-locations: mybatis/**/*Mapper.xml
+#通用mapper
+mapper:
+  mappers: tk.mybatis.mapper.common.Mapper
+  not-empty: false
+  identity: MYSQL
 #page分页配置
 pagehelper:
   helperDialect: mysql

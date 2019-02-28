@@ -12,7 +12,7 @@ public interface HrArchivesEmployeeMapper {
     /**
      * 获得员工信息 没有关联用户的
      */
-    @Select("SELECT`s_id`,`u_id`,`pt_id`,`employee_number`,`employee_name`,`employee_name_pinyin`,`employee_name_eng`,`sex`,`id_card`,`mobile_phone`,`nation_id`,`status`\n" +
+    @Select("SELECT`s_id`,`u_id`,`pt_id`,`number`,`employee_name`,`employee_name_pinyin`,`employee_name_eng`,`sex`,`id_card`,`mobile_phone`,`nation_id`,`status`\n" +
             "FROM `hr_archives_employee`\n" +
             "WHERE `status` = 1 AND u_id IS NULL")
     List<HrArchivesEmployee> getHrList();

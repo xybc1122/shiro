@@ -7,8 +7,8 @@ public class SalesAmazonFbaInventoryEnd {
 
   private Long id;
   private Long date;
-  private Long shopId;
-  private Long siteId;
+  private Integer shopId;
+  private Integer siteId;
   private String sku;
   private String fnsku;
   private Long skuId;
@@ -33,7 +33,7 @@ public class SalesAmazonFbaInventoryEnd {
 
   }
 
-  public SalesAmazonFbaInventoryEnd(Long shopId, Long createDate, Long createIdUser, Long recordingId) {
+  public SalesAmazonFbaInventoryEnd(Integer shopId, Long createDate, Long createIdUser, Long recordingId) {
     this.shopId = shopId;
     this.createDate = createDate;
     this.createIdUser = createIdUser;
@@ -57,19 +57,19 @@ public class SalesAmazonFbaInventoryEnd {
     this.date = date;
   }
 
-  public Long getShopId() {
+  public Integer getShopId() {
     return shopId;
   }
 
-  public void setShopId(Long shopId) {
+  public void setShopId(Integer shopId) {
     this.shopId = shopId;
   }
 
-  public Long getSiteId() {
+  public Integer getSiteId() {
     return siteId;
   }
 
-  public void setSiteId(Long siteId) {
+  public void setSiteId(Integer siteId) {
     this.siteId = siteId;
   }
 

@@ -42,7 +42,6 @@ public class BasicPublicProductsServiceImpl implements BasicPublicProductsServic
         }
         return productsList;
     }
-
     private List<BasicPublicProducts> getChild(Long productsId, List<BasicPublicProducts> childProductsList) {
         // 子菜单
         List<BasicPublicProducts> childList = new ArrayList<>();

@@ -12,7 +12,7 @@ public interface BasicSalesAmazonSkuService {
      * @param skuName
      * @return
      */
-    Long selSkuId(Long sId, Long siteId, String skuName);
+    Long selSkuId(Integer sId, Integer siteId, String skuName);
 
 
     /**
@@ -21,5 +21,5 @@ public interface BasicSalesAmazonSkuService {
      * @param siteId
      * @return
      */
-    Long getAsinSkuId(Long sId, Long siteId,String sAsin);
+    Long getAsinSkuId(Integer sId, Integer siteId,String sAsin);
 }

@@ -7,8 +7,8 @@ public class FinancialSalesBalance {
 
     private Long balanceId;
     private Long date;
-    private Long shopId;
-    private Long siteId;
+    private Integer shopId;
+    private Integer siteId;
     private String settlemenId;
     private Long paymentTypeId;
     private String type;
@@ -76,7 +76,7 @@ public class FinancialSalesBalance {
 
     }
 
-    public FinancialSalesBalance(Long shopId, Long siteId, Long paymentTypeId, Long createDate, Long createIdUser, Long recordingId) {
+    public FinancialSalesBalance(Integer shopId, Integer siteId, Long paymentTypeId, Long createDate, Long createIdUser, Long recordingId) {
         this.shopId = shopId;
         this.siteId = siteId;
         this.paymentTypeId = paymentTypeId;
@@ -125,19 +125,19 @@ public class FinancialSalesBalance {
         this.date = date;
     }
 
-    public Long getShopId() {
+    public Integer getShopId() {
         return shopId;
     }
 
-    public void setShopId(Long shopId) {
+    public void setShopId(Integer shopId) {
         this.shopId = shopId;
     }
 
-    public Long getSiteId() {
+    public Integer getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(Long siteId) {
+    public void setSiteId(Integer siteId) {
         this.siteId = siteId;
     }
 
