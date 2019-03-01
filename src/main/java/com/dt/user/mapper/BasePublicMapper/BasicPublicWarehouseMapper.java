@@ -1,8 +1,9 @@
 package com.dt.user.mapper.BasePublicMapper;
 
+import com.dt.user.dto.WarehouseDto;
 import com.dt.user.model.BasePublicModel.BasicPublicWarehouse;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.mapping.FetchType;
 
 import java.util.List;
 
@@ -13,9 +14,17 @@ public interface BasicPublicWarehouseMapper {
     /**
      * 查询仓库信息
      */
-    @Select("SELECT`warehouse_id`,`warehouse_number`,`warehouse_name`,`warehouse_address`,\n" +
-            "`principal`,`remark`, `status`,`create_date`,`create_id_user`,\n" +
-            "`modify_date`,`modify_id_user`, `audit_date`,`audit_id_user`\n" +
+    @Select("SELECT`warehouse_id`,`number`,`warehouse_name`,`warehouse_address`,\n" +
+            "`principal` ,status_id\n" +
             "FROM`basic_public_warehouse`")
-    List<BasicPublicWarehouse> findByWarehouseInfo();
+    @Results({
+            //数据库字段映射 //数据库字段映射 column数据库字段 property Java 字段
+            @Result(column = "status_id", property = "systemLogStatus",
+                    one = @One(
+                            select = "com.dt.user.mapper.SystemLogStatusMapper.findSysStatusInfo",
+                            fetchType = FetchType.EAGER
+                    )
+            )
+    })
+    List<WarehouseDto> findByWarehouseInfo();
 }

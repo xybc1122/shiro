@@ -56,7 +56,7 @@ public class UserRealm extends AuthorizingRealm {
         UserInfo user = userService.findByUser(userName);
         // 账号不存在 异常
         if (user == null) {
-            throw new UnknownAccountException("用户或密码不正确");
+            throw new UnknownAccountException("未知账户/没找到帐号,登录失败");
         }
         // 账号锁定 异常
         if (user.getAccountStatus() == 1) {

@@ -3,6 +3,7 @@ package com.dt.user.mapper;
 import com.dt.user.model.TableHead;
 import com.dt.user.provider.TableHeadProvider;
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.mapping.FetchType;
 
 import java.util.List;
 import java.util.Map;
@@ -12,12 +13,22 @@ public interface TableHeadMapper {
 
     /**
      * 根据菜单ID 查询对应显示的表头
+     * 如果一对一 直接放t.id 就会 直接放到 嵌套对象里显示 需要t.id as h_id  给个别名
      *
      * @return
      */
-    @Select("SELECT t.menu_id,t.id,t.head_name,t.`top_type`,t.top_order,t.is_fixed ,t.input_type FROM `system_user_table_head` AS t\n" +
+    @Select("SELECT t.id as h_id ,t.menu_id,t.id,t.head_name,t.`top_type`,t.top_order,t.is_fixed ,t.input_type FROM `system_user_table_head` AS t\n" +
             "LEFT JOIN `system_user_menu_field` AS mf ON mf.field_id= t.`id`\n" +
             "WHERE  mf.m_id = #{mId}")
+    @Results({
+            //数据库字段映射 //数据库字段映射 column数据库字段 property Java 字段
+            @Result(column = "h_id", property = "statusOptions",
+                    one = @One(
+                            select = "com.dt.user.mapper.AccountStatusOptionsMapper.getAccountStatusOptionsInfo",
+                            fetchType = FetchType.EAGER
+                    )
+            )
+    })
     List<TableHead> findByHeader(@Param("mId") Long mId);
 
     /**
@@ -41,6 +52,6 @@ public interface TableHeadMapper {
     /**
      * 查询所有表头信息 然后service 层通过mid来区别对应的表头信息
      */
-    @Select("SELECT`id`,`head_name`,`menu_id` FROM `system_user_table_head`")
+    @Select("SELECT`id`,`head_name`,`menu_id`,top_order,top_type FROM `system_user_table_head`")
     List<TableHead> findByHeadList();
 }

@@ -1,15 +1,13 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
 import com.dt.user.model.SystemLogStatus;
-
-import javax.persistence.Table;
 import java.util.List;
 
 /**
  * 产品类目
  */
-@Table(name = "basic_public_products")
-public class BasicPublicProducts {
+public class BasicPublicProducts extends ParentSysTemLog {
 
     private Long productsId;
     private Long number;
@@ -17,7 +15,7 @@ public class BasicPublicProducts {
     private Long parentProductsId;
     private String productsPath;
     private Long isParent;
-    private Long statusId;
+
     //状态对象
     private SystemLogStatus systemLogStatus;
 
@@ -88,11 +86,5 @@ public class BasicPublicProducts {
         this.isParent = isParent;
     }
 
-    public Long getStatusId() {
-        return statusId;
-    }
 
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 }

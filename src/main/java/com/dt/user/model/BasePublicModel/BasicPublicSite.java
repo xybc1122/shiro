@@ -1,9 +1,11 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 站点表
  */
-public class BasicPublicSite {
+public class BasicPublicSite extends ParentSysTemLog {
 
   private Integer siteId;
   private Integer number;
@@ -13,7 +15,7 @@ public class BasicPublicSite {
   private String url;
   private Double vat;
   private Long principal;
-  private Long statusId;
+
 
 
     public Integer getSiteId() {
@@ -80,11 +82,4 @@ public class BasicPublicSite {
         this.principal = principal;
     }
 
-    public Long getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 }

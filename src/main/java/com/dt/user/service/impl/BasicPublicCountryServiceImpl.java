@@ -14,7 +14,7 @@ public class BasicPublicCountryServiceImpl implements BasicPublicCountryService 
     private BasicPublicCountryMapper countryMapper;
 
     @Override
-    public List<CountryDto> findByUsers(CountryDto country) {
-        return countryMapper.findByUsers(country);
+    public List<CountryDto> findByCountry(CountryDto country) {
+        return countryMapper.findByCountry(country);
     }
 }

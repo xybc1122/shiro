@@ -26,7 +26,7 @@ public class BasicPublicCountryController {
     public ResponseBase findCountryInfo(@RequestBody CountryDto countryDto) {
         if (countryDto.getCurrentPage() != null && countryDto.getPageSize() != null) {
             PageHelper.startPage(countryDto.getCurrentPage(), countryDto.getPageSize());
-            List<CountryDto> countryDtoList = countryService.findByUsers(countryDto);
+            List<CountryDto> countryDtoList = countryService.findByCountry(countryDto);
             PageInfo<CountryDto> pageInfo = new PageInfo<>(countryDtoList);
             Integer currentPage = countryDto.getCurrentPage();
             return BaseApiService.setResultSuccess(PageInfoUtils.getPage(pageInfo, currentPage));

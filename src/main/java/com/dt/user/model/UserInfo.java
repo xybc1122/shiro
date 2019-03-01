@@ -62,6 +62,10 @@ public class UserInfo implements Serializable {
      * 用户是否始终有效
      */
     private String userStatus;
+    /**
+     * 版本标识
+     */
+    private Integer version;
     //用户名
     private String name;
 
@@ -103,6 +107,14 @@ public class UserInfo implements Serializable {
      * 计算机名
      */
     private String computerName;
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
     public Boolean getFirstLogin() {
         return isFirstLogin;

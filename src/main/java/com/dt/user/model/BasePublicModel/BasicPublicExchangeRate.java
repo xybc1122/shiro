@@ -1,16 +1,18 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 汇率表
  */
-public class BasicPublicExchangeRate {
+public class BasicPublicExchangeRate extends ParentSysTemLog {
 
   private Long exchangeRateId;
   private Integer currencyId;
   private Double toRmb;
   private Double toUsd;
   private Long effectiveDate;
-  private Long statusId;
+
 
   //汇率名称
   private String currencyName;
@@ -64,11 +66,5 @@ public class BasicPublicExchangeRate {
     this.effectiveDate = effectiveDate;
   }
 
-  public Long getStatusId() {
-    return statusId;
-  }
 
-  public void setStatusId(Long statusId) {
-    this.statusId = statusId;
-  }
 }

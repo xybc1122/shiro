@@ -1,9 +1,11 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 国家表
  */
-public class BasicPublicCountry {
+public class BasicPublicCountry  extends ParentSysTemLog {
 
     private Integer countryId;
     private Integer number;
@@ -11,7 +13,7 @@ public class BasicPublicCountry {
     private String countryNameEng;
     private String countryShortNameEng;
     private Double vat;
-    private Long statusId;
+
 
     public Integer getCountryId() {
         return countryId;
@@ -61,11 +63,4 @@ public class BasicPublicCountry {
         this.vat = vat;
     }
 
-    public Long getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 }

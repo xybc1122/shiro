@@ -20,7 +20,7 @@ public interface UserMapper {
      * @return
      */
     @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
-            "account_Status,name,del_user  from system_user_info where user_name=#{userName}")
+            "account_Status,name,del_user,is_first_login  from system_user_info where user_name=#{userName}")
     UserInfo findByUser(@Param("userName") String userName);
 
     /**

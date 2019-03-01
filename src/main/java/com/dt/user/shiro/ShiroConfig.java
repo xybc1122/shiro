@@ -100,8 +100,8 @@ public class ShiroConfig {
     @Bean
     public SessionDAO sessionDAO() {
         EnterpriseCacheSessionDAO enterpriseCacheSessionDAO = new EnterpriseCacheSessionDAO();
-        //设置session缓存的名字 默认为 shiro-activeSessionCache
-        enterpriseCacheSessionDAO.setActiveSessionsCacheName("shiro-activeSessionCache");
+        //设置session缓存的名字 默认为 u_session
+        enterpriseCacheSessionDAO.setActiveSessionsCacheName("u_session");
         //sessionId生成器
         enterpriseCacheSessionDAO.setSessionIdGenerator(sessionIdGenerator());
         return enterpriseCacheSessionDAO;
@@ -166,7 +166,6 @@ public class ShiroConfig {
         sessionManager.setSessionListeners(listeners);
         sessionManager.setSessionIdCookie(sessionIdCookie());
         sessionManager.setSessionDAO(sessionDAO());
-        //sessionManager.setCacheManager(ehCacheManager());
         //是否开启删除无效的session对象  默认为true
         sessionManager.setDeleteInvalidSessions(true);
         //是否开启定时调度器进行检测过期session 默认为true

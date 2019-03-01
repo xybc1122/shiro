@@ -1,9 +1,11 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 币别表
  */
-public class BasicPublicCurrency {
+public class BasicPublicCurrency extends ParentSysTemLog {
   /**
    * 币别ID
    */
@@ -24,7 +26,7 @@ public class BasicPublicCurrency {
    * 币别符号
    */
   private String currencySymbol;
-  private Long statusId;
+
 
   public Long getCurrencyId() {
     return currencyId;
@@ -66,11 +68,4 @@ public class BasicPublicCurrency {
     this.currencySymbol = currencySymbol;
   }
 
-  public Long getStatusId() {
-    return statusId;
-  }
-
-  public void setStatusId(Long statusId) {
-    this.statusId = statusId;
-  }
 }

@@ -1,22 +1,17 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 地区市
  */
-public class BasicPublicProvinceCity {
+public class BasicPublicProvinceCity extends ParentSysTemLog {
 
   private Long cityId;
   private String cityNumber;
   private String cityName;
   private String cityNameEng;
   private String provinceNumber;
-  private String remark;
-  private Long createDate;
-  private Long createIdUser;
-  private Long modifyDate;
-  private Long modifyIdUser;
-  private Long auditDate;
-  private Long auditIdUser;
 
 
   public long getCityId() {
@@ -63,67 +58,5 @@ public class BasicPublicProvinceCity {
     this.provinceNumber = provinceNumber;
   }
 
-
-  public String getRemark() {
-    return remark;
-  }
-
-  public void setRemark(String remark) {
-    this.remark = remark;
-  }
-
-
-  public long getCreateDate() {
-    return createDate;
-  }
-
-  public void setCreateDate(long createDate) {
-    this.createDate = createDate;
-  }
-
-
-  public long getCreateIdUser() {
-    return createIdUser;
-  }
-
-  public void setCreateIdUser(long createIdUser) {
-    this.createIdUser = createIdUser;
-  }
-
-
-  public long getModifyDate() {
-    return modifyDate;
-  }
-
-  public void setModifyDate(long modifyDate) {
-    this.modifyDate = modifyDate;
-  }
-
-
-  public long getModifyIdUser() {
-    return modifyIdUser;
-  }
-
-  public void setModifyIdUser(long modifyIdUser) {
-    this.modifyIdUser = modifyIdUser;
-  }
-
-
-  public long getAuditDate() {
-    return auditDate;
-  }
-
-  public void setAuditDate(long auditDate) {
-    this.auditDate = auditDate;
-  }
-
-
-  public long getAuditIdUser() {
-    return auditIdUser;
-  }
-
-  public void setAuditIdUser(long auditIdUser) {
-    this.auditIdUser = auditIdUser;
-  }
 
 }

@@ -1,9 +1,11 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 店铺表
  */
-public class BasicPublicShop {
+public class BasicPublicShop extends ParentSysTemLog {
     /**
      * 店铺ID
      */
@@ -36,10 +38,7 @@ public class BasicPublicShop {
      * 短代码
      */
     private String shopShortCode;
-    /**
-     * 状态ID
-     */
-    private Long statusId;
+
 
     public Long getShopId() {
         return shopId;
@@ -105,11 +104,4 @@ public class BasicPublicShop {
         this.shopShortCode = shopShortCode;
     }
 
-    public Long getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 }

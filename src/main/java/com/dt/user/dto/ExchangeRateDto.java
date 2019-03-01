@@ -7,51 +7,18 @@ public class ExchangeRateDto extends BasicPublicExchangeRate {
 
 
     /**
-     * 当前页
-     */
-    private Integer currentPage;
-
-    /**
-     * 显示的页数
-     */
-    private Integer pageSize;
-    /**
      * 币别名称
      */
     private String currencyName;
-
-    //状态对象
-    private SystemLogStatus systemLogStatus;
 
 
     public String getCurrencyName() {
         return currencyName;
     }
+
     public void setCurrencyName(String currencyName) {
         this.currencyName = currencyName;
     }
 
-    public Integer getCurrentPage() {
-        return currentPage;
-    }
-
-    public void setCurrentPage(Integer currentPage) {
-        this.currentPage = currentPage;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public SystemLogStatus getSystemLogStatus() {
-        return systemLogStatus;
-    }
-
-    public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
-        this.systemLogStatus = systemLogStatus;
-    }
 }
+

@@ -89,7 +89,10 @@ public class UserController {
     public ResponseBase userInfoUp(@RequestBody Map<String, Object> userMap) {
         //更新用户信息
         try {
-            userService.upUser(userMap);
+            int updateResult = userService.upUser(userMap);
+            if (updateResult != 1) {
+                throw new Exception("更新失败,请重新操作");
+            }
             String uMobilePhone = (String) userMap.get("uMobilePhone");
             if (StringUtils.isNotBlank(uMobilePhone)) {
                 //更新员工信息
@@ -104,9 +107,10 @@ public class UserController {
             }
             return BaseApiService.setResultSuccess("更新成功");
         } catch (Exception e) {
-            return BaseApiService.setResultSuccess("更新失败");
+            return BaseApiService.setResultError(e.getMessage());
         }
     }
+
 
     /**
      * 删除用户信息

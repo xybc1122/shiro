@@ -1,9 +1,11 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 产品信息
  */
-public class BasicPublicProduct {
+public class BasicPublicProduct extends ParentSysTemLog {
 
     private Long productId;
     private String productCode;
@@ -27,10 +29,7 @@ public class BasicPublicProduct {
     private Double volumeCuft;
     private String madeIn;
     private Long hsCodeId;
-    /**
-     * 状态ID
-     */
-    private Long statusId;
+
 
 
     public Long getProductId() {
@@ -209,11 +208,5 @@ public class BasicPublicProduct {
         this.hsCodeId = hsCodeId;
     }
 
-    public Long getStatusId() {
-        return statusId;
-    }
 
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 }

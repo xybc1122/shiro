@@ -4,7 +4,7 @@ import com.dt.user.model.BasePublicModel.BasicPublicProducts;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.mapping.FetchType;
 import java.util.List;
-
+@Mapper
 public interface BasicPublicProductsMapper{
 
     /**

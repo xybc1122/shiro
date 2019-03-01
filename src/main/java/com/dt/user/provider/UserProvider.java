@@ -16,7 +16,7 @@ public class UserProvider {
 
     public String findUsers(UserDto userDto) {
         return new SQL() {{
-            SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time," +
+            SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time,u.version," +
                     "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.effective_date,u.pwd_status");
             FROM("system_user_info AS u");
             LEFT_OUTER_JOIN("system_user_role_user AS ur ON(ur.u_id=u.uid)");
@@ -24,15 +24,15 @@ public class UserProvider {
             LEFT_OUTER_JOIN("`hr_archives_employee` AS s ON(u.uid=s.u_id)");
             //用户账号
             if (StringUtils.isNotBlank(userDto.getUserName())) {
-                WHERE("POSITION('"+userDto.getUserName()+"' IN u.`user_name`)");
+                WHERE("POSITION('" + userDto.getUserName() + "' IN u.`user_name`)");
             }
             //用户名
             if (StringUtils.isNotBlank(userDto.getName())) {
-                WHERE("POSITION('"+userDto.getName()+"' IN u.`name`)");
+                WHERE("POSITION('" + userDto.getName() + "' IN u.`name`)");
             }
             //角色名字
             if (StringUtils.isNotBlank(userDto.getrName())) {
-                WHERE("POSITION('"+userDto.getrName()+"' IN r.r_name)");
+                WHERE("POSITION('" + userDto.getrName() + "' IN r.r_name)");
             }
             //密码有效期
             if (userDto.getPwdStatus() != null) {
@@ -54,7 +54,7 @@ public class UserProvider {
             }
             //计算机名
             if (StringUtils.isNotBlank(userDto.getComputerName())) {
-                WHERE("POSITION('"+userDto.getComputerName()+"' IN u.computer_name)");
+                WHERE("POSITION('" + userDto.getComputerName() + "' IN u.computer_name)");
             }
             //用户状态
             if (userDto.getAccountStatus() != null) {
@@ -62,7 +62,7 @@ public class UserProvider {
             }
             //用户手机
             if (StringUtils.isNotBlank(userDto.getMobilePhone())) {
-                WHERE("POSITION('"+userDto.getMobilePhone()+"' IN s.mobile_phone)");
+                WHERE("POSITION('" + userDto.getMobilePhone() + "' IN s.mobile_phone)");
             }
             WHERE("del_user=0");
             GROUP_BY("u.uid");
@@ -87,19 +87,23 @@ public class UserProvider {
             }
             //如果勾选用户始终有效
             Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
-            if (checkedUserAlways) {
-                SET("effective_date=" + 0);
-            } else if (userMap.get("effectiveDate") != null) {
-                Long effectiveDate = (Long) userMap.get("effectiveDate");
-                SET("effective_date=" + effectiveDate);
+            if (checkedUserAlways != null) {
+                if (checkedUserAlways) {
+                    SET("effective_date=" + 0);
+                } else if (userMap.get("effectiveDate") != null) {
+                    Long effectiveDate = (Long) userMap.get("effectiveDate");
+                    SET("effective_date=" + effectiveDate);
+                }
             }
             //如果勾选密码始终有效
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
-            if (checkedPwdAlways) {
-                SET("pwd_status=" + 0);
-            } else if (userMap.get("pwdAlwaysInput") != null) {
-                Long pwdAlwaysInput = (Long) userMap.get("pwdAlwaysInput");
-                SET("pwd_status=" + pwdAlwaysInput);
+            if (checkedPwdAlways != null) {
+                if (checkedPwdAlways) {
+                    SET("pwd_status=" + 0);
+                } else if (userMap.get("pwdAlwaysInput") != null) {
+                    Long pwdAlwaysInput = (Long) userMap.get("pwdAlwaysInput");
+                    SET("pwd_status=" + pwdAlwaysInput);
+                }
             }
             if (userMap.get("accountStatus") != null) {
                 Integer accountStatus = (Integer) userMap.get("accountStatus");
@@ -107,9 +111,13 @@ public class UserProvider {
             }
             //勾选了首次登陆修改密码
             Boolean checkedUpPwd = (Boolean) userMap.get("checkedUpPwd");
-            SET("is_first_login=" + checkedUpPwd);
-
+            if (checkedUpPwd != null) {
+                SET("is_first_login=" + checkedUpPwd);
+            }
+            Integer version = (Integer) userMap.get("version");
+            SET("version=" + version + "+1");
             Integer uid = (Integer) userMap.get("uid");
+            WHERE("version=" + version);
             WHERE("uid=" + uid);
         }}.toString();
     }

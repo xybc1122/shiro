@@ -100,7 +100,6 @@ public class LoginController extends BaseApiService {
             }
         } catch (IncorrectCredentialsException | UnknownAccountException ie) {
             return setLockingTime(userDto);
-
         } catch (AuthenticationException ae) {
             return BaseApiService.setResultError(ae.getMessage());
         }

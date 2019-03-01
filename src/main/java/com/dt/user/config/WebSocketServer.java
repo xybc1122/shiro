@@ -1,4 +1,4 @@
-package com.dt.user.service;
+package com.dt.user.config;
 
 import com.alibaba.fastjson.JSON;
 import com.dt.user.model.Timing;
@@ -10,9 +10,9 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.Map;
 
 @ServerEndpoint("/websocket")
 @Component

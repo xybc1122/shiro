@@ -1,9 +1,11 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 区域表
  */
-public class BasicPublicArea {
+public class BasicPublicArea extends ParentSysTemLog {
     /**
      * 区域ID
      */
@@ -26,18 +28,7 @@ public class BasicPublicArea {
     private String areaShortNameEng;
 
 
-    /**
-     * 状态ID
-     */
-    private Long statusId;
 
-    public Long getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 
     public Long getAreaId() {
         return areaId;

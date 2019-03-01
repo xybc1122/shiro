@@ -6,6 +6,7 @@ import com.dt.user.model.TableHead;
 import com.dt.user.service.TableHeadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Map;
 
@@ -56,7 +57,14 @@ public class TableHeadController {
      */
     @GetMapping("/findHeads")
     public ResponseBase findHeads(@RequestParam("mId") String mid) {
-
         return BaseApiService.setResultSuccess(tableHeadService.findByHeadList(Long.parseLong(mid)));
+    }
+
+    /**
+     * 无条件查询所有表头
+     */
+    @GetMapping("/getHeadsList")
+    public ResponseBase getHeadsList() {
+        return BaseApiService.setResultSuccess(tableHeadService.findByHeadList(null));
     }
 }

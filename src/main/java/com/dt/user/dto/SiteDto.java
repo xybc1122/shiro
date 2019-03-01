@@ -6,16 +6,6 @@ import com.dt.user.model.SystemLogStatus;
 public class SiteDto extends BasicPublicSite {
 
     /**
-     * 当前页
-     */
-    private Integer currentPage;
-
-    /**
-     * 显示的页数
-     */
-    private Integer pageSize;
-
-    /**
      * 币别名称
      */
     private String currencyName;
@@ -40,9 +30,6 @@ public class SiteDto extends BasicPublicSite {
      */
     private String countryName;
 
-    //状态对象
-    private SystemLogStatus systemLogStatus;
-
     public String getCountryName() {
         return countryName;
     }
@@ -57,14 +44,6 @@ public class SiteDto extends BasicPublicSite {
 
     public void setEmployeeName(String employeeName) {
         this.employeeName = employeeName;
-    }
-
-    public SystemLogStatus getSystemLogStatus() {
-        return systemLogStatus;
-    }
-
-    public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
-        this.systemLogStatus = systemLogStatus;
     }
 
     public String getAreaName() {
@@ -91,19 +70,4 @@ public class SiteDto extends BasicPublicSite {
         this.currencyName = currencyName;
     }
 
-    public Integer getCurrentPage() {
-        return currentPage;
-    }
-
-    public void setCurrentPage(Integer currentPage) {
-        this.currentPage = currentPage;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
 }

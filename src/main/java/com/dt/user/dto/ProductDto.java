@@ -1,18 +1,10 @@
 package com.dt.user.dto;
 
 import com.dt.user.model.BasePublicModel.BasicPublicProduct;
-import com.dt.user.model.SystemLogStatus;
+
 
 public class ProductDto extends BasicPublicProduct {
-    /**
-     * 当前页
-     */
-    private Integer currentPage;
 
-    /**
-     * 显示的页数
-     */
-    private Integer pageSize;
     /**
      * 计量 单位名称
      */
@@ -34,8 +26,7 @@ public class ProductDto extends BasicPublicProduct {
      */
     private String hsCode;
 
-    //状态对象
-    private SystemLogStatus systemLogStatus;
+
 
     public String getHsCode() {
         return hsCode;
@@ -77,27 +68,5 @@ public class ProductDto extends BasicPublicProduct {
         this.unitName = unitName;
     }
 
-    public Integer getCurrentPage() {
-        return currentPage;
-    }
 
-    public void setCurrentPage(Integer currentPage) {
-        this.currentPage = currentPage;
-    }
-
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
-
-    public SystemLogStatus getSystemLogStatus() {
-        return systemLogStatus;
-    }
-
-    public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
-        this.systemLogStatus = systemLogStatus;
-    }
 }

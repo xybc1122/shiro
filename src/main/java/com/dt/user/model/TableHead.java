@@ -1,15 +1,41 @@
 package com.dt.user.model;
 
 import java.io.Serializable;
+import java.util.List;
 
+/**
+ * 表头信息
+ */
 public class TableHead implements Serializable {
-
+    /**
+     * 自增ID
+     */
     private Long id;
+    /**
+     * 菜单名称
+     */
     private String headName;
+    /**
+     * 菜单ID
+     */
     private String menuId;
+    /**
+     * 类型
+     */
     private String topType;
+    /**
+     * 排序
+     */
     private String topOrder;
+    /**
+     * 是否锁框
+     */
     private int isFixed;
+    /**
+     * 账号状态
+     */
+    private List<AccountStatusOptions> statusOptions;
+
     /**
      * 菜单名称
      */
@@ -23,6 +49,13 @@ public class TableHead implements Serializable {
      */
     private String ids;
 
+    public List<AccountStatusOptions> getStatusOptions() {
+        return statusOptions;
+    }
+
+    public void setStatusOptions(List<AccountStatusOptions> statusOptions) {
+        this.statusOptions = statusOptions;
+    }
 
     public String getTopOrder() {
         return topOrder;

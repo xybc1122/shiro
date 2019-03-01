@@ -6,6 +6,7 @@ import com.dt.user.service.TableHeadService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +57,9 @@ public class TableHeadImpl implements TableHeadService {
     @Override
     public List<TableHead> findByHeadList(Long menuId) {
         List<TableHead> tableHeads = tableHeadMapper.findByHeadList();
+        if (menuId == null) {
+            return tableHeads;
+        }
         return headNewList(tableHeads, menuId);
 
     }

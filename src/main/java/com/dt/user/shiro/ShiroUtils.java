@@ -38,14 +38,15 @@ public class ShiroUtils extends BaseApiService {
             if (StringUtils.isNotBlank(redisSessionId)) {
                 Session session = sessionDAO.readSession(redisSessionId);
                 //删除这个踢出session
-                if(session !=null){
+                if (session != null) {
                     session.stop();
+                    //如果自己T自己 会报异常 但是也没什么问题
                     sessionDAO.delete(session);
                     //删除缓存session Id
                     baseRedisService.delData("sId" + uName);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
         return "ok";

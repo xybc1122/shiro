@@ -22,7 +22,7 @@ public interface BasicPublicCountryMapper {
                     )
             )
     })
-    List<CountryDto> findByUsers(CountryDto country);
+    List<CountryDto> findByCountry(CountryDto country);
 
 
 

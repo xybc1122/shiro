@@ -10,5 +10,5 @@ public interface BasicPublicCountryService {
     /**
      * 查询获得国家信息
      */
-    List<CountryDto> findByUsers(CountryDto country);
+    List<CountryDto> findByCountry(CountryDto country);
 }

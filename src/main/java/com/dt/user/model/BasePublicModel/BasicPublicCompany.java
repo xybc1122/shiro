@@ -1,10 +1,12 @@
 package com.dt.user.model.BasePublicModel;
 
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 公司表
  */
-public class BasicPublicCompany {
+public class BasicPublicCompany extends ParentSysTemLog {
     /**
      * 公司ID
      */
@@ -58,10 +60,7 @@ public class BasicPublicCompany {
      * 公司电话
      */
     private String telPhone;
-    /**
-     * 状态ID
-     */
-    private Long statusId;
+
     /**
      * 公司短代码
      */
@@ -179,11 +178,4 @@ public class BasicPublicCompany {
         this.telPhone = telPhone;
     }
 
-    public Long getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 }

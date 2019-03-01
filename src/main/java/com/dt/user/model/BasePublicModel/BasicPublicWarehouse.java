@@ -1,23 +1,18 @@
 package com.dt.user.model.BasePublicModel;
 
+import com.dt.user.model.ParentSysTemLog;
+
 /**
  * 仓库
  */
-public class BasicPublicWarehouse {
+public class BasicPublicWarehouse extends ParentSysTemLog {
 
     private Integer warehouseId;
-    private Integer warehouseNumber;
+    private Integer number;
     private String warehouseName;
     private String warehouseAddress;
     private String principal;
-    private String remark;
-    private Integer status;
-    private Long createDate;
-    private Long createIdUser;
-    private Long modifyDate;
-    private Long modifyIdUser;
-    private Long auditDate;
-    private Long auditIdUser;
+
 
     public Integer getWarehouseId() {
         return warehouseId;
@@ -27,12 +22,12 @@ public class BasicPublicWarehouse {
         this.warehouseId = warehouseId;
     }
 
-    public Integer getWarehouseNumber() {
-        return warehouseNumber;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setWarehouseNumber(Integer warehouseNumber) {
-        this.warehouseNumber = warehouseNumber;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public String getWarehouseName() {
@@ -57,69 +52,5 @@ public class BasicPublicWarehouse {
 
     public void setPrincipal(String principal) {
         this.principal = principal;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
-
-    public Long getCreateDate() {
-        return createDate;
-    }
-
-    public void setCreateDate(Long createDate) {
-        this.createDate = createDate;
-    }
-
-    public Long getCreateIdUser() {
-        return createIdUser;
-    }
-
-    public void setCreateIdUser(Long createIdUser) {
-        this.createIdUser = createIdUser;
-    }
-
-    public Long getModifyDate() {
-        return modifyDate;
-    }
-
-    public void setModifyDate(Long modifyDate) {
-        this.modifyDate = modifyDate;
-    }
-
-    public Long getModifyIdUser() {
-        return modifyIdUser;
-    }
-
-    public void setModifyIdUser(Long modifyIdUser) {
-        this.modifyIdUser = modifyIdUser;
-    }
-
-    public Long getAuditDate() {
-        return auditDate;
-    }
-
-    public void setAuditDate(Long auditDate) {
-        this.auditDate = auditDate;
-    }
-
-    public Long getAuditIdUser() {
-        return auditIdUser;
-    }
-
-    public void setAuditIdUser(Long auditIdUser) {
-        this.auditIdUser = auditIdUser;
     }
 }

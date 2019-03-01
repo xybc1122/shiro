@@ -1,5 +1,6 @@
 package com.dt.user.service.impl;
 
+import com.dt.user.dto.WarehouseDto;
 import com.dt.user.mapper.BasePublicMapper.BasicPublicWarehouseMapper;
 import com.dt.user.model.BasePublicModel.BasicPublicWarehouse;
 import com.dt.user.service.BasePublicService.BasicPublicWarehouseService;
@@ -14,7 +15,7 @@ public class BasicPublicWarehouseServiceImpl implements BasicPublicWarehouseServ
     private BasicPublicWarehouseMapper warehouseMapper;
 
     @Override
-    public List<BasicPublicWarehouse> findByWarehouseInfo() {
+    public List<WarehouseDto> findByWarehouseInfo() {
         return warehouseMapper.findByWarehouseInfo();
     }
 }
