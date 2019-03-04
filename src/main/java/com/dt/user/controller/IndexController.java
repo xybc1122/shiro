@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 
 @RestController
+@RequestMapping("/api")
 public class IndexController {
     @Autowired
     private DataSource dataSource;
@@ -21,13 +22,7 @@ public class IndexController {
      * @return
      */
     @GetMapping("/index")
-    public ResponseBase showIndex(HttpServletRequest request) {
-//        String rememberMe = GetCookie.getRememberMe(request);
-//        //如果里面有 //记住我
-//        if (StringUtils.isNotEmpty(rememberMe)) {
-//            return BaseApiService.setResultSuccess("ok");
-//        }
-//        return BaseApiService.setResultError("no");
+    public ResponseBase showIndex() {
          return BaseApiService.setResultSuccess("ok");
     }
     @RequestMapping("/c")
