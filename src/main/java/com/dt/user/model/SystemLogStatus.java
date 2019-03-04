@@ -1,6 +1,7 @@
 package com.dt.user.model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * 状态记录表
@@ -16,7 +17,6 @@ public class SystemLogStatus implements Serializable {
   private String modifyUser;
   private Long auditDate;
   private String auditUser;
-
   public Long getStatusId() {
     return statusId;
   }

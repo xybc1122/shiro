@@ -74,4 +74,10 @@ public class UserServiceImpl implements UserService {
 
         return userMapper.getByUsers();
     }
+
+    @Override
+    public int upUserPwd(Long uid, String pwd) {
+        return userMapper.upUserPwd(uid, pwd);
+    }
+
 }

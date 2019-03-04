@@ -238,6 +238,8 @@ public class ShiroConfig {
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
         filterChainDefinitionMap.put("/websocket", "anon");
+        // 阿里数据源 查看 路径 http://127.0.0.1:9001/druid/login.html
+        filterChainDefinitionMap.put("/druid/**", "anon");
         // user表示配置记住我或认证通过可以访问的地址
         filterChainDefinitionMap.put("/**", "user");
 //        //其他资源都需要认证  authc 表示需要认证才能进行访问

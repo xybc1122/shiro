@@ -27,6 +27,7 @@ public interface UserService {
 
     /**
      * 更新用户信息
+     *
      * @return
      */
 
@@ -41,6 +42,7 @@ public interface UserService {
      * 单个恢复或批量恢复用户信息
      */
     int reUserInfo(@Param("uidIds") String uidIds);
+
     /**
      * 查询被删除的用户信息
      */
@@ -51,6 +53,7 @@ public interface UserService {
      */
 
     UserInfo getUserName(String userName);
+
     /**
      * 新增一个用户
      */
@@ -60,5 +63,11 @@ public interface UserService {
      * 查找所有用户信息
      */
     List<UserInfo> getByUsers();
+
+    /**
+     * 首次登陆 用户密码更新
+     * @return
+     */
+    int upUserPwd(@Param("uid") Long uid, @Param("pwd") String pwd);
 
 }

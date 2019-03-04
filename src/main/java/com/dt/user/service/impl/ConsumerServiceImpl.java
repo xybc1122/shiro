@@ -157,7 +157,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             timing.setInfo(fileName, recordingId);
             if (!isFlg) {
                 //返回错误信息
-                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
+                return errorResult(0, "表头信息不一致,请找管理员", recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
             }
             //设置文件总数
             timing.setFileCount(filePath);
@@ -612,7 +612,7 @@ public class ConsumerServiceImpl implements ConsumerService {
             //如果表头对比失败
             if (!isFlg) {
                 //返回错误信息
-                return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", filePath, uuIdName);
+                return errorResult(0, "表头信息不一致,请找管理员", recordingId, fileName, timing, "exception", filePath, uuIdName);
             }
             responseBase = saveXls(shopId, siteId, uid, recordingId, totalNumber, sqlHead, tbId, sheet, timing, xlsListHead);
             return saveUserUploadInfo(responseBase, recordingId, fileName, null, 1, filePath, uuIdName);
@@ -1092,7 +1092,7 @@ public class ConsumerServiceImpl implements ConsumerService {
         boolean isFlg = compareHeadCsv(csvHeadList, sqlHeadList);
         if (!isFlg) {
             //返回错误信息
-            return errorResult(0, "表头信息不一致", recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
+            return errorResult(0, "表头信息不一致,请找管理员", recordingId, fileName, timing, "exception", saveFilePath, uuIdName);
         }
         try (InputStreamReader isr = FileUtils.streamReader(filePath)) {
             csvReader = new CsvReader(isr);

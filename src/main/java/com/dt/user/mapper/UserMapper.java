@@ -96,4 +96,16 @@ public interface UserMapper {
             + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{name},#{isFirstLogin})")
     @Options(useGeneratedKeys = true, keyProperty = "uid", keyColumn = "uid")
     int saveUserInfo(UserInfo userInfo);
+
+    /**
+     * 首次登陆 密码更新
+     *
+     * @return
+     */
+    @Update("UPDATE `system_user_info`\n" +
+            "SET\n" +
+            "`pwd` = #{pwd},\n" +
+            "`is_first_login` = TRUE\n" +
+            "WHERE `uid` = #{uid};")
+    int upUserPwd(@Param("uid") Long uid, @Param("pwd") String pwd);
 }

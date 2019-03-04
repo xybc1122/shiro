@@ -43,11 +43,19 @@ public class TableHead implements Serializable {
     /**
      * 输入框类型
      */
-    private String inputType;
+    private int inputType;
     /**
      * 接收ids
      */
     private String ids;
+
+    public int getInputType() {
+        return inputType;
+    }
+
+    public void setInputType(int inputType) {
+        this.inputType = inputType;
+    }
 
     public List<AccountStatusOptions> getStatusOptions() {
         return statusOptions;
@@ -63,14 +71,6 @@ public class TableHead implements Serializable {
 
     public void setTopOrder(String topOrder) {
         this.topOrder = topOrder;
-    }
-
-    public String getInputType() {
-        return inputType;
-    }
-
-    public void setInputType(String inputType) {
-        this.inputType = inputType;
     }
 
     public String getName() {

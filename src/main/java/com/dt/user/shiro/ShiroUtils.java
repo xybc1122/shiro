@@ -4,9 +4,11 @@ import com.dt.user.config.BaseApiService;
 import com.dt.user.model.UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.eis.SessionDAO;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +18,7 @@ public class ShiroUtils extends BaseApiService {
     @Autowired
     private SessionDAO sessionDAO;
 
+
     public static Subject getSubjct() {
 
         return SecurityUtils.getSubject();
@@ -24,6 +27,17 @@ public class ShiroUtils extends BaseApiService {
     public static UserInfo getUser() {
         Object object = getSubjct().getPrincipal();
         return (UserInfo) object;
+    }
+
+    /**
+     * Md5 密码设置
+     *
+     * @param userName
+     * @param pwd
+     */
+    public static Object settingSimpleHash(String userName, String pwd) {
+        ByteSource salt = ByteSource.Util.bytes(userName);
+        return new SimpleHash("MD5", pwd, salt, 1024);
     }
 
     /**

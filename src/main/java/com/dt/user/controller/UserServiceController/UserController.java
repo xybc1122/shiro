@@ -146,8 +146,8 @@ public class UserController {
     /**
      * 获得一个用户的信息
      *
-     * @param request
-     * @return
+     * @param request request对象
+     * @return JSON 对象
      */
     @GetMapping("/getUser")
     public ResponseBase getUser(HttpServletRequest request) {
@@ -163,7 +163,8 @@ public class UserController {
     /**
      * 获得历史删除的用户信息
      *
-     * @return
+     * @param pageDto 用户对象
+     * @return JSON 对象
      */
     @PostMapping("/getDelUser")
     public ResponseBase getDelUser(@RequestBody UserDto pageDto) {
@@ -176,6 +177,9 @@ public class UserController {
 
     /**
      * 查询用户名字是否存在
+     *
+     * @param userName 账号名
+     * @return JSON 对象
      */
     @GetMapping("/getUserName")
     public ResponseBase getUserName(@RequestParam("userName") String userName) {
@@ -185,6 +189,10 @@ public class UserController {
 
     /**
      * 新增用户
+     *
+     * @param userMap 前端传的数据
+     * @param request request 对象
+     * @return JSON 对象
      */
     @SuppressWarnings("unchecked")
     @Transactional //事物
@@ -193,61 +201,99 @@ public class UserController {
         //获得登陆的时候 生成的token
         //获得用户信息
         UserInfo user = GetCookie.getUser(request);
-        if (user != null) {
-            String userName = (String) userMap.get("userName");
-            String pwd = (String) userMap.get("pwd");
-            //首次登陆修改密码修改checked
-            Boolean checkedUpPwd = (Boolean) userMap.get("checkedUpPwd");
-            Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
-            Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
-            Integer staffValue = (Integer) userMap.get("staffValue");
-            List<Integer> rolesId = (List<Integer>) userMap.get("rolesId");
-            //这里前端会传空字符串 或者 Long类型数据 要判断
-            UserInfo userInfo = new UserInfo();
-            //首次登陆是否修改密码
-            if (checkedUpPwd) {
-                userInfo.setFirstLogin(true);
-            } else {
-                userInfo.setFirstLogin(false);
-            }
-            userInfo.setUserName(userName);
-            //md5盐值密码加密
-            ByteSource salt = ByteSource.Util.bytes(userName);
-            Object result = new SimpleHash("MD5", pwd, salt, 1024);
-            userInfo.setPwd(result.toString());
-            userInfo.setCreateDate(new Date().getTime());
-            userInfo.setCreateIdUser(user.getUid());
-            //如果点击了   用户始终有效
-            if (checkedUserAlways) {
-                userInfo.setEffectiveDate(0L);
-            } else {
-                Long effectiveDate = (Long) userMap.get("effectiveDate");
-                //设置 用户有效时间
-                userInfo.setEffectiveDate(effectiveDate);
-            }
-            //如果点击了   密码始终有效
-            if (checkedPwdAlways) {
-                userInfo.setPwdStatus(0L);
-            } else {
-                //前台会传2个类型参数 根据判断转换 来设计 用户 密码有效时间
-                Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
-                userInfo.setPwdStatus(DateUtils.getRearDate(pwdAlwaysInput));
-            }
-            //新增用户
-            userService.saveUserInfo(userInfo);
-            Long uid = userInfo.getUid();
-            Long sid = staffValue.longValue();
-            //关联员工信息 更新
-            hrService.bindHrInfo(uid, sid);
-            //新增角色信息
-            List<UserRole> urList = new ArrayList<>();
-            UserRole userRole = new UserRole();
-            userRole.setuId(uid);
-            userRole.setrIds(rolesId);
-            urList.add(userRole);
-            userRoleService.addUserRole(urList);
-            return BaseApiService.setResultSuccess("新增成功~");
+        if (user == null) {
+            return BaseApiService.setResultError("用户token失效");
         }
-        return BaseApiService.setResultError("token失效");
+        String userName = (String) userMap.get("userName");
+        if (StringUtils.isBlank(userName)) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        String pwd = (String) userMap.get("pwd");
+        if (StringUtils.isBlank(pwd)) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        //首次登陆修改密码修改checked
+        Boolean checkedUpPwd = (Boolean) userMap.get("checkedUpPwd");
+        if (checkedUpPwd == null) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
+        if (checkedUserAlways == null) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
+        if (checkedPwdAlways == null) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        Integer staffValue = (Integer) userMap.get("staffValue");
+        if (staffValue == null) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        List<Integer> rolesId = (List<Integer>) userMap.get("rolesId");
+        if (rolesId == null) {
+            return BaseApiService.setResultError("新增失败");
+        }
+        //这里前端会传空字符串 或者 Long类型数据 要判断
+        UserInfo userInfo = new UserInfo();
+        //首次登陆是否修改密码
+        if (checkedUpPwd) {
+            userInfo.setFirstLogin(true);
+        } else {
+            userInfo.setFirstLogin(false);
+        }
+        userInfo.setUserName(userName);
+        Object result = ShiroUtils.settingSimpleHash(userName, pwd);
+        userInfo.setPwd(result.toString());
+        userInfo.setCreateDate(new Date().getTime());
+        userInfo.setCreateIdUser(user.getUid());
+        //如果点击了   用户始终有效
+        if (checkedUserAlways) {
+            userInfo.setEffectiveDate(0L);
+        } else {
+            Long effectiveDate = (Long) userMap.get("effectiveDate");
+            //设置 用户有效时间
+            userInfo.setEffectiveDate(effectiveDate);
+        }
+        //如果点击了   密码始终有效
+        if (checkedPwdAlways) {
+            userInfo.setPwdStatus(0L);
+        } else {
+            //前台会传2个类型参数 根据判断转换 来设计 用户 密码有效时间
+            Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
+            userInfo.setPwdStatus(DateUtils.getRearDate(pwdAlwaysInput));
+        }
+        //新增用户
+        userService.saveUserInfo(userInfo);
+        Long uid = userInfo.getUid();
+        Long sid = staffValue.longValue();
+        //关联员工信息 更新
+        hrService.bindHrInfo(uid, sid);
+        //新增角色信息
+        List<UserRole> urList = new ArrayList<>();
+        UserRole userRole = new UserRole();
+        userRole.setuId(uid);
+        userRole.setrIds(rolesId);
+        urList.add(userRole);
+        userRoleService.addUserRole(urList);
+        return BaseApiService.setResultSuccess("新增成功");
+    }
+
+    /**
+     * 设置了 首次登陆修改密码的接口
+     * @param userInfo 前端传的对象
+     * @return
+     */
+    @PostMapping("/upPwd")
+    public ResponseBase upUserPwd(@RequestBody UserInfo userInfo) {
+        if (StringUtils.isNotBlank(userInfo.getPwd()) && StringUtils.isNotBlank(userInfo.getUserName())) {
+            //md5盐值密码加密
+            Object resultPwd = ShiroUtils.settingSimpleHash(userInfo.getUserName(), userInfo.getPwd());
+            //更新用户
+            int uCount = userService.upUserPwd(userInfo.getUid(), resultPwd.toString());
+            if (uCount > 0) {
+                return BaseApiService.setResultSuccess("密码修改成功");
+            }
+        }
+        return BaseApiService.setResultError("密码修改失败");
     }
 }
