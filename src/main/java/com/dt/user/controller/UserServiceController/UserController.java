@@ -248,19 +248,19 @@ public class UserController {
         userInfo.setCreateIdUser(user.getUid());
         //如果点击了   用户始终有效
         if (checkedUserAlways) {
-            userInfo.setEffectiveDate(0L);
+            userInfo.setUserExpirationDate(0L);
         } else {
             Long effectiveDate = (Long) userMap.get("effectiveDate");
             //设置 用户有效时间
-            userInfo.setEffectiveDate(effectiveDate);
+            userInfo.setUserExpirationDate(effectiveDate);
         }
         //如果点击了   密码始终有效
         if (checkedPwdAlways) {
-            userInfo.setPwdStatus(0L);
+            userInfo.setPwdValidityPeriod(0L);
         } else {
             //前台会传2个类型参数 根据判断转换 来设计 用户 密码有效时间
             Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
-            userInfo.setPwdStatus(DateUtils.getRearDate(pwdAlwaysInput));
+            userInfo.setPwdValidityPeriod(DateUtils.getRearDate(pwdAlwaysInput));
         }
         //新增用户
         userService.saveUserInfo(userInfo);
@@ -280,16 +280,21 @@ public class UserController {
 
     /**
      * 设置了 首次登陆修改密码的接口
-     * @param userInfo 前端传的对象
+     *
+     * @param uInfo 前端传的对象
      * @return
      */
     @PostMapping("/upPwd")
-    public ResponseBase upUserPwd(@RequestBody UserInfo userInfo) {
-        if (StringUtils.isNotBlank(userInfo.getPwd()) && StringUtils.isNotBlank(userInfo.getUserName())) {
+    public ResponseBase upUserPwd(@RequestBody UserInfo uInfo, HttpServletRequest request) {
+        UserInfo user = GetCookie.getUser(request);
+        if (user == null) {
+            return BaseApiService.setResultError("用户token失效");
+        }
+        if (StringUtils.isNotBlank(uInfo.getPwd()) && StringUtils.isNotBlank(uInfo.getUserName())) {
             //md5盐值密码加密
-            Object resultPwd = ShiroUtils.settingSimpleHash(userInfo.getUserName(), userInfo.getPwd());
+            Object resultPwd = ShiroUtils.settingSimpleHash(uInfo.getUserName(), uInfo.getPwd());
             //更新用户
-            int uCount = userService.upUserPwd(userInfo.getUid(), resultPwd.toString());
+            int uCount = userService.upUserPwd(user.getUid(), resultPwd.toString());
             if (uCount > 0) {
                 return BaseApiService.setResultSuccess("密码修改成功");
             }

@@ -50,14 +50,14 @@ public class UserInfo implements Serializable {
      */
     private Long upDate;
     /**
-     * effectiveDate
+     * userExpirationDate
      * 用户有效时间
      */
-    private Long effectiveDate;
+    private Long userExpirationDate;
     /**
-     * 密码状态 0为始终有效  非0密码到期会提示修改密码
+     * 密码有效期 0为始终有效  非0密码到期会提示修改密码
      */
-    private Long pwdStatus;
+    private Long pwdValidityPeriod;
     /**
      * 用户是否始终有效
      */
@@ -220,20 +220,20 @@ public class UserInfo implements Serializable {
         this.upDate = upDate;
     }
 
-    public Long getEffectiveDate() {
-        return effectiveDate;
+    public Long getUserExpirationDate() {
+        return userExpirationDate;
     }
 
-    public void setEffectiveDate(Long effectiveDate) {
-        this.effectiveDate = effectiveDate;
+    public void setUserExpirationDate(Long userExpirationDate) {
+        this.userExpirationDate = userExpirationDate;
     }
 
-    public Long getPwdStatus() {
-        return pwdStatus;
+    public Long getPwdValidityPeriod() {
+        return pwdValidityPeriod;
     }
 
-    public void setPwdStatus(Long pwdStatus) {
-        this.pwdStatus = pwdStatus;
+    public void setPwdValidityPeriod(Long pwdValidityPeriod) {
+        this.pwdValidityPeriod = pwdValidityPeriod;
     }
 
     public String getUserStatus() {
@@ -332,16 +332,28 @@ public class UserInfo implements Serializable {
                 ", pwd='" + pwd + '\'' +
                 ", status=" + status +
                 ", accountStatus=" + accountStatus +
-                ", createIdUser='" + createIdUser + '\'' +
+                ", createIdUser=" + createIdUser +
                 ", upIdUser='" + upIdUser + '\'' +
                 ", createDate=" + createDate +
                 ", upDate=" + upDate +
-                ", effectiveDate=" + effectiveDate +
-                ", pwdStatus=" + pwdStatus +
+                ", userExpirationDate=" + userExpirationDate +
+                ", pwdValidityPeriod=" + pwdValidityPeriod +
                 ", userStatus='" + userStatus + '\'' +
+                ", version=" + version +
                 ", name='" + name + '\'' +
                 ", roles=" + roles +
                 ", rName='" + rName + '\'' +
+                ", rId='" + rId + '\'' +
+                ", landingTime=" + landingTime +
+                ", mobilePhone='" + mobilePhone + '\'' +
+                ", menuName='" + menuName + '\'' +
+                ", delUser=" + delUser +
+                ", delDate=" + delDate +
+                ", restoreDate=" + restoreDate +
+                ", isFirstLogin=" + isFirstLogin +
+                ", uIds='" + uIds + '\'' +
+                ", type=" + type +
+                ", computerName='" + computerName + '\'' +
                 '}';
     }
 }

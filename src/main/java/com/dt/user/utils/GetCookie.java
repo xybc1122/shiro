@@ -13,22 +13,22 @@ public class GetCookie {
      * @param request
      * @return
      */
-    public static String getRememberMe(HttpServletRequest request) {
+    public static String getName(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        String rememberMe = "";
+        String name = "";
         if (cookies == null) {
             return null;
         }
         for (Cookie cookie : cookies) {
             switch (cookie.getName()) {
-                case "rememberMe":
-                    rememberMe = cookie.getValue();
+                case "name":
+                    name = cookie.getValue();
                     break;
                 default:
                     break;
             }
         }
-        return rememberMe;
+        return name;
     }
     /**
      * 获得cookie里面的token

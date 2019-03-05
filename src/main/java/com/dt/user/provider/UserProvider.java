@@ -16,8 +16,8 @@ public class UserProvider {
 
     public String findUsers(UserDto userDto) {
         return new SQL() {{
-            SELECT("u.uid,u.name,u.user_name,u.create_date,u.account_status,u.landing_time,u.version," +
-                    "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.effective_date,u.pwd_status");
+            SELECT("u.uid,u.name,u.computer_name,u.user_name,u.create_date,u.account_status,u.landing_time,u.version," +
+                    "GROUP_CONCAT(r.`r_name`)as rName,GROUP_CONCAT(r.`rid`)as rid,s.mobile_phone,u.user_expiration_date,u.pwd_validity_period");
             FROM("system_user_info AS u");
             LEFT_OUTER_JOIN("system_user_role_user AS ur ON(ur.u_id=u.uid)");
             LEFT_OUTER_JOIN("system_user_role AS r ON(r.rid=ur.r_id)");
@@ -35,22 +35,23 @@ public class UserProvider {
                 WHERE("POSITION('" + userDto.getrName() + "' IN r.r_name)");
             }
             //密码有效期
-            if (userDto.getPwdStatus() != null) {
-                WHERE("u.pwd_status=#{pwdStatus}");
+            if (userDto.getPwdValidityPeriod() != null) {
+                WHERE("u.pwd_validity_period=#{pwdValidityPeriod}");
                 //始终有效
             } else if (userDto.isPwdAlways()) {
-                WHERE("u.pwd_status=0");
+                WHERE("u.pwd_validity_period=0");
             }
             //登陆时间
             if (userDto.getLandingTime() != null) {
+                //landing_time BETWEEN  1542252636000 AND 1551688531860
                 WHERE("u.landing_time=#{landingTime}");
             }
             //用户有效期间
-            if (userDto.getEffectiveDate() != null) {
-                WHERE("u.effective_date=#{effectiveDate}");
+            if (userDto.getUserExpirationDate() != null) {
+                WHERE("u.user_expiration_date=#{userExpirationDate}");
                 //始终有效
             } else if (userDto.isuAlways()) {
-                WHERE("u.effective_date=0");
+                WHERE("u.user_expiration_date=0");
             }
             //计算机名
             if (StringUtils.isNotBlank(userDto.getComputerName())) {
@@ -89,20 +90,20 @@ public class UserProvider {
             Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
             if (checkedUserAlways != null) {
                 if (checkedUserAlways) {
-                    SET("effective_date=" + 0);
+                    SET("user_expiration_date=" + 0);
                 } else if (userMap.get("effectiveDate") != null) {
-                    Long effectiveDate = (Long) userMap.get("effectiveDate");
-                    SET("effective_date=" + effectiveDate);
+                    Long effectiveDate = (Long) userMap.get("userExpirationDate");
+                    SET("user_expiration_date=" + effectiveDate);
                 }
             }
             //如果勾选密码始终有效
             Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
             if (checkedPwdAlways != null) {
                 if (checkedPwdAlways) {
-                    SET("pwd_status=" + 0);
+                    SET("pwd_validity_period=" + 0);
                 } else if (userMap.get("pwdAlwaysInput") != null) {
                     Long pwdAlwaysInput = (Long) userMap.get("pwdAlwaysInput");
-                    SET("pwd_status=" + pwdAlwaysInput);
+                    SET("pwd_validity_period=" + pwdAlwaysInput);
                 }
             }
             if (userMap.get("accountStatus") != null) {

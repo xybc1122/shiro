@@ -9,6 +9,7 @@ import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
+import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -143,7 +145,15 @@ public class LoginController extends BaseApiService {
      */
     @ResponseBody
     @GetMapping("/logout")
-    public ResponseBase logout() {
+    public ResponseBase logout(HttpServletRequest request) {
+        String token = request.getParameter("token");
+        if (null == token) {
+            UserInfo uInfo = GetCookie.getUser(request);
+            if (null == uInfo) {
+                ShiroUtils.logout();
+                return BaseApiService.setResultError("token失效");
+            }
+        }
         ShiroUtils.logout();
         System.out.println(sessionListener.getSessionCount());
         return BaseApiService.setResultSuccess("注销成功!");

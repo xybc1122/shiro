@@ -19,7 +19,7 @@ public interface UserMapper {
      * @param userName
      * @return
      */
-    @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,effective_date,pwd_status," +
+    @Select("select uid, user_name,pwd,status,create_date,create_id_user,up_id_user,up_date,user_expiration_date,pwd_validity_period," +
             "account_Status,name,del_user,is_first_login  from system_user_info where user_name=#{userName}")
     UserInfo findByUser(@Param("userName") String userName);
 
@@ -92,8 +92,8 @@ public interface UserMapper {
     /**
      * 新增一个用户
      */
-    @Insert("insert into system_user_info(user_name,pwd,create_date,create_id_user,effective_date,pwd_status,name,is_first_login) "
-            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{effectiveDate},#{pwdStatus},#{name},#{isFirstLogin})")
+    @Insert("insert into system_user_info(user_name,pwd,create_date,create_id_user,user_expiration_date,pwd_validity_period,name,is_first_login) "
+            + "values(#{userName},#{pwd},#{createDate},#{createIdUser},#{userExpirationDate},#{pwdValidityPeriod},#{name},#{isFirstLogin})")
     @Options(useGeneratedKeys = true, keyProperty = "uid", keyColumn = "uid")
     int saveUserInfo(UserInfo userInfo);
 
