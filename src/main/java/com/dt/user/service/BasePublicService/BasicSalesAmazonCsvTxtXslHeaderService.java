@@ -14,7 +14,6 @@ public interface BasicSalesAmazonCsvTxtXslHeaderService {
      */
     List<String> headerList(Integer seId, Integer tbId, Integer areaId,Integer shopId);
 
-
     /**
      * 获得对象
      *

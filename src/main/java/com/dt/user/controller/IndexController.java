@@ -12,9 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 
 @RestController
+@RequestMapping("/api")
 public class IndexController {
-    @Autowired
-    private DataSource dataSource;
 
     /**
      * 测试是否登陆了的接口
@@ -23,8 +22,9 @@ public class IndexController {
      */
     @GetMapping("/index")
     public ResponseBase showIndex() {
+
         //如果能请求这个接口 说明已经登陆  session 还存在
         return BaseApiService.setResultSuccess("ok");
-    }
 
-}
+    }
+    }
