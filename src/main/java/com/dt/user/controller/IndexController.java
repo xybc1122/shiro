@@ -15,25 +15,16 @@ import java.sql.SQLException;
 public class IndexController {
     @Autowired
     private DataSource dataSource;
+
     /**
      * 测试是否登陆了的接口
      *
      * @return
      */
     @GetMapping("/index")
-    public ResponseBase showIndex(HttpServletRequest request) {
-//        String rememberMe = GetCookie.getRememberMe(request);
-//        //如果里面有 //记住我
-//        if (StringUtils.isNotEmpty(rememberMe)) {
-//            return BaseApiService.setResultSuccess("ok");
-//        }
-//        return BaseApiService.setResultError("no");
-         return BaseApiService.setResultSuccess("ok");
+    public ResponseBase showIndex() {
+        //如果能请求这个接口 说明已经登陆  session 还存在
+        return BaseApiService.setResultSuccess("ok");
     }
-    @RequestMapping("/c")
-    public String index() throws SQLException {
-        System.out.println(dataSource.getConnection());
-        System.out.println(dataSource);
-        return "hello spring boot";
-    }
+
 }

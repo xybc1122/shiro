@@ -37,7 +37,8 @@ public class ShiroUtils extends BaseApiService {
      */
     public static Object settingSimpleHash(String userName, String pwd) {
         ByteSource salt = ByteSource.Util.bytes(userName);
-        return new SimpleHash("MD5", pwd, salt, 1024);
+        Object result = new SimpleHash("MD5", pwd, salt, 1024);
+        return result;
     }
 
     /**

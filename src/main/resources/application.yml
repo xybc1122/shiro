@@ -7,13 +7,13 @@ eureka:
     instance-id: ${spring.cloud.client.ip-address}:${server.port}
     prefer-ip-address: true
 server:
-  port: 9001
+  port: 9002
 spring:
   application:
     name: user-service
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
     #120.79.153.77 192.168.1.191
     url: jdbc:mysql://192.168.1.191:3306/mydb?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: root

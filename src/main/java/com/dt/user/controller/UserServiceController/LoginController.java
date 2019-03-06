@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class LoginController extends BaseApiService {
+
     @Autowired
     private ShiroSessionListener sessionListener;
 
@@ -91,8 +92,11 @@ public class LoginController extends BaseApiService {
                 dataUserJson = new JSONObject();
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
-                redisService.setString("sId" + user.getUserName(), session.getId(), 60 * 60 * 24L);
-                //                //登陆成功后 删除Map指定元素
+                //登陆成功设置session
+                baseRedisService.setString(session.getId().toString(), session.getId());
+                //设置token
+                baseRedisService.setString(user.getUserName(), userToken);
+                //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
                 }
@@ -145,15 +149,7 @@ public class LoginController extends BaseApiService {
      */
     @ResponseBody
     @GetMapping("/logout")
-    public ResponseBase logout(HttpServletRequest request) {
-        String token = request.getParameter("token");
-        if (null == token) {
-            UserInfo uInfo = GetCookie.getUser(request);
-            if (null == uInfo) {
-                ShiroUtils.logout();
-                return BaseApiService.setResultError("token失效");
-            }
-        }
+    public ResponseBase logout() {
         ShiroUtils.logout();
         System.out.println(sessionListener.getSessionCount());
         return BaseApiService.setResultSuccess("注销成功!");

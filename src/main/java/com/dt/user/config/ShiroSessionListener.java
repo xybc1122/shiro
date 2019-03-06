@@ -1,11 +1,13 @@
 package com.dt.user.config;
 
+import com.dt.user.model.UserInfo;
+import com.dt.user.shiro.ShiroUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.SessionListener;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ShiroSessionListener implements SessionListener {
+public class ShiroSessionListener extends BaseApiService implements SessionListener {
 
     /**
      * 统计在线人数
@@ -20,6 +22,7 @@ public class ShiroSessionListener implements SessionListener {
      */
     @Override
     public void onStart(Session session) {
+        System.out.println("ShiroSessionListener session {} 被创建" + session.getId());
         //会话创建，在线人数加一
         sessionCount.incrementAndGet();
     }
@@ -31,6 +34,10 @@ public class ShiroSessionListener implements SessionListener {
      */
     @Override
     public void onStop(Session session) {
+        System.out.println("ShiroSessionListener session {} 被退出" + session.getId());
+        baseRedisService.delData(session.getId().toString());
+//        UserInfo u = ShiroUtils.getUser();
+//        baseRedisService.delData(u.getUserName());
         //会话退出,在线人数减一
         sessionCount.decrementAndGet();
     }
@@ -42,6 +49,10 @@ public class ShiroSessionListener implements SessionListener {
      */
     @Override
     public void onExpiration(Session session) {
+        System.out.println("ShiroSessionListener session {} 被过期" + session.getId());
+        baseRedisService.delData(session.getId().toString());
+//        UserInfo u = ShiroUtils.getUser();
+//        baseRedisService.delData(u.getUserName());
         //会话过期,在线人数减一
         sessionCount.decrementAndGet();
     }

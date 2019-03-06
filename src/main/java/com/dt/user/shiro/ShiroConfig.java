@@ -127,7 +127,7 @@ public class ShiroConfig {
         simpleCookie.setHttpOnly(true);
         simpleCookie.setPath("/");
         //maxAge=-1 表示浏览器关闭时失效此Cookie 30分钟
-        simpleCookie.setMaxAge(60 * 60 * 24);
+        simpleCookie.setMaxAge(120);
         return simpleCookie;
     }
 
@@ -166,13 +166,15 @@ public class ShiroConfig {
         sessionManager.setSessionListeners(listeners);
         sessionManager.setSessionIdCookie(sessionIdCookie());
         sessionManager.setSessionDAO(sessionDAO());
+        //设置关闭浏览器 孤立会话时间删除
+        sessionManager.setGlobalSessionTimeout(60 * 1000);
         //是否开启删除无效的session对象  默认为true
         sessionManager.setDeleteInvalidSessions(true);
         //是否开启定时调度器进行检测过期session 默认为true
         sessionManager.setSessionValidationSchedulerEnabled(true);
         //设置session失效的扫描时间, 清理用户直接关闭浏览器造成的孤立会话 默认为 1个小时 设置15分钟检测一次
         //设置该属性 就不需要设置 ExecutorServiceSessionValidationScheduler 底层也是默认自动调用ExecutorServiceSessionValidationScheduler
-        sessionManager.setSessionValidationInterval(6000 * 10 * 15);
+        sessionManager.setSessionValidationInterval(6000);
         //取消url 后面的 JSESSIONID
         sessionManager.setSessionIdUrlRewritingEnabled(false);
         return sessionManager;
@@ -241,9 +243,11 @@ public class ShiroConfig {
         // 阿里数据源 查看 路径 http://127.0.0.1:9001/druid/login.html
         filterChainDefinitionMap.put("/druid/**", "anon");
         // user表示配置记住我或认证通过可以访问的地址
-        filterChainDefinitionMap.put("/**", "user");
-//        //其他资源都需要认证  authc 表示需要认证才能进行访问
+//        filterChainDefinitionMap.put("/menu/**", "user");
+//        filterChainDefinitionMap.put("/menu/show", "user");
+        //其他资源都需要认证  authc 表示需要认证才能进行访问
 //        filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "user");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
     }

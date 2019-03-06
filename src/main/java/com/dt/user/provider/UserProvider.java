@@ -2,6 +2,7 @@ package com.dt.user.provider;
 
 
 import com.dt.user.dto.UserDto;
+import com.dt.user.shiro.ShiroUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 import org.apache.shiro.crypto.hash.SimpleHash;
@@ -82,9 +83,8 @@ public class UserProvider {
             if (StringUtils.isNotBlank(pwd)) {
                 String userName = (String) userMap.get("uName");
                 //md5盐值密码加密
-                ByteSource salt = ByteSource.Util.bytes(userName);
-                Object result = new SimpleHash("MD5", pwd, salt, 1024);
-                SET("pwd=" + "'" + result + "'");
+                Object resultPwd = ShiroUtils.settingSimpleHash(userName, pwd);
+                SET("pwd=" + "'" + resultPwd + "'");
             }
             //如果勾选用户始终有效
             Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");

@@ -16,8 +16,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.crypto.hash.SimpleHash;
-import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -40,10 +38,6 @@ public class UserController {
     @Autowired
     private UserRoleService userRoleService;
 
-    @RequestMapping("/index")
-    public ResponseBase index() {
-        return BaseApiService.setResultSuccess("我来到了用户页面");
-    }
 
     /**
      * 获取用户管理信息的一些信息
@@ -100,6 +94,7 @@ public class UserController {
             }
             //先判断是否为空
             String pwd = (String) userMap.get("pwd");
+
             //如果不是空 说明已经修改了密码
             if (StringUtils.isNotBlank(pwd)) {
                 //踢出用户 如果是null  说明没有这个用户在线 //这里还有个问题要更新 记住我用户 踢不出去
@@ -290,9 +285,9 @@ public class UserController {
         if (user == null) {
             return BaseApiService.setResultError("用户token失效");
         }
-        if (StringUtils.isNotBlank(uInfo.getPwd()) && StringUtils.isNotBlank(uInfo.getUserName())) {
+        if (StringUtils.isNotBlank(uInfo.getPwd()) && StringUtils.isNotBlank(user.getUserName())) {
             //md5盐值密码加密
-            Object resultPwd = ShiroUtils.settingSimpleHash(uInfo.getUserName(), uInfo.getPwd());
+            Object resultPwd = ShiroUtils.settingSimpleHash(user.getUserName(), uInfo.getPwd());
             //更新用户
             int uCount = userService.upUserPwd(user.getUid(), resultPwd.toString());
             if (uCount > 0) {
@@ -301,4 +296,5 @@ public class UserController {
         }
         return BaseApiService.setResultError("密码修改失败");
     }
+
 }

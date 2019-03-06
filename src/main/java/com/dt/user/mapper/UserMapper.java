@@ -106,6 +106,6 @@ public interface UserMapper {
             "SET\n" +
             "`pwd` = #{pwd},\n" +
             "`is_first_login` = TRUE\n" +
-            "WHERE `uid` = #{uid};")
-    int upUserPwd(@Param("uid") Long uid, @Param("pwd") String pwd);
+            "WHERE `uid` = #{uId};")
+    int upUserPwd(@Param("uId") Long uId, @Param("pwd") String pwd);
 }
