@@ -68,9 +68,4 @@ public class BasicPublicExchangeRateProvider {
         }}.toString();
     }
 
-    public void s(ExchangeRateDto rateDto) {
-        SQL s = new SQL();
-
-
-    }
 }

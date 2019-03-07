@@ -9,7 +9,6 @@ import com.dt.user.dto.UserDto;
 import com.dt.user.model.UserInfo;
 import com.dt.user.service.UserService;
 import com.dt.user.shiro.ShiroUtils;
-import com.dt.user.utils.GetCookie;
 import com.dt.user.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -17,18 +16,15 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Controller
+@RestController
 public class LoginController extends BaseApiService {
 
     @Autowired
@@ -46,10 +42,21 @@ public class LoginController extends BaseApiService {
     /**
      * 每天6点清除 hashMap中的元素
      */
+    @Async("executor")
     @Scheduled(cron = "0 0 6 * * ?")
     public void clearHashMap() {
         System.out.println("删除元素");
         hashMap.clear();
+    }
+
+    /**
+     * 获得在线用户总数
+     *
+     * @return
+     */
+    @GetMapping("/uCount")
+    public ResponseBase userCount() {
+        return BaseApiService.setResultSuccess(redisService.userConut());
     }
 
     /**
@@ -58,9 +65,13 @@ public class LoginController extends BaseApiService {
      * @param userDto
      * @return
      */
-    @ResponseBody
     @PostMapping("/ajaxLogin")
+    @Transactional
     public ResponseBase login(@RequestBody UserDto userDto) {
+        String sessionName = redisService.getStringKey("sId" + userDto.getUserName());
+        if (sessionName != null) {
+            return BaseApiService.setResultError("账号在线中");
+        }
         String userKey = userDto.getUserName() + "error";
         String strRedis = redisService.getStringKey(userKey);
         //如果不等于null
@@ -93,9 +104,9 @@ public class LoginController extends BaseApiService {
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
                 //登陆成功设置session
-                baseRedisService.setString(session.getId().toString(), session.getId());
+                baseRedisService.setString("sId" + user.getUserName(), session.getId());
                 //设置token
-                baseRedisService.setString(user.getUserName(), userToken);
+                baseRedisService.setString(session.getId().toString(), user.getUserName());
                 //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));
@@ -147,11 +158,9 @@ public class LoginController extends BaseApiService {
      *
      * @return
      */
-    @ResponseBody
     @GetMapping("/logout")
     public ResponseBase logout() {
         ShiroUtils.logout();
-        System.out.println(sessionListener.getSessionCount());
         return BaseApiService.setResultSuccess("注销成功!");
     }
 }

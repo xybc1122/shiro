@@ -7,7 +7,7 @@ eureka:
     instance-id: ${spring.cloud.client.ip-address}:${server.port}
     prefer-ip-address: true
 server:
-  port: 9002
+  port: 9001
 spring:
   application:
     name: user-service
@@ -61,14 +61,14 @@ spring:
       maxWait: 1000
       #服务的名称
 #修改调用超时时间
-feign:
-  hystrix:
-    enabled: true
-  client:
-    config:
-      default:
-        connectTimeout: 2000
-        readTimeout: 1000
+#feign:
+#  hystrix:
+#    enabled: true
+#  client:
+#    config:
+#      default:
+#        connectTimeout: 2000
+#        readTimeout: 1000
 #mybatis 下划线转驼峰 映射配置  有了这个不用写xml
 mybatis:
   configuration:

@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -94,6 +95,23 @@ public class BaseRedisService {
     //获取key 过期时间
     public Long getTtl(String key) {
         return stringRedisTemplate.getExpire(key, TimeUnit.SECONDS);
+    }
+
+    //redis 删除当前库的所有数据
+    public void delAll() {
+        Set<String> keys = stringRedisTemplate.keys("*");
+        if (keys != null) {
+            stringRedisTemplate.delete(keys);
+        }
+    }
+
+    //redis 统计数据
+    public int userConut() {
+        Set<String> keys = stringRedisTemplate.keys("*");
+        if (keys != null && keys.size() > 0) {
+            return keys.size() / 2;
+        }
+        return 0;
     }
 
     //redis 删除数据

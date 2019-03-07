@@ -36,20 +36,19 @@ public class UserProvider {
                 WHERE("POSITION('" + userDto.getrName() + "' IN r.r_name)");
             }
             //密码有效期
-            if (userDto.getPwdValidityPeriod() != null) {
-                WHERE("u.pwd_validity_period=#{pwdValidityPeriod}");
+            if (userDto.getPwdValidityPeriods() != null && userDto.getPwdValidityPeriods().size() > 0) {
+                WHERE("u.pwd_validity_period BETWEEN  " + userDto.getPwdValidityPeriods().get(0) + " AND " + userDto.getPwdValidityPeriods().get(1) + "");
                 //始终有效
             } else if (userDto.isPwdAlways()) {
                 WHERE("u.pwd_validity_period=0");
             }
             //登陆时间
-            if (userDto.getLandingTime() != null) {
-                //landing_time BETWEEN  1542252636000 AND 1551688531860
-                WHERE("u.landing_time=#{landingTime}");
+            if (userDto.getLandingTimes() != null && userDto.getLandingTimes().size() > 0) {
+                WHERE("u.landing_time BETWEEN  " + userDto.getLandingTimes().get(0) + " AND " + userDto.getLandingTimes().get(1) + "");
             }
             //用户有效期间
-            if (userDto.getUserExpirationDate() != null) {
-                WHERE("u.user_expiration_date=#{userExpirationDate}");
+            if (userDto.getUserExpirationDates() != null && userDto.getUserExpirationDates().size() > 0) {
+                WHERE("u.user_expiration_date BETWEEN  " + userDto.getUserExpirationDates().get(0) + " AND " + userDto.getUserExpirationDates().get(1) + "");
                 //始终有效
             } else if (userDto.isuAlways()) {
                 WHERE("u.user_expiration_date=0");
@@ -65,6 +64,10 @@ public class UserProvider {
             //用户手机
             if (StringUtils.isNotBlank(userDto.getMobilePhone())) {
                 WHERE("POSITION('" + userDto.getMobilePhone() + "' IN s.mobile_phone)");
+            }
+            //创建时间
+            if (userDto.getCreateDates() != null && userDto.getCreateDates().size() > 0) {
+                WHERE("u.create_date BETWEEN  " + userDto.getCreateDates().get(0) + " AND " + userDto.getCreateDates().get(1) + "");
             }
             WHERE("del_user=0");
             GROUP_BY("u.uid");

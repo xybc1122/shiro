@@ -48,6 +48,18 @@ public class TableHead implements Serializable {
      * 接收ids
      */
     private String ids;
+    /**
+     * 是否引用
+     */
+    private Boolean isReference;
+
+    public Boolean getReference() {
+        return isReference;
+    }
+
+    public void setReference(Boolean reference) {
+        isReference = reference;
+    }
 
     public int getInputType() {
         return inputType;

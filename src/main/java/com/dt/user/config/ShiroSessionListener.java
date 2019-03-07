@@ -1,7 +1,6 @@
 package com.dt.user.config;
 
-import com.dt.user.model.UserInfo;
-import com.dt.user.shiro.ShiroUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.SessionListener;
 
@@ -22,9 +21,7 @@ public class ShiroSessionListener extends BaseApiService implements SessionListe
      */
     @Override
     public void onStart(Session session) {
-        System.out.println("ShiroSessionListener session {} 被创建" + session.getId());
-        //会话创建，在线人数加一
-        sessionCount.incrementAndGet();
+
     }
 
     /**
@@ -34,12 +31,12 @@ public class ShiroSessionListener extends BaseApiService implements SessionListe
      */
     @Override
     public void onStop(Session session) {
-        System.out.println("ShiroSessionListener session {} 被退出" + session.getId());
-        baseRedisService.delData(session.getId().toString());
-//        UserInfo u = ShiroUtils.getUser();
-//        baseRedisService.delData(u.getUserName());
-        //会话退出,在线人数减一
-        sessionCount.decrementAndGet();
+        //首先获得 redis 账号
+        String valueName = baseRedisService.getStringKey(session.getId().toString());
+        if (StringUtils.isNotBlank(valueName)) {
+            baseRedisService.delData("sId" + valueName);
+            baseRedisService.delData(session.getId().toString());
+        }
     }
 
     /**
@@ -49,21 +46,11 @@ public class ShiroSessionListener extends BaseApiService implements SessionListe
      */
     @Override
     public void onExpiration(Session session) {
-        System.out.println("ShiroSessionListener session {} 被过期" + session.getId());
-        baseRedisService.delData(session.getId().toString());
-//        UserInfo u = ShiroUtils.getUser();
-//        baseRedisService.delData(u.getUserName());
-        //会话过期,在线人数减一
-        sessionCount.decrementAndGet();
+        //首先获得 redis 账号
+        String valueName = baseRedisService.getStringKey(session.getId().toString());
+        if (StringUtils.isNotBlank(valueName)) {
+            baseRedisService.delData("sId" + valueName);
+            baseRedisService.delData(session.getId().toString());
+        }
     }
-
-    /**
-     * 获取在线人数使用
-     *
-     * @return
-     */
-    public AtomicInteger getSessionCount() {
-        return sessionCount;
-    }
-
 }

@@ -59,6 +59,7 @@ public class ShiroUtils extends BaseApiService {
                     sessionDAO.delete(session);
                     //删除缓存session Id
                     baseRedisService.delData("sId" + uName);
+                    baseRedisService.delData(redisSessionId);
                 }
             }
         } catch (Exception e) {

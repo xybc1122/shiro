@@ -1,8 +1,29 @@
 package com.dt.user.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArrUtils {
+    /**
+     * 引用 拼接新数据
+     *
+     * @param menuIds
+     * @param mId
+     * @return
+     */
+    public static String reference(String menuIds, String mId) {
+        String mIds[] = menuIds.split(",");
+        List<String> newMenuList = new ArrayList<>(Arrays.asList(mIds));
+        newMenuList.add(mId);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < newMenuList.size(); i++) {
+            sb.append(newMenuList.get(i));
+            sb.append(",");
+        }
+        return sb.toString().substring(0, sb.length() - 1);
+    }
+
     /**
      * 两个List比较 顺序不一样也没事
      *
