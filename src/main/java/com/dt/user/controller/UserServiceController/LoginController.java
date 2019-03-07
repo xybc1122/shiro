@@ -24,7 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 @RestController
+@RequestMapping("/api")
 public class LoginController extends BaseApiService {
 
     @Autowired

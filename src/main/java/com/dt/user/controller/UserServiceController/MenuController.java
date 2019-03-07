@@ -18,7 +18,7 @@ import java.util.*;
 
 
 @RestController
-@RequestMapping("menu")
+@RequestMapping("/api/menu")
 public class MenuController {
 
     @Autowired

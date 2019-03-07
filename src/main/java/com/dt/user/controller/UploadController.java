@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @RestController
-@RequestMapping("/upload")
+@RequestMapping("/api/upload")
 public class UploadController {
     @Autowired
     private ConsumerService consumerService;
