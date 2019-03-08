@@ -481,6 +481,7 @@ public class ConsumerServiceImpl implements ConsumerService {
      */
     public SalesAmazonFbaTradeReport saveTradeReport(int i, SalesAmazonFbaTradeReport sft, String[] j,
                                                      Integer sId, List<String> txtHeadList, List<BasicSalesAmazonCsvTxtXslHeader> isImportHead) {
+        //下标对应  并且 是开启导入状态
         if (txtHeadList.get(i).equals(isImportHead.get(0).getImportTemplet()) && isImportHead.get(0).getOpenClose())
             sft.setAmazonOrderId(StrUtils.repString(j[i]));
         else if (txtHeadList.get(i).equals(isImportHead.get(1).getImportTemplet()) && isImportHead.get(1).getOpenClose())

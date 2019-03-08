@@ -106,7 +106,7 @@ public class BaseRedisService {
     }
 
     //redis 统计数据
-    public int userConut() {
+    public int userCount() {
         Set<String> keys = stringRedisTemplate.keys("*");
         if (keys != null && keys.size() > 0) {
             return keys.size() / 2;

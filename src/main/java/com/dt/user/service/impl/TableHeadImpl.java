@@ -38,7 +38,6 @@ public class TableHeadImpl implements TableHeadService {
                     }
                 }
             }
-            h.setMenuId(null);
         }
         //接收数据库传来的对象
         return head;

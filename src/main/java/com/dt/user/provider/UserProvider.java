@@ -5,9 +5,6 @@ import com.dt.user.dto.UserDto;
 import com.dt.user.shiro.ShiroUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
-import org.apache.shiro.crypto.hash.SimpleHash;
-import org.apache.shiro.util.ByteSource;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Date;
@@ -84,29 +81,31 @@ public class UserProvider {
             }
             String pwd = (String) userMap.get("pwd");
             if (StringUtils.isNotBlank(pwd)) {
-                String userName = (String) userMap.get("uName");
-                //md5盐值密码加密
-                Object resultPwd = ShiroUtils.settingSimpleHash(userName, pwd);
-                SET("pwd=" + "'" + resultPwd + "'");
+                String userName = (String) userMap.get("userName");
+                if (StringUtils.isNotBlank(userName)) {
+                    //md5盐值密码加密
+                    Object resultPwd = ShiroUtils.settingSimpleHash(userName, pwd);
+                    SET("pwd=" + "'" + resultPwd + "'");
+                }
             }
             //如果勾选用户始终有效
-            Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
-            if (checkedUserAlways != null) {
-                if (checkedUserAlways) {
+            Boolean pwdAlways = (Boolean) userMap.get("pwdAlways");
+            if (pwdAlways != null) {
+                if (pwdAlways) {
                     SET("user_expiration_date=" + 0);
-                } else if (userMap.get("effectiveDate") != null) {
-                    Long effectiveDate = (Long) userMap.get("userExpirationDate");
-                    SET("user_expiration_date=" + effectiveDate);
+                } else if (userMap.get("userExpirationDate") != null) {
+                    Long userExpirationDate = (Long) userMap.get("userExpirationDate");
+                    SET("user_expiration_date=" + userExpirationDate);
                 }
             }
             //如果勾选密码始终有效
-            Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
-            if (checkedPwdAlways != null) {
-                if (checkedPwdAlways) {
+            Boolean uAlways = (Boolean) userMap.get("uAlways");
+            if (uAlways != null) {
+                if (uAlways) {
                     SET("pwd_validity_period=" + 0);
-                } else if (userMap.get("pwdAlwaysInput") != null) {
-                    Long pwdAlwaysInput = (Long) userMap.get("pwdAlwaysInput");
-                    SET("pwd_validity_period=" + pwdAlwaysInput);
+                } else if (userMap.get("pwdValidityPeriod") != null) {
+                    Long pwdValidityPeriod = (Long) userMap.get("pwdValidityPeriod");
+                    SET("pwd_validity_period=" + pwdValidityPeriod);
                 }
             }
             if (userMap.get("accountStatus") != null) {

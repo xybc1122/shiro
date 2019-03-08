@@ -54,4 +54,17 @@ public interface TableHeadMapper {
      */
     @Select("SELECT`id`,`head_name`,`menu_id`,top_order,top_type FROM `system_user_table_head`")
     List<TableHead> findByHeadList();
+
+    /**
+     * 查询引用表头信息
+     */
+    @Select("SELECT`id`,`head_name`,`menu_id`,top_order,top_type FROM `system_user_table_head` where is_reference =true")
+    List<TableHead> getIsReference();
+
+    /**
+     * 更新菜单下的头 排序
+     *
+     * @return
+     */
+    int upHeadSort();
 }

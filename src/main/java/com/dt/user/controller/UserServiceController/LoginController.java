@@ -26,10 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 public class LoginController extends BaseApiService {
-
-    @Autowired
-    private ShiroSessionListener sessionListener;
-
     @Autowired
     private UserService userService;
 
@@ -56,7 +52,7 @@ public class LoginController extends BaseApiService {
      */
     @GetMapping("/uCount")
     public ResponseBase userCount() {
-        return BaseApiService.setResultSuccess(redisService.userConut());
+        return BaseApiService.setResultSuccess(redisService.userCount());
     }
 
     /**

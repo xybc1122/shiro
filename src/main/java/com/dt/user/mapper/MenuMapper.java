@@ -44,5 +44,4 @@ public interface MenuMapper {
     @InsertProvider(type = MenuProvider.class, method = "addMenu")
     int addMenu(@Param("menuList") List<Menu> menu);
 
-
 }

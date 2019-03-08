@@ -2,6 +2,7 @@ package com.dt.user.controller.UserServiceController;
 
 import com.dt.user.config.BaseApiService;
 import com.dt.user.config.ResponseBase;
+import com.dt.user.dto.TableHeadDto;
 import com.dt.user.model.TableHead;
 import com.dt.user.service.TableHeadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +67,25 @@ public class TableHeadController {
     @GetMapping("/getHeadsList")
     public ResponseBase getHeadsList() {
         return BaseApiService.setResultSuccess(tableHeadService.findByHeadList(null));
+    }
+
+    /**
+     * 引用接口获得head 信息
+     */
+    @GetMapping("/getReference")
+    public ResponseBase getReference() {
+        return BaseApiService.setResultSuccess(tableHeadService.findByHeadList(null));
+    }
+
+    /**
+     * 更新菜单 下的头排序
+     *
+     * @return
+     */
+    @PostMapping("/upHeadSort")
+    public ResponseBase upHeadSort(@RequestBody TableHeadDto headDto) {
+        System.out.println(headDto);
+        headDto.getMenuId();
+        return null;
     }
 }

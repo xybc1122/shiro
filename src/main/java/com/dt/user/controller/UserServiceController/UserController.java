@@ -87,18 +87,17 @@ public class UserController {
             if (updateResult != 1) {
                 throw new Exception("更新失败,请重新操作");
             }
-            String uMobilePhone = (String) userMap.get("uMobilePhone");
+            String uMobilePhone = (String) userMap.get("mobilePhone");
             if (StringUtils.isNotBlank(uMobilePhone)) {
                 //更新员工信息
                 hrService.upHrInfo(userMap);
             }
             //先判断是否为空
             String pwd = (String) userMap.get("pwd");
-
             //如果不是空 说明已经修改了密码
             if (StringUtils.isNotBlank(pwd)) {
                 //踢出用户 如果是null  说明没有这个用户在线 //这里还有个问题要更新 记住我用户 踢不出去
-                shiroUtils.kickOutUser((String) userMap.get("uName"));
+                shiroUtils.kickOutUser((String) userMap.get("userName"));
             }
             return BaseApiService.setResultSuccess("更新成功");
         } catch (Exception e) {
@@ -184,7 +183,6 @@ public class UserController {
 
     /**
      * 新增用户
-     *
      * @param userMap 前端传的数据
      * @param request request 对象
      * @return JSON 对象
@@ -200,32 +198,14 @@ public class UserController {
             return BaseApiService.setResultError("用户token失效");
         }
         String userName = (String) userMap.get("userName");
-        if (StringUtils.isBlank(userName)) {
-            return BaseApiService.setResultError("新增失败");
-        }
         String pwd = (String) userMap.get("pwd");
-        if (StringUtils.isBlank(pwd)) {
-            return BaseApiService.setResultError("新增失败");
-        }
-        //首次登陆修改密码修改checked
-        Boolean checkedUpPwd = (Boolean) userMap.get("checkedUpPwd");
-        if (checkedUpPwd == null) {
-            return BaseApiService.setResultError("新增失败");
-        }
-        Boolean checkedUserAlways = (Boolean) userMap.get("checkedUserAlways");
-        if (checkedUserAlways == null) {
-            return BaseApiService.setResultError("新增失败");
-        }
-        Boolean checkedPwdAlways = (Boolean) userMap.get("checkedPwdAlways");
-        if (checkedPwdAlways == null) {
-            return BaseApiService.setResultError("新增失败");
-        }
+        Boolean checkedUpPwd = (Boolean) userMap.get("pwdAlways");
+        Boolean checkedUserAlways = (Boolean) userMap.get("uAlways");
+        Boolean checkedPwdAlways = (Boolean) userMap.get("pwdAlways");
         Integer staffValue = (Integer) userMap.get("staffValue");
-        if (staffValue == null) {
-            return BaseApiService.setResultError("新增失败");
-        }
         List<Integer> rolesId = (List<Integer>) userMap.get("rolesId");
-        if (rolesId == null) {
+        if (StringUtils.isBlank(userName) || StringUtils.isBlank(pwd) || checkedUpPwd == null
+                || checkedUserAlways == null || checkedPwdAlways == null || staffValue == null || rolesId == null) {
             return BaseApiService.setResultError("新增失败");
         }
         //这里前端会传空字符串 或者 Long类型数据 要判断
@@ -245,17 +225,17 @@ public class UserController {
         if (checkedUserAlways) {
             userInfo.setUserExpirationDate(0L);
         } else {
-            Long effectiveDate = (Long) userMap.get("effectiveDate");
+            Long userExpirationDate = (Long) userMap.get("userExpirationDate");
             //设置 用户有效时间
-            userInfo.setUserExpirationDate(effectiveDate);
+            userInfo.setUserExpirationDate(userExpirationDate);
         }
         //如果点击了   密码始终有效
         if (checkedPwdAlways) {
             userInfo.setPwdValidityPeriod(0L);
         } else {
             //前台会传2个类型参数 根据判断转换 来设计 用户 密码有效时间
-            Integer pwdAlwaysInput = (Integer) userMap.get("pwdAlwaysInput");
-            userInfo.setPwdValidityPeriod(DateUtils.getRearDate(pwdAlwaysInput));
+            Integer pwdValidityPeriod = (Integer) userMap.get("pwdValidityPeriod");
+            userInfo.setPwdValidityPeriod(DateUtils.getRearDate(pwdValidityPeriod));
         }
         //新增用户
         userService.saveUserInfo(userInfo);

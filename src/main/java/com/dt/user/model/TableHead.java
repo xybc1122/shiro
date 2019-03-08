@@ -52,6 +52,18 @@ public class TableHead implements Serializable {
      * 是否引用
      */
     private Boolean isReference;
+    /**
+     * 重新排序的顺序
+     */
+    private Integer index;
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
 
     public Boolean getReference() {
         return isReference;
