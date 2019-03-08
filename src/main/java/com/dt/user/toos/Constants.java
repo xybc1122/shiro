@@ -2,21 +2,14 @@ package com.dt.user.toos;
 
 public interface Constants {
     /**
-     * 文件上传存放地址
+     * Linux文件上传存放地址
      */
-    String SAVE_FILE_PATH = "E:/filePath/";
-//    /**
-//     * Linux文件上传存放地址
-//     */
-//    String SAVE_FILE_PATH = "/usr/local/file/filePath/";
+    String SAVE_FILE_PATH = "/usr/local/file/filePath/";
+
     /**
-     * 文件写入存放地址
+     * Linux文件写入存放地址
      */
-    String WRITE_SAVE_FILE_PATH = "E:/filePathSkuNo/";
-//    /**
-//     * Linux文件写入存放地址
-//     */
-//    String WRITE_SAVE_FILE_PATH = "/usr/local/file/filePathSkuNo/";
+    String WRITE_SAVE_FILE_PATH = "/usr/local/file/filePathSkuNo/";
     /**
      * 响应请求成功
      */
