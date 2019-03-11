@@ -68,6 +68,11 @@ public class MenuServiceImpl implements MenuService {
         return menuMapper.addMenu(menu);
     }
 
+    @Override
+    public int upMenu(Menu menu) {
+        return menuMapper.upMenu(menu);
+    }
+
     //递归查找子菜单
     private List<Menu> getChild(Long menuId, List<Menu> childMenuList) {
         // 子菜单

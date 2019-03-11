@@ -1,5 +1,6 @@
 package com.dt.user.mapper;
 
+import com.dt.user.dto.MenuDto;
 import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import com.dt.user.provider.MenuProvider;
@@ -44,4 +45,9 @@ public interface MenuMapper {
     @InsertProvider(type = MenuProvider.class, method = "addMenu")
     int addMenu(@Param("menuList") List<Menu> menu);
 
+    /**
+     * 菜单更新
+     */
+    @UpdateProvider(type = MenuProvider.class, method = "upMenu")
+    int upMenu(Menu menu);
 }

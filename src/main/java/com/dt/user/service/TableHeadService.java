@@ -1,5 +1,7 @@
 package com.dt.user.service;
 
+import com.dt.user.config.ResponseBase;
+import com.dt.user.dto.TableHeadDto;
 import com.dt.user.model.TableHead;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,6 +20,7 @@ public interface TableHeadService {
 
     /**
      * 通过mid查询一个数据
+     *
      * @param mid
      * @return
      */
@@ -27,4 +30,16 @@ public interface TableHeadService {
      * 查询所有表头信息
      */
     List<TableHead> findByHeadList(Long menuId);
+
+    /**
+     * 处理标题数组的下标
+     */
+    ResponseBase dataProcessing(TableHeadDto headDto);
+
+    /**
+     * 更新菜单下的头 排序
+     *
+     * @return
+     */
+    int upHeadSort(String[] newTopOrder, Long id);
 }

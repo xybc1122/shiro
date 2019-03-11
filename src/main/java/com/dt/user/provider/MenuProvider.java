@@ -4,6 +4,7 @@ package com.dt.user.provider;
 import com.dt.user.model.Menu;
 import com.dt.user.model.UserInfo;
 import com.dt.user.utils.StrUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.jdbc.SQL;
 
 import java.util.List;
@@ -58,4 +59,37 @@ public class MenuProvider {
         String sql = sb.toString().substring(0, sb.length() - 1);
         return sql;
     }
+
+    /**
+     * 更新菜单信息
+     *
+     * @param menu
+     * @return
+     */
+    public String upMenu(Menu menu) {
+        return new SQL() {{
+            UPDATE("`system_user_menu`");
+            if (StringUtils.isNotBlank(menu.getName())) {
+                SET("`name`=#{name}" + "'" + menu.getName() + "'");
+            }
+            if (menu.getParentId() != null) {
+                SET("`parent_id`=#{parentId}");
+            }
+            if (StringUtils.isNotBlank(menu.getUrl())) {
+                SET("`url`=#{url}");
+            }
+            if (StringUtils.isNotBlank(menu.getIcon())) {
+                SET("`icon`=#{icon}");
+            }
+            if (menu.getMenuOrder() != null) {
+                SET("`menu_order`=#{menuOrder}");
+            }
+            if (menu.getType() != null) {
+                SET("`type`=#{type}");
+            }
+            WHERE("menu_id=#{menuId}");
+        }}.toString();
+
+    }
+
 }

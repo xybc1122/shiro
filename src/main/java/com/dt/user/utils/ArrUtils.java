@@ -1,5 +1,7 @@
 package com.dt.user.utils;
 
+import com.dt.user.model.TableHead;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,5 +73,29 @@ public class ArrUtils {
      */
     public static <T> T listT(List<?> tList) {
         return (T) tList;
+    }
+
+    /**
+     * 重新排序 获得数组
+     *
+     * @param strMid
+     * @param strTopOrder
+     * @param i
+     * @param sort
+     * @return
+     */
+    public static String[] getArr(String[] strMid, String[] strTopOrder, int i, TableHead sort) {
+        String[] strNewTopOrder = new String[strMid.length - 1];
+        for (int j = 0; j < strNewTopOrder.length; j++) {
+            if (strTopOrder.length > j) {
+                strNewTopOrder[j] = strTopOrder[j];
+            } else {
+                strNewTopOrder[j] = null;
+            }
+            if (j == i) {
+                strNewTopOrder[j] = sort.getIndex().toString();
+            }
+        }
+        return strNewTopOrder;
     }
 }

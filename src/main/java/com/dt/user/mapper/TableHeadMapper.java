@@ -1,5 +1,6 @@
 package com.dt.user.mapper;
 
+import com.dt.user.dto.TableHeadDto;
 import com.dt.user.model.TableHead;
 import com.dt.user.provider.TableHeadProvider;
 import org.apache.ibatis.annotations.*;
@@ -66,5 +67,6 @@ public interface TableHeadMapper {
      *
      * @return
      */
-    int upHeadSort();
+    @UpdateProvider(type = TableHeadProvider.class, method = "upHeadSort")
+    int upHeadSort(@Param("newTopOrder") String[] newTopOrder, @Param("id") Long id);
 }

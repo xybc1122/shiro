@@ -6,8 +6,10 @@ import com.dt.user.dto.TableHeadDto;
 import com.dt.user.model.TableHead;
 import com.dt.user.service.TableHeadService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -83,9 +85,8 @@ public class TableHeadController {
      * @return
      */
     @PostMapping("/upHeadSort")
+    @Transactional
     public ResponseBase upHeadSort(@RequestBody TableHeadDto headDto) {
-        System.out.println(headDto);
-        headDto.getMenuId();
-        return null;
+        return tableHeadService.dataProcessing(headDto);
     }
 }

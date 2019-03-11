@@ -15,9 +15,9 @@ public interface MenuService {
     List<Menu> queryMenuList(UserInfo userInfo);
 
 
-
     /**
      * 通过角色查询菜单
+     *
      * @param roleId
      * @return
      */
@@ -31,4 +31,10 @@ public interface MenuService {
      * @return
      */
     int addMenu(List<Menu> menu);
+
+    /**
+     * 菜单更新
+     */
+    int upMenu(Menu menu);
 }
+

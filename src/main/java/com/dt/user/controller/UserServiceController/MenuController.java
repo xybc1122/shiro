@@ -109,4 +109,17 @@ public class MenuController {
         return BaseApiService.setResultError("token无效!");
     }
 
+    /**
+     *更新菜单信息
+     * @param menu
+     * @return
+     */
+    @PostMapping("/upMenu")
+    public ResponseBase upMenu(@RequestBody Menu menu) {
+        int mCount = menuService.upMenu(menu);
+        if (mCount != 0) {
+            return BaseApiService.setResultSuccess("修改成功");
+        }
+        return BaseApiService.setResultError("修改失败");
+    }
 }
