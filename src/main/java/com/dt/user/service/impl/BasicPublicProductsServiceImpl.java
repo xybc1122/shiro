@@ -36,7 +36,7 @@ public class BasicPublicProductsServiceImpl implements BasicPublicProductsServic
             // 为一级目录设置子目录 getChild是递归调用的
             if (productsList.size() > 0) {
                 for (BasicPublicProducts pro : productsList) {
-                    pro.setChildMenus(getChild(pro.getProductsId(), childProductsList));
+                    pro.setChildPros(getChild(pro.getProductsId(), childProductsList));
                 }
             }
         }
@@ -57,7 +57,7 @@ public class BasicPublicProductsServiceImpl implements BasicPublicProductsServic
         //查询子节点
         if (childList.size() > 0) {
             for (BasicPublicProducts pro : childList) {
-                pro.setChildMenus(getChild(pro.getProductsId(), childProductsList));
+                pro.setChildPros(getChild(pro.getProductsId(), childProductsList));
             }
         }
         return childList;

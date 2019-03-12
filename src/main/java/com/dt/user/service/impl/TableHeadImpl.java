@@ -26,8 +26,11 @@ public class TableHeadImpl implements TableHeadService {
     public List<TableHead> findByMenuIdHeadList(Long menuId) {
         List<TableHead> head = tableHeadMapper.findByHeader(menuId);
         for (TableHead h : head) {
-            int orderIndex = h.getTopOrder().indexOf(",");
+            int orderIndex = -1;
             int menuIdIndex = h.getMenuId().indexOf(",");
+            if (StringUtils.isNotBlank(h.getTopOrder())) {
+                orderIndex = h.getTopOrder().indexOf(",");
+            }
             //如果有,号的说明是有顺序的
             if (orderIndex != -1 && menuIdIndex != -1) {
                 String[] strOrder = h.getTopOrder().split(",");
@@ -38,7 +41,7 @@ public class TableHeadImpl implements TableHeadService {
                     if (menuId == Long.parseLong(strMenuId[i])) {
                         //获得下标位置
                         for (int j = 0; j < strOrder.length; j++) {
-                            //如果i =0 说明是第一个位置
+                            //如果i =0 说明只有一个位置
                             if (i == 0) {
                                 //如果得到的值是 " " 或者null
                                 if (StringUtils.isBlank(strOrder[j])) {
@@ -47,7 +50,7 @@ public class TableHeadImpl implements TableHeadService {
                                     h.setIndex(Integer.parseInt(strOrder[j]));
                                 }
                                 break;
-                            } else if (j == (i - 1)) {
+                            } else if (j == i) {
                                 //如果得到的值是 " " 或者null
                                 if (StringUtils.isBlank(strOrder[j])) {
                                     h.setIndex(0);
@@ -101,26 +104,27 @@ public class TableHeadImpl implements TableHeadService {
                 String[] strTopOrder;
                 String[] strNewTopOrder;
                 String[] topOrderArr;
-                int indexTopOrder;
+                int indexTopOrder = -1;
                 //查看对象中的menuId 是否有 ,
                 int indexMid = sort.getMenuId().indexOf(",");
                 if (indexMid != -1) {
                     String[] strMid = sort.getMenuId().split(",");
                     //循环 查找要替换的下标
                     for (int i = 0; i < strMid.length; i++) {
-                        if (headDto.getmId() == Integer.parseInt(strMid[i])) {
-                            indexTopOrder = sort.getTopOrder().indexOf(",");
+                        if (headDto.getmId().equals(Integer.parseInt(strMid[i]))) {
+                            //这里 判断不是null  或者 " " 的情况下
+                            if (StringUtils.isNotBlank(sort.getTopOrder())) {
+                                indexTopOrder = sort.getTopOrder().indexOf(",");
+                            }
                             //如果是-1 说明里面的值是null 或者 是单个元素
                             if (indexTopOrder == -1) {
                                 //设置新的top OrderArr 长度
                                 topOrderArr = new String[i + 1];
-                                //如果sort.getTopOrder 里面有值 并且只有一个数字 就把他放到第一个位置里去
-                                if (StringUtils.isNotBlank(sort.getTopOrder())) {
-                                    topOrderArr[0] = sort.getTopOrder();
-                                }
+                                //把他sort.getTopOrder
                                 topOrderArr[i] = sort.getIndex().toString();
                                 //更新数据
                                 upHeadSort(topOrderArr, sort.getId());
+                                break;
                             } else {
                                 //如果不是-1 说明里面有长度
                                 strTopOrder = sort.getTopOrder().split(",");
@@ -130,12 +134,14 @@ public class TableHeadImpl implements TableHeadService {
                                     Arrays.fill(strTopOrder, i, i + 1, sort.getIndex().toString());
                                     //更新数据
                                     upHeadSort(strTopOrder, sort.getId());
+                                    break;
                                 } else {
                                     //如果不一样
                                     //创建一个新的数组
                                     strNewTopOrder = ArrUtils.getArr(strMid, strTopOrder, i, sort);
                                     //更新数据
                                     upHeadSort(strNewTopOrder, sort.getId());
+                                    break;
                                 }
                             }
                         }
@@ -151,6 +157,12 @@ public class TableHeadImpl implements TableHeadService {
                             //更新数据
                             upHeadSort(topOrderArr, sort.getId());
                         }
+                    } else {
+                        //如果是null  直接赋值
+                        topOrderArr = new String[1];
+                        topOrderArr[0] = sort.getIndex().toString();
+                        //更新数据
+                        upHeadSort(topOrderArr, sort.getId());
                     }
                 }
             }

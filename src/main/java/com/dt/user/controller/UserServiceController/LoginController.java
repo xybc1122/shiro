@@ -100,9 +100,9 @@ public class LoginController extends BaseApiService {
                 dataUserJson.put("user", user);
                 dataUserJson.put("token", userToken);
                 //登陆成功设置session
-                baseRedisService.setString("sId" + user.getUserName(), session.getId());
+                baseRedisService.setString("sId" + user.getUserName(), session.getId(), 30 * 60L);
                 //设置token
-                baseRedisService.setString(session.getId().toString(), user.getUserName());
+                baseRedisService.setString(session.getId().toString(), user.getUserName(), 30 * 60L);
                 //登陆成功后 删除Map指定元素
                 if (hashMap.get(user.getUserName()) != null) {
                     hashMap.entrySet().removeIf(entry -> entry.getKey().equals(user.getUserName()));

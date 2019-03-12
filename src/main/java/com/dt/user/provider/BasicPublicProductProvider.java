@@ -16,7 +16,7 @@ public class BasicPublicProductProvider {
                     " p.`width_in`,p.`height_in`,p.`volume_cuft`,p.`made_in`,\n" +
                     " p.`hs_code_id`,p.`status_id`,ia.item_attribute_name,it.item_typ_name,ps.products_name,hc.hs_code, u.unit_name\n" +
                     "FROM `basic_public_product` AS p");
-            LEFT_OUTER_JOIN("`basic_public_measurement_unit` AS u ON u.unit_id=p.`unit_id`");
+            LEFT_OUTER_JOIN("`basic_public_unit` AS u ON u.unit_id=p.`unit_id`");
             LEFT_OUTER_JOIN("`basic_public_item_attribute` AS ia ON ia.item_attribute_id = p.`item_attribute_id`");
             LEFT_OUTER_JOIN("`basic_public_item_type` AS it ON it.`item_typ_id` = p.`item_typ_id`");
             LEFT_OUTER_JOIN("`basic_public_products` AS ps ON ps.`products_id`=p.`products_id`");

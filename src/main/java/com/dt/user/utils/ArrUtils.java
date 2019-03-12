@@ -79,14 +79,16 @@ public class ArrUtils {
      * 重新排序 获得数组
      *
      * @param strMid
-     * @param strTopOrder
+     * @param strTopOrder 之前数据库查出来的数组
      * @param i
      * @param sort
      * @return
      */
     public static String[] getArr(String[] strMid, String[] strTopOrder, int i, TableHead sort) {
-        String[] strNewTopOrder = new String[strMid.length - 1];
+        String[] strNewTopOrder = new String[strMid.length];
         for (int j = 0; j < strNewTopOrder.length; j++) {
+            //把 strTopOrder 赋值给strNewTopOrder
+            System.out.println(strTopOrder.length);
             if (strTopOrder.length > j) {
                 strNewTopOrder[j] = strTopOrder[j];
             } else {

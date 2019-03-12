@@ -16,6 +16,8 @@ public class BasicPublicProducts extends ParentSysTemLog {
     private String productsPath;
     private Long isParent;
 
+    // 子目录
+    private List<BasicPublicProducts> childPros;
     //状态对象
     private SystemLogStatus systemLogStatus;
 
@@ -26,8 +28,6 @@ public class BasicPublicProducts extends ParentSysTemLog {
     public void setSystemLogStatus(SystemLogStatus systemLogStatus) {
         this.systemLogStatus = systemLogStatus;
     }
-    // 子目录
-    private List<BasicPublicProducts> childMenus;
 
     public Long getNumber() {
         return number;
@@ -37,12 +37,12 @@ public class BasicPublicProducts extends ParentSysTemLog {
         this.number = number;
     }
 
-    public List<BasicPublicProducts> getChildMenus() {
-        return childMenus;
+    public List<BasicPublicProducts> getChildPros() {
+        return childPros;
     }
 
-    public void setChildMenus(List<BasicPublicProducts> childMenus) {
-        this.childMenus = childMenus;
+    public void setChildPros(List<BasicPublicProducts> childPros) {
+        this.childPros = childPros;
     }
 
     public Long getProductsId() {

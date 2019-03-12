@@ -20,7 +20,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.filter.DelegatingFilterProxy;
-
 import java.util.*;
 
 
@@ -53,6 +52,7 @@ public class ShiroConfig {
         formAuthenticationFilter.setRememberMeParam("rememberMe");
         return formAuthenticationFilter;
     }
+
 
     /**
      * 配置session监听
@@ -238,6 +238,10 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
+        //自定义拦截器
+//        Map<String, Filter> filtersMap = new LinkedHashMap();
+//        filtersMap.put("cf", new ControlFilter());
+//        shiroFilterFactoryBean.setFilters(filtersMap);
         filterChainDefinitionMap.put("/ajaxLogin", "anon");
         filterChainDefinitionMap.put("/websocket", "anon");
         filterChainDefinitionMap.put("/uCount", "anon");

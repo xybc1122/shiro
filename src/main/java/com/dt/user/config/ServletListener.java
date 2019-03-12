@@ -17,7 +17,7 @@ public class ServletListener extends BaseApiService implements ServletContextLis
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        //清空当前库的所有缓存
+        //清空当前库的所有缓存  这里设计有问题
         baseRedisService.delAll();
     }
 }
