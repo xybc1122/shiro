@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
 
-@RequestMapping("rm")
+@RequestMapping("/api/rm")
 @RestController
 public class RoleMenuController {
 

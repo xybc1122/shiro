@@ -235,21 +235,21 @@ public class ShiroConfig {
     ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
-        shiroFilterFactoryBean.setLoginUrl("/error/user");//没有权限访问的调用这个接口
         // 权限控制Map
         LinkedHashMap<String, String> filterChainDefinitionMap = new LinkedHashMap<>();
+        shiroFilterFactoryBean.setLoginUrl("/api/error/user");//没有权限访问的调用这个接口
         //自定义拦截器
 //        Map<String, Filter> filtersMap = new LinkedHashMap();
 //        filtersMap.put("cf", new ControlFilter());
 //        shiroFilterFactoryBean.setFilters(filtersMap);
-        filterChainDefinitionMap.put("/ajaxLogin", "anon");
+        filterChainDefinitionMap.put("/api/ajaxLogin", "anon");
         filterChainDefinitionMap.put("/websocket", "anon");
         filterChainDefinitionMap.put("/uCount", "anon");
         // 阿里数据源 查看 路径 http://127.0.0.1:9001/druid/login.html
         filterChainDefinitionMap.put("/druid/**", "anon");
         // user表示配置记住我或认证通过可以访问的地址
-        filterChainDefinitionMap.put("/index", "user");
-        filterChainDefinitionMap.put("/menu/**", "user");
+        filterChainDefinitionMap.put("/api/index", "user");
+        filterChainDefinitionMap.put("/api/menu/**", "user");
         //其他资源都需要认证  authc 表示需要认证才能进行访问
 //        filterChainDefinitionMap.put("/**", "authc");
         filterChainDefinitionMap.put("/**", "user");
