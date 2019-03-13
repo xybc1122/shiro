@@ -195,6 +195,7 @@ public class TableHeadImpl implements TableHeadService {
                 String[] menu_id = head.getMenuId().trim().split(",");
                 for (int i = 0; i < menu_id.length; i++) {
                     if (StringUtils.isNotBlank(menu_id[i])) {
+                        //这里会有问题 判断下 会出现 For input string: "(NULL)" 这是数据库menuId 没设置值
                         int menuId = Integer.parseInt(menu_id[i]);
                         if (mId == menuId) {
                             headNew.add(head);

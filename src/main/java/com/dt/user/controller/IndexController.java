@@ -13,9 +13,6 @@ import java.sql.SQLException;
 
 @RestController
 public class IndexController {
-    @Autowired
-    private DataSource dataSource;
-
     /**
      * 测试是否登陆了的接口
      *

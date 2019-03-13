@@ -2,6 +2,8 @@ package com.dt.user.model.BasePublicModel;
 
 import com.dt.user.model.ParentSysTemLog;
 
+import java.util.List;
+
 /**
  * 仓库
  */
@@ -12,7 +14,18 @@ public class BasicPublicWarehouse extends ParentSysTemLog {
     private String warehouseName;
     private String warehouseAddress;
     private String principal;
+    private Integer isParent;
+    private Integer parentWarehouseId;
+    // 子目录
+    private List<BasicPublicWarehouse> childWarehouse;
 
+    public List<BasicPublicWarehouse> getChildWarehouse() {
+        return childWarehouse;
+    }
+
+    public void setChildWarehouse(List<BasicPublicWarehouse> childWarehouse) {
+        this.childWarehouse = childWarehouse;
+    }
 
     public Integer getWarehouseId() {
         return warehouseId;
@@ -52,5 +65,21 @@ public class BasicPublicWarehouse extends ParentSysTemLog {
 
     public void setPrincipal(String principal) {
         this.principal = principal;
+    }
+
+    public Integer getIsParent() {
+        return isParent;
+    }
+
+    public void setIsParent(Integer isParent) {
+        this.isParent = isParent;
+    }
+
+    public Integer getParentWarehouseId() {
+        return parentWarehouseId;
+    }
+
+    public void setParentWarehouseId(Integer parentWarehouseId) {
+        this.parentWarehouseId = parentWarehouseId;
     }
 }

@@ -12,6 +12,7 @@ public class ParentSysTemLog {
      * 显示的页数
      */
     private Integer pageSize;
+
     //状态对象
     private SystemLogStatus systemLogStatus;
     /**

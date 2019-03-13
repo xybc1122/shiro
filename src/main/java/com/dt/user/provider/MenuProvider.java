@@ -26,9 +26,9 @@ public class MenuProvider {
             }
             //代表用户
             else if (user.getStatus() == 0) {
-                SELECT("m.* FROM system_user_info AS u");
+                SELECT("m.menu_id,m.`name`,m.parent_id,m.url,m.icon,m.menu_order FROM system_user_info AS u");
                 LEFT_OUTER_JOIN("system_user_role_user AS ur ON u.uid=ur.u_id");
-                LEFT_OUTER_JOIN("system_user_role AS r  ON r.rid=ur.r_id");
+                LEFT_OUTER_JOIN("system_user_role AS r ON r.rid=ur.r_id");
                 LEFT_OUTER_JOIN("system_user_role_menu AS rm ON r.rid=rm.r_id");
                 LEFT_OUTER_JOIN("system_user_menu AS m  ON m.menu_id=rm.m_id");
                 WHERE("u.uid=" + user.getUid() + " and m.type=" + user.getType());

@@ -1,6 +1,6 @@
 package com.dt.user.mapper.BasePublicMapper;
 
-import com.dt.user.dto.WarehouseDto;
+
 import com.dt.user.model.BasePublicModel.BasicPublicWarehouse;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.mapping.FetchType;
@@ -14,8 +14,8 @@ public interface BasicPublicWarehouseMapper {
     /**
      * 查询仓库信息
      */
-    @Select("SELECT`warehouse_id`,`number`,`warehouse_name`,`warehouse_address`,\n" +
-            "`principal` ,status_id\n" +
+    @Select("SELECT`warehouse_id`,`number`,`warehouse_name`,parent_warehouse_id,`warehouse_address`,\n" +
+            "`principal`,is_parent,status_id\n" +
             "FROM`basic_public_warehouse`")
     @Results({
             //数据库字段映射 //数据库字段映射 column数据库字段 property Java 字段
@@ -26,5 +26,5 @@ public interface BasicPublicWarehouseMapper {
                     )
             )
     })
-    List<WarehouseDto> findByWarehouseInfo();
+    List<BasicPublicWarehouse> findByWarehouseInfo();
 }
